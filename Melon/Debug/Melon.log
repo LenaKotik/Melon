@@ -1,0 +1,6 @@
+﻿  glad.c
+  Melon.cpp
+D:\ProjectRoot\CppProj\Melon\Melon\Melon.hpp(5,10): fatal error C1083: Не удается открыть файл включение: glad.h: No such file or directory,
+  Test.cpp
+D:\ProjectRoot\CppProj\Melon\Melon\Melon.hpp(5,10): fatal error C1083: Не удается открыть файл включение: glad.h: No such file or directory,
+  Создание кода...
