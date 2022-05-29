@@ -30,24 +30,58 @@ Melon::Shader::~Shader()
 	if (this->ready)
 		this->Delete();
 }
-Melon::Renderer::Renderer(DynamicVertexArray verticies, DynamicUIntArray indecies, bool is_indexed) : indexed(is_indexed)
+void Melon::Shader::SetFloat(float v, const char* name)
+{
+	GLint l = glGetUniformLocation(handle, name);
+	glUniform1f(l, v);
+}
+void Melon::Shader::SetInt(int v, const char* name)
+{
+	GLint l = glGetUniformLocation(handle, name);
+	glUniform1i(l, v);
+}
+void Melon::Shader::SetBool(bool v, const char* name)
+{
+	GLint l = glGetUniformLocation(handle, name);
+	glUniform1i(l, v);
+}
+void Melon::Shader::SetVector2(Vector2 v, const char* name)
+{
+	GLint l = glGetUniformLocation(handle, name);
+	glUniform2f(l, v.x, v.y);
+}
+void Melon::Shader::SetVector3(Vector3 v, const char* name)
+{
+	GLint l = glGetUniformLocation(handle, name);
+	glUniform3f(l, v.x, v.y, v.z);
+}
+void Melon::Shader::SetMatrix4(Matrix4 v, const char* name)
+{
+	GLint l = glGetUniformLocation(handle, name);
+	glUniformMatrix4fv(l, 1, false, glm::value_ptr(v));
+}
+Melon::Renderer::Renderer(Mesh* mesh) : indexed(mesh->is_indexed), indC(mesh->indecies.size()), vertC(mesh->verticies.size())
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	GLuint buffers[2];
+	GLuint VBO, EBO;
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
-	glGenBuffers(2, buffers);
-	GLuint VBO = buffers[0], EBO = buffers[1];
+	glGenBuffers(1, &VBO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, verticies.size() * sizeof(Vertex), verticies.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mesh->verticies.size() * sizeof(Vertex), mesh->verticies.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indecies.size() * sizeof(unsigned int), indecies.data(), GL_STATIC_DRAW);
+	if (indexed)
+	{
+		glGenBuffers(1, &EBO);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indecies.size() * sizeof(unsigned int), mesh->indecies.data(), GL_STATIC_DRAW);
+	}
 
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, 0, sizeof(Vertex), (void*)(offsetof(Vertex, Position)));
@@ -69,9 +103,9 @@ void Melon::Renderer::Draw(GLenum mode)
 {
 	glBindVertexArray(VAO);
 	if (indexed)
-		glDrawElements(mode, 6, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(mode, indC, GL_UNSIGNED_INT, nullptr);
 	else
-		glDrawArrays(mode, 0, 4); 
+		glDrawArrays(mode, 0, vertC); 
 }
 
 void Melon::Renderer::Delete()
@@ -85,4 +119,12 @@ void Melon::Renderer::Delete()
 Melon::Renderer::~Renderer()
 {
 	this->Delete();
+}
+
+void Melon::Mesh::SetColor(Melon::Color c)
+{
+	for (int i = 0; i < verticies.size(); i++)
+	{
+		verticies[i].Color_ = c;
+	}
 }

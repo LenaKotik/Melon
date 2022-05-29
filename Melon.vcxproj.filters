@@ -33,10 +33,25 @@
     <ClCompile Include="ResourceLoader.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering2.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Math.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader.frag" />
     <None Include="Shader.vert" />
+    <None Include="DynamicArray.inl">
+      <Filter>Файлы заголовков</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="melon.png">

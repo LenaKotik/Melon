@@ -7,9 +7,13 @@ layout (location = 2) in vec2 AtexCoords;
 out vec2 TexCoords;
 out vec4 ColorMul;
 
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 perspective;
+
 void main()
 {
 	TexCoords = AtexCoords;
 	ColorMul = Acolor;
-	gl_Position = vec4(Apos, 1.0);
+	gl_Position =  perspective * view * model * vec4(Apos, 1.0);
 }

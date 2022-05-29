@@ -78,13 +78,14 @@ Melon::Window* Melon::Windowing::CreateWindow(unsigned int Width, unsigned int H
 	return res;
 }
 
+
 void Melon::Windowing::DestroyWindow(Window* win)
 {
 	delete win;
 }
 
 
-Melon::Window* Melon::Windowing::Init(unsigned int Width, unsigned int Height, const char* Title)
+Melon::Window* Melon::Windowing::Init(unsigned int Width, unsigned int Height, const char* Title, bool depth)
 {
 	glfwInit();
 
@@ -109,6 +110,8 @@ Melon::Window* Melon::Windowing::Init(unsigned int Width, unsigned int Height, c
 #endif // DEBUG_OUTPUT
 
 	glViewport(0, 0, Width, Height);
+	if (depth)
+		glEnable(GL_DEPTH_TEST);
 
 	initialized = true;
 
@@ -123,6 +126,28 @@ bool Melon::Window::IsKeyPressed(int key)
 void Melon::Window::MakeActive()
 {
 	glfwMakeContextCurrent(this->handle);
+}
+
+void Melon::Window::SetCursor(bool v)
+{
+	if (v)
+		glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	else
+		glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+float Melon::Window::GetAspect()
+{
+	int w, h;
+	glfwGetWindowSize(handle, &w, &h);
+	return (float)(w) / (float)(h);
+}
+
+Melon::Vector2 Melon::Window::GetMousePosition()
+{
+	double x, y;
+	glfwGetCursorPos(handle, &x, &y);
+	return Vector2(x, y);
 }
 
 bool Melon::Window::ShouldClose()
@@ -152,10 +177,13 @@ void Melon::Window::Flip()
 	glfwSwapBuffers(this->handle);
 }
 
-void Melon::Window::Clear(Color c)
+void Melon::Window::Clear(Color c, bool depth)
 {
 	glClearColor(c.R, c.G, c.B, c.A);
-	glClear(GL_COLOR_BUFFER_BIT);
+	if (depth)
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	else;
+		glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Melon::Windowing::PollEvents()
@@ -166,4 +194,18 @@ void Melon::Windowing::PollEvents()
 void Melon::Windowing::Terminate()
 {
 	glfwTerminate();
+}
+
+float Melon::Time::lastDeltaCall = 0.0f;
+
+float Melon::Time::GetTime()
+{
+	return glfwGetTime();
+}
+
+float Melon::Time::GetDelta()
+{
+	float delta = (GetTime() - lastDeltaCall);
+	lastDeltaCall = GetTime();
+	return delta;
 }
