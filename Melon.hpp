@@ -9,6 +9,8 @@
 #include <stb_image.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 
 #define DEBUG_OUTPUT
 
@@ -17,6 +19,8 @@ namespace Melon
 	// System
 	using Vector2 = glm::vec2;
 	using Vector3 = glm::vec3;
+	using Vector4 = glm::vec4;
+	using Matrix4 = glm::mat4;
 	using String =	std::string;
 	using DynamicFloatArray = std::vector<float>;
 	using DynamicIntArray = std::vector<int>;
@@ -28,6 +32,15 @@ namespace Melon
 		float R, G, B, A;
 		Color(float r, float g, float b, float a) : R(r), G(g), B(b), A(a) {};
 	};
+	struct Vertex
+	{
+	public:
+		Vector3 Position;
+		Color Color_;
+		Vector2 TextureCoords;
+		Vertex(Vector3 p, Color c, Vector2 st) : Position(p), Color_(c), TextureCoords(st) {};
+	};
+	using DynamicVertexArray = std::vector<Vertex>;
 	// Windowing
 	struct Window
 	{
@@ -82,10 +95,13 @@ namespace Melon
 	private:
 		bool indexed;
 		GLuint VAO, VBO, EBO;
-		DynamicFloatArray verticies;
-		DynamicUIntArray indexies;
+		//DynamicFloatArray verticies;
+		//DynamicUIntArray indexies;
 	public:
-
+		Renderer(DynamicVertexArray verticies, DynamicUIntArray indecies, bool is_indexed);
+		void Draw(GLenum mode);
+		void Delete();
+		~Renderer();
 	};
 	// Resources
 	class ResourceLoader 
