@@ -1,14 +1,4 @@
-﻿  Helpers.cpp
-  Math.cpp
+﻿  Math.cpp
 D:\ProjectRoot\CppProj\Melon\Math.cpp(5,13): warning C4244: return: преобразование "double" в "float", возможна потеря данных
 D:\ProjectRoot\CppProj\Melon\Math.cpp(11,13): warning C4244: return: преобразование "double" в "float", возможна потеря данных
-  Rendering.cpp
-D:\ProjectRoot\CppProj\Melon\Rendering.cpp(64,1): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
-  Rendering2.cpp
-  ResourceLoader.cpp
-  System.cpp
-  Test.cpp
-  Windowing.cpp
-D:\ProjectRoot\CppProj\Melon\Windowing.cpp(203,20): warning C4244: return: преобразование "double" в "float", возможна потеря данных
-  Создание кода...
   Melon.vcxproj -> D:\ProjectRoot\CppProj\Melon\x64\Debug\Melon.exe

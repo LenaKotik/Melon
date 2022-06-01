@@ -49,9 +49,6 @@
   <ItemGroup>
     <None Include="Shader.frag" />
     <None Include="Shader.vert" />
-    <None Include="DynamicArray.inl">
-      <Filter>Файлы заголовков</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="melon.png">

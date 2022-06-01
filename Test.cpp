@@ -27,9 +27,9 @@ void input(Window* win)
 	}
 	
 	if (win->IsKeyPressed(GLFW_KEY_A))
-		Camera::Position -= glm::normalize(glm::cross(Camera::Direction, Camera::Up)) * CamSpeed * delta;
+		Camera::Position -= Camera::Direction.Cross(Camera::Up).Normalize() * CamSpeed * delta;
 	if (win->IsKeyPressed(GLFW_KEY_D))
-		Camera::Position += glm::normalize(glm::cross(Camera::Direction, Camera::Up)) * CamSpeed * delta;
+		Camera::Position += Camera::Direction.Cross(Camera::Up).Normalize() * CamSpeed * delta;
 	if (win->IsKeyPressed(GLFW_KEY_S))
 		Camera::Position -= Camera::Direction * CamSpeed * delta;
 	if (win->IsKeyPressed(GLFW_KEY_W))
@@ -51,10 +51,10 @@ void input(Window* win)
 	Camera::Direction.x = cos(deg2rad(PitchYaw.y)) * cos(deg2rad(PitchYaw.x));
 	Camera::Direction.y = sin(deg2rad(PitchYaw.x));
 	Camera::Direction.z = sin(deg2rad(PitchYaw.y)) * cos(deg2rad(PitchYaw.x));
-	Camera::Direction = glm::normalize(Camera::Direction);
+	Camera::Direction = Camera::Direction.Normalize();
 }
 
-int main()
+int RandomTextureCubesScene()
 {
 	Mesh m = Helpers::Meshes::Cube();
 
@@ -62,14 +62,14 @@ int main()
 	if (!win) return -1;
 
 	win->SetCursor(false);
-	
+
 	Shader* shader = ResourceLoader::LoadShader("Shader.vert", "Shader.frag");
 	if (!shader) return -1;
 	Texture* texture = ResourceLoader::LoadTexture("grass.jpeg");
 	if (!texture) return -1;
 
 	Camera::Position = Vector3(0.0f, 0.0f, 3.0f);
-	
+
 
 	Renderer r(&m);
 
@@ -77,23 +77,22 @@ int main()
 
 	for (int i = 0; i < 100; i++)
 	{
-		pos.push_back(-Vector3(rand() % 25-10, rand() % 25-10, rand() % 25-10));
+		pos.push_back(-Vector3(rand() % 25 - 10, rand() % 25 - 10, rand() % 25 - 10));
 	}
 
 	while (!win->ShouldClose())
 	{
 		input(win);
 
-		Matrix4 persp = glm::perspective(deg2rad(45.0f), win->GetAspect(), 0.1f, 100.0f);
-
+		Matrix4 persp = Matrix4::Perspective(deg2rad(45.0f), win->GetAspect(), 0.1f, 100.0f);
 		Matrix4 view(1.0f);
-		view = glm::lookAt(Camera::Position, Camera::Position + Camera::Direction, Camera::Up);
+		view = Camera::GetView(); //glm::lookAt(Camera::Position, Camera::Position + Camera::Direction, Camera::Up);
 
 		win->Clear(Color::FromBytes(255, 69, 69, 255), true);
 		for (int i = 0; i < 100; i++)
 		{
 			Matrix4 trans(1.0f);
-			trans = glm::translate(trans, pos[i]);
+			trans = trans.Translate(pos[i]);
 			shader->Use();
 			shader->SetMatrix4(trans, "model");
 			shader->SetMatrix4(view, "view");
@@ -109,5 +108,10 @@ int main()
 	r.Delete();
 	Windowing::DestroyWindow(win);
 	Windowing::Terminate();
+}
+
+int main()
+{
+	//RandomTextureCubesScene();
 	return 0;
 }

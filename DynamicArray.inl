@@ -1,10 +1,24 @@
 #include "Melon.hpp"
+//#include "Melon.hpp"
 
 
 template <typename T>
 inline Melon::DynamicArray<T>::DynamicArray(size_t initial_size) : capacity(initial_size), size(0), step(1)
 {
 	data = new T[capacity];
+}
+
+template<typename ...T>
+inline Melon::DynamicArray<T>::DynamicArray(T... args) : 
+{
+
+}
+
+template<typename T>
+T Melon::DynamicArray<T>::operator[](size_t i)
+{
+	if (i < size) return data[i];
+	throw std::exception("index out of range");
 }
 
 template <typename T>

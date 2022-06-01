@@ -19,34 +19,81 @@
 
 namespace Melon
 {
-	// System
+	// System & Math
 	using String = std::string;
-	using Vector2 = glm::vec2;
-	using Vector3 = glm::vec3;
-	using Vector4 = glm::vec4;
-	using Matrix4 = glm::mat4;
+	const double Pi = 3.14159265358979323846;
 
-	template <typename T>
-	class DynamicArray
+	float deg2rad(float deg);
+	float rad2deg(float rad);
+
+	struct Vector2 // for now only floats, but this should be enough
 	{
-	private:
-		T* data;
-		size_t size;
-		size_t capacity;
 	public:
-		DynamicArray(size_t initial_size);
-		size_t step;
-		size_t Size();
-		T* Data();
-		void Shrink();
-		void PushBack(T&&);
-		T PopBack();
-		~DynamicArray();
+		float x, y;
+		Vector2() : x(0), y(0) {};
+		Vector2(float X, float Y) : x(X), y(Y) {};
+		Vector2(float XandY) : x(XandY), y(XandY) {};
+		Vector2 operator=(const Vector2& oth);
+		Vector2 operator+=(const Vector2& oth);
+		Vector2 operator-=(const Vector2& oth);
+		Vector2 operator*=(const float& scalar);
+		Vector2 operator+(const Vector2& oth) const;
+		Vector2 operator-(const Vector2& oth) const;
+		Vector2 operator*(const float& scalar) const;
+		Vector2 operator-() const;
+		float Dot(const Vector2& oth) const;
+		float Magnitude() const;
+		float MagnitudeSqr() const;
+		Vector2 Normalize() const;
 	};
+	struct Vector3 // same thing
+	{
+	public:
+		float x, y, z;
+		Vector3() : x(0), y(0), z(0) {};
+		Vector3(float X, float Y, float Z) : x(X), y(Y), z(Z) {};
+		Vector3(float xyz) : Vector3(xyz, xyz, xyz) {};
+		Vector3 operator=(const Vector3& oth);
+		Vector3 operator+=(const Vector3& oth);
+		Vector3 operator-=(const Vector3& oth);
+		Vector3 operator*=(const float& scalar);
+		Vector3 operator+(const Vector3& oth) const;
+		Vector3 operator-(const Vector3& oth) const;
+		Vector3 operator*(const float& scalar) const;
+		Vector3 operator-() const;
+		Vector3 Cross(const Vector3& oth);
+		float Dot(const Vector3& oth) const;
+		float Magnitude() const;
+		float MagnitudeSqr() const;
+		Vector3 Normalize() const;
+	};
+	//using Vector3 = glm::vec3;
+	using Vector4 = glm::vec4;
+	//using Matrix4 = glm::mat4;
+	
 	using DynamicFloatArray = std::vector<float>;
 	using DynamicIntArray = std::vector<int>;
 	using DynamicUIntArray = std::vector<unsigned int>;
 	using DynamicVector3Array = std::vector<Vector3>;
+
+	struct Matrix4
+	{
+	public:
+		float Value[4][4];
+		Matrix4();
+		Matrix4(float val[4][4]);
+		Matrix4(float scal);
+		Matrix4 operator+(Matrix4& oth) const;
+		Matrix4 operator-(Matrix4& oth) const;
+		Matrix4 operator*(Matrix4& oth) const;
+		Matrix4 operator*(float& scalar) const;
+		Matrix4 Translate(Vector3 pos) const;
+		Matrix4 Rotate(float angleScal, Vector3 vec) const;
+		Matrix4 Scale(float scalar) const;
+		Matrix4 Transpose() const; // DO NOT USE, NOT IMPLEMENTED
+		Matrix4 Inverse() const; // DO NOT USE, NOT IMPLEMENTED
+		static Matrix4 Perspective(float FOV, float aspect, float near, float far);
+	};
 
 	struct Color
 	{
@@ -65,12 +112,6 @@ namespace Melon
 		Vertex(Vector3 p, Color c, Vector2 st) : Position(p), Color_(c), TextureCoords(st) {};
 	};
 	using DynamicVertexArray = std::vector<Vertex>;
-	// Math
-	const double Pi = 3.14159265358979323846;
-
-	float deg2rad(float deg);
-	float rad2deg(float rad);
-
 
 	// Windowing
 	struct Window
@@ -178,6 +219,7 @@ namespace Melon
 		static Vector3 Position;
 		static Vector3 Direction;
 		static Vector3 Up;
+		static Matrix4 GetView();
 	};
 	// Resources
 	class ResourceLoader 
