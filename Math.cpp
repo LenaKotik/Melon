@@ -122,7 +122,7 @@ Melon::Vector3 Melon::Vector3::operator-() const
 
 Melon::Vector3 Melon::Vector3::Cross(const Vector3& oth)
 {
-	return Vector3(y*oth.z - z*oth.y, x*oth.z - z*oth.x, x*oth.y - y*oth.x);
+	return Vector3(y*oth.z - z*oth.y, -(x*oth.z - z*oth.x), x*oth.y - y*oth.x);
 }
 
 float Melon::Vector3::Dot(const Vector3& oth) const
@@ -164,7 +164,21 @@ Melon::Matrix4::Matrix4(float scal) : Matrix4()
 		Value[xy][xy] = scal;
 }
 
-Melon::Matrix4 Melon::Matrix4::operator+(Matrix4& oth) const
+Melon::Matrix4 Melon::Matrix4::operator=(const float v[4][4])
+{
+	for (int x = 0; x < 4; x++) for (int y = 0; y < 4; y++)
+		Value[x][y] = v[x][y];
+	return *this;
+}
+
+Melon::Matrix4 Melon::Matrix4::operator=(const Matrix4& v)
+{
+	for (int x = 0; x < 4; x++) for (int y = 0; y < 4; y++)
+		this->Value[x][y] = v.Value[x][y];
+	return *this;
+}
+
+Melon::Matrix4 Melon::Matrix4::operator+(const Matrix4& oth) const
 {
 	Matrix4 res;
 	for (int x = 0; x < 4; x++) for (int y = 0; y < 4; y++)
@@ -172,7 +186,7 @@ Melon::Matrix4 Melon::Matrix4::operator+(Matrix4& oth) const
 	return res;
 }
 
-Melon::Matrix4 Melon::Matrix4::operator-(Matrix4& oth) const
+Melon::Matrix4 Melon::Matrix4::operator-(const Matrix4& oth) const
 {
 	Matrix4 res;
 	for (int x = 0; x < 4; x++) for (int y = 0; y < 4; y++)
@@ -180,27 +194,153 @@ Melon::Matrix4 Melon::Matrix4::operator-(Matrix4& oth) const
 	return res;
 }
 
-Melon::Matrix4 Melon::Matrix4::operator*(Matrix4& oth) const
+/*
+*   [1, 2]	     [5, 6]		[1 * 5 + 2 * 7,		1 * 6 + 2 * 8]		[c00 = a00 * b00 + a01 * b10,		c01 = a00 * b01 + a01 * b11]
+*	[3, 4]   *	 [7, 8]	 =  [3 * 5 + 4 * 7,		3 * 6 + 2 * 8]		[c10 = a10 * b00 + a11 * b10,		c11 = a10 * b01 + a11 * b11]
+*	
+*	for x, y in range 2x2:
+*		cxy = ax0 * b0y + ax1 * b1y;
+*/
+
+/*
+* a larger example:
+* [4, 2, 0]       [4, 2, 1]       [4 * 4 + 2 * 2 + 0 * 9, 4 * 2 + 2 * 0 + 0 * 4, 4 * 1 + 2 * 4 + 0 * 2]		[c00 = a00 * b00 + a01 * b10 + a02 * b20
+* [0, 8, 1]	  *   [2, 0, 4]   =   [0 * 4 + 8 * 2 + 1 * 9, 0 * 2 + 8 * 0 + 1 * 4, 0 * 1 + 8 * 4 + 1 * 2]		[c10 = a10 * b00 + a11 * b10 + a12 * b20
+* [0, 1, 0]       [9, 4, 2]       [0 * 4 + 1 * 2 + 0 * 9, 0 * 2 + 1 * 0 + 0 * 4, 0 * 1 + 1 * 4 + 0 * 2]		[c20 = a20 * b00 + a11
+* 
+*	for x,y in range 3x3:
+*		cxy = ax0 * b0y + ax1 * b1y + ax2 * b2y;
+* 
+*	for x,y in range 4x4:
+*		cxy = ax0 * b0y + ax1 * b1y + ax2 * b2y + ax3 * b2y;
+*	????
+*	for x,y in range 4x4:
+*		for i in range 4:
+*			cxy += axi * biy
+*/
+
+
+Melon::Matrix4 Melon::Matrix4::operator*(const Matrix4& oth) const
 {
-	return Matrix4();
+	Matrix4 res;
+	for (int x = 0; x < 4; x++) for (int y = 0; y < 4; y++)
+		for (int i = 0; i < 4; i++)
+			res.Value[x][y] += this->Value[x][i] * oth.Value[i][y];
+	return res;
 }
 
-Melon::Matrix4 Melon::Matrix4::operator*(float& scalar) const
+Melon::Matrix4 Melon::Matrix4::operator*(const float& scalar) const
 {
-	return Matrix4();
+	Matrix4 res;
+	for (int x = 0; x < 4; x++) for (int y = 0; y < 4; y++)
+		res.Value[x][y] = Value[x][y] * scalar;
+	return res;
 }
 
-Melon::Matrix4 Melon::Matrix4::Translate(Vector3 pos) const
+Melon::Matrix4 Melon::Matrix4::Translate(const Vector3 pos) const
 {
-	return Matrix4();
+	Matrix4 res(1.0f);
+	res.Value[0][3] = pos.x;
+	res.Value[1][3] = pos.y;
+	res.Value[2][3] = pos.z;
+	return res ** this;
 }
 
-Melon::Matrix4 Melon::Matrix4::Rotate(float angleScal, Vector3 vec) const
+Melon::Matrix4 Melon::Matrix4::Rotate(float angle, Vector3 axis) const
 {
-	return Matrix4();
+	Matrix4 res;
+	float CosTheta = cosf(angle);
+	float SinTheta = sinf(angle);
+	auto f1 = [=](float a, float b, float c)
+	{
+		return a * b * (1 - CosTheta) - c * SinTheta;
+	};
+	auto f2 = [=](float a)
+	{
+		return CosTheta + a * a * (1 - CosTheta);
+	};
+	res.Value[0][0] = f2(axis.x);
+	res.Value[0][1] = f1(axis.x, axis.y, axis.z);
+	res.Value[0][2] = f1(axis.x, axis.z, axis.y);
+
+	res.Value[1][0] = f1(axis.y, axis.x, axis.z);
+	res.Value[1][1] = f2(axis.y);
+	res.Value[1][2] = f1(axis.y, axis.z, axis.x);
+
+	res.Value[2][0] = f1(axis.z, axis.x, axis.y);
+	res.Value[2][1] = f1(axis.z, axis.y, axis.x);
+	res.Value[2][2] = f2(axis.z);
+
+	res.Value[3][3] = 1.0f;
+	
+	return res **this;
 }
 
 Melon::Matrix4 Melon::Matrix4::Scale(float scalar) const
 {
-	return Matrix4();
+	Matrix4 res;
+	for (int xy = 0; xy < 4; xy++)
+		res.Value[xy][xy] = this->Value[xy][xy] * scalar;
+	return res **this;
+}
+
+Melon::Matrix4 Melon::Matrix4::Transpose() const
+{
+	Matrix4 res;
+	for (int x = 0; x < 4; x++) for (int y = 0; y < 4; y++)
+		res.Value[x][y] = this->Value[y][x];
+	return res;
+}
+
+Melon::Matrix4 Melon::Matrix4::Perspective(float FOV, float aspect, float near, float far)
+{
+	Matrix4 res;
+	float oa = tanf(FOV / 2);
+
+	res.Value[0][0] = 1 / (aspect * oa);
+	res.Value[1][1] = 1 / oa;
+	res.Value[2][2] = -(far + near) / (far - near);
+	res.Value[2][3] = -(2 * far * near) / (far - near);
+	res.Value[3][2] = -1;
+
+	return res;
+}
+
+Melon::Matrix4 Melon::Matrix4::Ortho(float width, float height, float near, float far)
+{
+	Matrix4 res;
+
+	res.Value[0][0] =  2 / width;
+	res.Value[1][1] =  2 / height;
+	res.Value[2][2] = -2 / (far - near);
+	res.Value[3][3] =  1.0f;
+
+	res.Value[3][0] = -1;
+	res.Value[3][1] = -1;
+	res.Value[3][2] = -(far + near) / (far - near);
+
+	return res;
+}
+
+Melon::Matrix4 Melon::Camera::GetView(Vector3 up)
+{
+	Vector3 right = up.Cross(Direction).Normalize();
+	Up = Direction.Cross(right);
+
+	Matrix4 translation(1.0f);
+	translation.Value[0][3] = Position.x;
+	translation.Value[1][3] = Position.y;
+	translation.Value[2][3] = Position.z;
+	Matrix4 rotation(1.0f);
+	rotation.Value[0][0] = right.x;
+	rotation.Value[0][1] = right.y;
+	rotation.Value[0][2] = right.z;
+	rotation.Value[1][0] = -Up.x;
+	rotation.Value[1][1] = -Up.y;
+	rotation.Value[1][2] = -Up.z;
+	rotation.Value[2][0] = Direction.x;
+	rotation.Value[2][1] = Direction.y;
+	rotation.Value[2][2] = Direction.z;
+
+	return rotation * translation;
 }

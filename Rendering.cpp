@@ -58,7 +58,7 @@ void Melon::Shader::SetVector3(Vector3 v, const char* name)
 void Melon::Shader::SetMatrix4(Matrix4 v, const char* name)
 {
 	GLint l = glGetUniformLocation(handle, name);
-	glUniformMatrix4fv(l, 1, false, glm::value_ptr(v));
+	glUniformMatrix4fv(l, 1, false, (const float*)v.Transpose().Value);
 }
 Melon::Renderer::Renderer(Mesh* mesh) : indexed(mesh->is_indexed), indC(mesh->indecies.size()), vertC(mesh->verticies.size())
 {

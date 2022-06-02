@@ -47,8 +47,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader.frag" />
-    <None Include="Shader.vert" />
+    <None Include="Texture.frag" />
+    <None Include="Projection.vert" />
+    <None Include="Color.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="melon.png">

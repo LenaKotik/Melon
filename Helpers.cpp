@@ -74,3 +74,12 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
     };
     return { verticies, {0}, false };
 }
+
+Melon::Mesh Melon::Helpers::Meshes::Circle(unsigned int accuracy)
+{
+    DynamicVertexArray verticies;
+    float angle = 2 * Pi / float(accuracy);
+    for (int i = 0; i < accuracy; i++)
+        verticies.push_back(Vertex(Vector3(cos(i * angle)/2, sin(i * angle)/2, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f), Vector2(cos(i * angle)/2+1.0f, sin(i * angle) / 2 + 1.0f)));
+    return { verticies, {0}, false };
+}

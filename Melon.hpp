@@ -7,13 +7,6 @@
 #include <glad/glad.h>
 #include <glfw3.h>
 #include <stb_image.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/glm.hpp>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
 
 #define DEBUG_OUTPUT
 
@@ -25,6 +18,15 @@ namespace Melon
 
 	float deg2rad(float deg);
 	float rad2deg(float rad);
+	
+	template <typename T>
+	T min(T a, T b) { return (a < b) ? a : b; }
+	
+	template <typename T>
+	T max(T a, T b) { return (a > b) ? a : b; }
+
+	template <typename T>
+	T clamp(T value, T minValue, T maxValue) { return max<T>(minValue, min<T>(maxValue, value)); }
 
 	struct Vector2 // for now only floats, but this should be enough
 	{
@@ -67,9 +69,6 @@ namespace Melon
 		float MagnitudeSqr() const;
 		Vector3 Normalize() const;
 	};
-	//using Vector3 = glm::vec3;
-	using Vector4 = glm::vec4;
-	//using Matrix4 = glm::mat4;
 	
 	using DynamicFloatArray = std::vector<float>;
 	using DynamicIntArray = std::vector<int>;
@@ -82,17 +81,20 @@ namespace Melon
 		float Value[4][4];
 		Matrix4();
 		Matrix4(float val[4][4]);
-		Matrix4(float scal);
-		Matrix4 operator+(Matrix4& oth) const;
-		Matrix4 operator-(Matrix4& oth) const;
-		Matrix4 operator*(Matrix4& oth) const;
-		Matrix4 operator*(float& scalar) const;
-		Matrix4 Translate(Vector3 pos) const;
-		Matrix4 Rotate(float angleScal, Vector3 vec) const;
-		Matrix4 Scale(float scalar) const;
-		Matrix4 Transpose() const; // DO NOT USE, NOT IMPLEMENTED
+		Matrix4(const float scal);
+		Matrix4 operator=(const float v[4][4]);
+		Matrix4 operator=(const Matrix4& v);
+		Matrix4 operator+(const Matrix4& oth) const;
+		Matrix4 operator-(const Matrix4& oth) const;
+		Matrix4 operator*(const Matrix4& oth) const;
+		Matrix4 operator*(const float& scalar) const;
+		Matrix4 Translate(const Vector3 pos) const;
+		Matrix4 Rotate(const float angle, const Vector3 axis) const;
+		Matrix4 Scale(const float scalar) const;
+		Matrix4 Transpose() const;
 		Matrix4 Inverse() const; // DO NOT USE, NOT IMPLEMENTED
 		static Matrix4 Perspective(float FOV, float aspect, float near, float far);
+		static Matrix4 Ortho(float width, float height, float near, float far);
 	};
 
 	struct Color
@@ -196,6 +198,7 @@ namespace Melon
 			static Mesh Quad();
 			static Mesh Triangle();
 			static Mesh Cube();
+			static Mesh Circle(unsigned int accuracy);
 		};
 	}
 	class Renderer
@@ -219,7 +222,7 @@ namespace Melon
 		static Vector3 Position;
 		static Vector3 Direction;
 		static Vector3 Up;
-		static Matrix4 GetView();
+		static Matrix4 GetView(Vector3 up);
 	};
 	// Resources
 	class ResourceLoader 
