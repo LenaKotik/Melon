@@ -45,11 +45,16 @@
     <ClCompile Include="Math.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Melon.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Texture.frag" />
     <None Include="Projection.vert" />
     <None Include="Color.frag" />
+    <None Include="ColorWBorder.frag" />
+    <None Include="Phong.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="melon.png">

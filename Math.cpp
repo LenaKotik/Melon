@@ -253,7 +253,7 @@ Melon::Matrix4 Melon::Matrix4::Rotate(float angle, Vector3 axis) const
 	float SinTheta = sinf(angle);
 	auto f1 = [=](float a, float b, float c)
 	{
-		return a * b * (1 - CosTheta) - c * SinTheta;
+		return a * b * (1 - CosTheta) + c * SinTheta;
 	};
 	auto f2 = [=](float a)
 	{
@@ -261,14 +261,14 @@ Melon::Matrix4 Melon::Matrix4::Rotate(float angle, Vector3 axis) const
 	};
 	res.Value[0][0] = f2(axis.x);
 	res.Value[0][1] = f1(axis.x, axis.y, axis.z);
-	res.Value[0][2] = f1(axis.x, axis.z, axis.y);
+	res.Value[0][2] = f1(axis.x, axis.z,-axis.y);
 
-	res.Value[1][0] = f1(axis.y, axis.x, axis.z);
+	res.Value[1][0] = f1(axis.y, axis.x,-axis.z);
 	res.Value[1][1] = f2(axis.y);
 	res.Value[1][2] = f1(axis.y, axis.z, axis.x);
 
 	res.Value[2][0] = f1(axis.z, axis.x, axis.y);
-	res.Value[2][1] = f1(axis.z, axis.y, axis.x);
+	res.Value[2][1] = f1(axis.z, axis.y,-axis.x);
 	res.Value[2][2] = f2(axis.z);
 
 	res.Value[3][3] = 1.0f;
@@ -278,10 +278,21 @@ Melon::Matrix4 Melon::Matrix4::Rotate(float angle, Vector3 axis) const
 
 Melon::Matrix4 Melon::Matrix4::Scale(float scalar) const
 {
-	Matrix4 res;
-	for (int xy = 0; xy < 4; xy++)
-		res.Value[xy][xy] = this->Value[xy][xy] * scalar;
+	Matrix4 res(1.0f);
+	for (int xy = 0; xy < 3; xy++)
+	{
+		res.Value[xy][xy] = scalar;
+	}
 	return res **this;
+}
+
+Melon::Matrix4 Melon::Matrix4::Scale(const Vector3 scalar) const
+{
+	Matrix4 res(1.0f);
+	res.Value[0][0] = scalar.x;
+	res.Value[1][1] = scalar.y;
+	res.Value[2][2] = scalar.z;
+	return res * *this;
 }
 
 Melon::Matrix4 Melon::Matrix4::Transpose() const
@@ -322,9 +333,9 @@ Melon::Matrix4 Melon::Matrix4::Ortho(float width, float height, float near, floa
 	return res;
 }
 
-Melon::Matrix4 Melon::Camera::GetView(Vector3 up)
+Melon::Matrix4 Melon::Camera3D::GetView()
 {
-	Vector3 right = up.Cross(Direction).Normalize();
+	Vector3 right = Vector3(0.0f, 1.0f, 0.0f).Cross(Direction).Normalize();
 	Up = Direction.Cross(right);
 
 	Matrix4 translation(1.0f);
@@ -343,4 +354,11 @@ Melon::Matrix4 Melon::Camera::GetView(Vector3 up)
 	rotation.Value[2][2] = Direction.z;
 
 	return rotation * translation;
+}
+Melon::Matrix4 Melon::Camera2D::GetView()
+{
+	Matrix4 res(1.0f);
+	res = res.Translate(Vector3(-Position.x,-Position.y, 0.0f));
+	res = res.Rotate(Rotation, Vector3(0.0f, 0.0f, 1.0f));
+	return res;
 }

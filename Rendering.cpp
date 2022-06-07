@@ -55,12 +55,17 @@ void Melon::Shader::SetVector3(Vector3 v, const char* name)
 	GLint l = glGetUniformLocation(handle, name);
 	glUniform3f(l, v.x, v.y, v.z);
 }
+void Melon::Shader::SetColor(Color v, const char* name)
+{
+	GLint l = glGetUniformLocation(handle, name);
+	glUniform4f(l, v.R, v.G, v.B, v.A);
+}
 void Melon::Shader::SetMatrix4(Matrix4 v, const char* name)
 {
 	GLint l = glGetUniformLocation(handle, name);
 	glUniformMatrix4fv(l, 1, false, (const float*)v.Transpose().Value);
 }
-Melon::Renderer::Renderer(Mesh* mesh) : indexed(mesh->is_indexed), indC(mesh->indecies.size()), vertC(mesh->verticies.size())
+Melon::Renderer::Renderer(Mesh* mesh) : indexed(mesh->is_indexed), indC(mesh->indecies.size()), vertC(mesh->verticies.size()), PrimitiveType(mesh->PrimitiveType)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -99,13 +104,13 @@ Melon::Renderer::Renderer(Mesh* mesh) : indexed(mesh->is_indexed), indC(mesh->in
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
-void Melon::Renderer::Draw(GLenum mode)
+void Melon::Renderer::Draw()
 {
 	glBindVertexArray(VAO);
 	if (indexed)
-		glDrawElements(mode, indC, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(PrimitiveType, indC, GL_UNSIGNED_INT, nullptr);
 	else
-		glDrawArrays(mode, 0, vertC); 
+		glDrawArrays(PrimitiveType, 0, vertC); 
 }
 
 void Melon::Renderer::Delete()

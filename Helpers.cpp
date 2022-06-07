@@ -13,7 +13,7 @@ Melon::Mesh Melon::Helpers::Meshes::Quad()
 		0, 2, 1,
 		2, 3, 1,
 	};
-	return { verticies, indecies, true };
+	return { verticies, GL_TRIANGLES , indecies, true };
 }
 
 Melon::Mesh Melon::Helpers::Meshes::Triangle()
@@ -23,7 +23,7 @@ Melon::Mesh Melon::Helpers::Meshes::Triangle()
         Vertex(Vector3(0.5f,-0.5f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3(-0.5f,-0.5f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
     };
-    return { verticies, {0}, false };
+    return { verticies, GL_TRIANGLES, {0}, false };
 }
 
 Melon::Mesh Melon::Helpers::Meshes::Cube()
@@ -72,14 +72,29 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
         Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
         Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
     };
-    return { verticies, {0}, false };
+    return { verticies, GL_TRIANGLES, {0}, false };
+}
+
+Melon::Mesh Melon::Helpers::Meshes::Sphere(unsigned int Haccuracy, unsigned int Vaccuracy) // doesn't work with textures
+{
+    // (x, y, z) = (sin(Pi * m/M) cos(2Pi * n/N), sin(Pi * m/M) sin(2Pi * n/N), cos(Pi * m/M))
+    DynamicVertexArray verticies;
+    for (int x = 0; x < Haccuracy; x++) for (int y = 0; y < Vaccuracy; y++)
+    {
+        Vector2 unit(((float)x) / ((float)Haccuracy), ((float)y) / ((float)Vaccuracy));
+        Vector3 point(sinf(Pi * unit.x) * cosf(2 * Pi * unit.y) * 0.5f,
+            sinf(Pi * unit.x) * sinf(2 * Pi * unit.y) * 0.5f,
+            cosf(Pi * unit.x) * 0.5f);
+        verticies.push_back(Vertex(point, Color(0, 0, 0, 0), Vector2(0, 0)));
+    }
+    return { verticies, GL_TRIANGLE_FAN, {0}, false };
 }
 
 Melon::Mesh Melon::Helpers::Meshes::Circle(unsigned int accuracy)
 {
     DynamicVertexArray verticies;
-    float angle = 2 * Pi / float(accuracy);
+    float angle = 2 * Pi / (float)accuracy;
     for (int i = 0; i < accuracy; i++)
         verticies.push_back(Vertex(Vector3(cos(i * angle)/2, sin(i * angle)/2, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f), Vector2(cos(i * angle)/2+1.0f, sin(i * angle) / 2 + 1.0f)));
-    return { verticies, {0}, false };
+    return { verticies, GL_TRIANGLE_FAN, {0}, false };
 }

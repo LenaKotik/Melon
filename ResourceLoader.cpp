@@ -18,6 +18,8 @@ Melon::Texture* Melon::ResourceLoader::LoadTexture(const char* filename)
 
 	GLint width, height, channels;
 
+	stbi_set_flip_vertically_on_load(true);
+
 	GLubyte* img_mem = stbi_load(filename, &width, &height, &channels, 0);
 
 	if (!img_mem)

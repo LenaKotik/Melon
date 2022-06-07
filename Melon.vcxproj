@@ -158,6 +158,7 @@
     <ClCompile Include="..\..\..\Misc\glad\src\glad.c" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="Math.cpp" />
+    <ClCompile Include="Melon.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="Rendering2.cpp" />
     <ClCompile Include="ResourceLoader.cpp" />
@@ -168,6 +169,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.frag" />
+    <None Include="ColorWBorder.frag" />
+    <None Include="Phong.frag" />
     <None Include="Texture.frag" />
     <None Include="Projection.vert" />
   </ItemGroup>

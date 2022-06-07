@@ -91,6 +91,7 @@ namespace Melon
 		Matrix4 Translate(const Vector3 pos) const;
 		Matrix4 Rotate(const float angle, const Vector3 axis) const;
 		Matrix4 Scale(const float scalar) const;
+		Matrix4 Scale(const Vector3 scalar) const;
 		Matrix4 Transpose() const;
 		Matrix4 Inverse() const; // DO NOT USE, NOT IMPLEMENTED
 		static Matrix4 Perspective(float FOV, float aspect, float near, float far);
@@ -115,12 +116,15 @@ namespace Melon
 	};
 	using DynamicVertexArray = std::vector<Vertex>;
 
+	class Camera;
+    class Windowing;
+
 	// Windowing
 	struct Window
 	{
-		friend class Windowing;
 	public:
 		GLFWwindow* handle;
+		Camera* MainCamera;
 		bool ShouldClose();
 		bool IsKeyPressed(int key);
 		void MakeActive();
@@ -179,14 +183,16 @@ namespace Melon
 		void SetBool(bool v, const char* name);
 		void SetVector2(Vector2 v, const char* name);
 		void SetVector3(Vector3 v, const char* name);
+		void SetColor(Color v, const char* name);
 		void SetMatrix4(Matrix4 v, const char* name);
 	};
 	struct Mesh
 	{
 	public:
-		Mesh(DynamicVertexArray vert, DynamicUIntArray ind, bool i) : verticies(vert), indecies(ind), is_indexed(i) {};
+		Mesh(DynamicVertexArray vert, GLenum pt, DynamicUIntArray ind, bool i) : verticies(vert), PrimitiveType(pt), indecies(ind), is_indexed(i) {};
 		void SetColor(Color c);
 		DynamicVertexArray verticies;
+		GLenum PrimitiveType;
 		DynamicUIntArray indecies;
 		bool is_indexed;
 	};
@@ -195,34 +201,114 @@ namespace Melon
 		class Meshes
 		{
 		public:
-			static Mesh Quad();
-			static Mesh Triangle();
-			static Mesh Cube();
-			static Mesh Circle(unsigned int accuracy);
+			static Mesh Quad(); // 2D
+			static Mesh Triangle(); // 2D
+			static Mesh Cube(); // 3D
+			static Mesh Sphere(unsigned int Haccuracy, unsigned int Vaccuracy); // do not use this, bad
+			static Mesh Circle(unsigned int accuracy); // 2D
 		};
 	}
 	class Renderer
 	{
 	private:
 		bool indexed;
+		GLenum PrimitiveType;
 		GLuint VAO, VBO, EBO;
 		int indC, vertC;
 		//DynamicFloatArray verticies;
 		//DynamicUIntArray indexies;
 	public:
 		Renderer(Mesh* m);
-		void Draw(GLenum mode);
+		void Draw();
 		void Delete();
 		~Renderer();
 	};
-	// Rendering2
+	// Engine
 	class Camera
 	{
 	public:
-		static Vector3 Position;
-		static Vector3 Direction;
-		static Vector3 Up;
-		static Matrix4 GetView(Vector3 up);
+		virtual Matrix4 GetView() = 0;
+	};
+	// Enigne 2D
+	class Camera2D : public Camera
+	{
+	public:
+		Vector2 Position;
+		float Rotation;
+		Camera2D() : Position(0.0f), Rotation(0.0f) {};
+		Matrix4 GetView();
+	};
+	class RenderedObject2D
+	{
+	protected:
+		void BeginDraw(Window* win);
+	public:
+		Shader Shader_;
+		Renderer Renderer_;
+		Vector2 Position;
+		Vector2 Scale;
+		float Rotation;
+		RenderedObject2D(Shader* sh, Mesh m) : Shader_(*sh), Renderer_(&m), Position(0.0f), Rotation(0.0f), Scale(1.0f) {};
+		void Delete();
+		virtual void Draw(Window* win) = 0;
+	};
+	class Shape2D : public RenderedObject2D
+	{
+	public:
+		Color Color_;
+		Shape2D(Mesh m);
+		void Draw(Window* win);
+		~Shape2D();
+	};
+	class Sprite2D : public RenderedObject2D
+	{
+	public:
+		Texture Texture_;
+		Sprite2D(Texture* tex);
+		void Draw(Window* win);
+		~Sprite2D();
+	};
+	// Engine 3D
+	class Camera3D : public Camera
+	{
+	public:
+		float FOV;
+		Vector3 Position;
+		Vector3 Direction;
+		Vector3 Up;
+		Camera3D() : Position(0.0f), Direction(0.0f, 0.0f, -1.0f),
+			Up(0.0f, 1.0f, 0.0f), FOV(45.0f) {};
+		Matrix4 GetView();
+	};
+	class RenderedObject3D
+	{
+	protected:
+		void BeginDraw(Window* win);
+	public:
+		Renderer Renderer_;
+		Shader Shader_;
+		Vector3 Position;
+		Vector3 Scale;
+		Vector3 Rotation;
+		RenderedObject3D(Shader* sh, Mesh m) : Shader_(*sh), Renderer_(&m), Position(0.0f), Rotation(0.0f), Scale(1.0f) {};
+		void Delete();
+		virtual void Draw(Window* win) = 0;
+	};
+	class Shape3D : public RenderedObject3D
+	{
+	public:
+		Color Color_;
+		Shape3D(Mesh m);
+		void Draw(Window* win);
+		~Shape3D();
+	};
+	class TexturedMesh : public RenderedObject3D
+	{
+	public:
+		Texture Texture_;
+		TexturedMesh(Texture* tex, Mesh m);
+		void Draw(Window* win);
+		~TexturedMesh();
 	};
 	// Resources
 	class ResourceLoader 

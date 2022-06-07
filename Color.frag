@@ -4,7 +4,9 @@ out vec4 outColor;
 
 in vec4 ColorMul;
 
+uniform vec4 Color;
+
 void main()
 {
-	outColor = ColorMul;
+	outColor = Color * ColorMul;
 }
