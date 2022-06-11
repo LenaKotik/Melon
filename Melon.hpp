@@ -8,7 +8,7 @@
 #include <glfw3.h>
 #include <stb_image.h>
 
-#define DEBUG_OUTPUT
+//#define DEBUG_OUTPUT
 
 namespace Melon
 {
@@ -95,13 +95,14 @@ namespace Melon
 		Matrix4 Transpose() const;
 		Matrix4 Inverse() const; // DO NOT USE, NOT IMPLEMENTED
 		static Matrix4 Perspective(float FOV, float aspect, float near, float far);
-		static Matrix4 Ortho(float width, float height, float near, float far);
+		static Matrix4 Ortho(float aspect, float near, float far);
 	};
 
 	struct Color
 	{
 	public:
 		float R, G, B, A;
+		Color() : R(1), G(1), B(1), A(1) {};
 		Color(float r, float g, float b, float a) : R(r), G(g), B(b), A(a) {}; 
 		static Color FromBytes(GLubyte r, GLubyte g, GLubyte b, GLubyte a); // converts colors from [0-255] range to [0.0f-1.0f] range
 
@@ -112,7 +113,9 @@ namespace Melon
 		Vector3 Position;
 		Color Color_;
 		Vector2 TextureCoords;
-		Vertex(Vector3 p, Color c, Vector2 st) : Position(p), Color_(c), TextureCoords(st) {};
+		Vector3 Normal;
+		Vertex(Vector3 p, Color c, Vector2 st) : Position(p), Color_(c), TextureCoords(st), Normal(0) {};
+		Vertex(Vector3 p, Color c, Vector2 st, Vector3 n) : Position(p), Color_(c), TextureCoords(st), Normal(n) {};
 	};
 	using DynamicVertexArray = std::vector<Vertex>;
 
@@ -130,6 +133,7 @@ namespace Melon
 		void MakeActive();
 		void SetCursor(bool);
 		Vector2 GetMousePosition();
+		Vector2 GetSize();
 		float GetAspect();
 		void Clear(Color, bool depth);
 		void Flip();
@@ -153,7 +157,10 @@ namespace Melon
 	{
 	private:
 		static float lastDeltaCall;
+		static float lastLimitedFrame;
 	public:
+		static float MaxFrameRate;
+		static bool FrameRateLimitSatisfied();
 		static float GetTime(); // time since start (seconds)
 		static float GetDelta(); // time since last call (seconds)
 	};
@@ -189,8 +196,10 @@ namespace Melon
 	struct Mesh
 	{
 	public:
+		Mesh(DynamicVertexArray vert, GLenum pt) : verticies(vert), PrimitiveType(pt), indecies({ 0 }), is_indexed(false) {};
 		Mesh(DynamicVertexArray vert, GLenum pt, DynamicUIntArray ind, bool i) : verticies(vert), PrimitiveType(pt), indecies(ind), is_indexed(i) {};
 		void SetColor(Color c);
+		void ComputeNormals(Vector3 center);
 		DynamicVertexArray verticies;
 		GLenum PrimitiveType;
 		DynamicUIntArray indecies;
@@ -218,7 +227,14 @@ namespace Melon
 		//DynamicFloatArray verticies;
 		//DynamicUIntArray indexies;
 	public:
-		Renderer(Mesh* m);
+		enum VertexAttributesConfig
+		{
+			Position3D = 1,
+			TextureCoords = 2,
+			Color = 4,
+			Normal = 8,
+		};
+		Renderer(Mesh* m, VertexAttributesConfig);
 		void Draw();
 		void Delete();
 		~Renderer();
@@ -248,7 +264,7 @@ namespace Melon
 		Vector2 Position;
 		Vector2 Scale;
 		float Rotation;
-		RenderedObject2D(Shader* sh, Mesh m) : Shader_(*sh), Renderer_(&m), Position(0.0f), Rotation(0.0f), Scale(1.0f) {};
+		RenderedObject2D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a), Position(0.0f), Rotation(0.0f), Scale(1.0f) {};
 		void Delete();
 		virtual void Draw(Window* win) = 0;
 	};
@@ -290,7 +306,7 @@ namespace Melon
 		Vector3 Position;
 		Vector3 Scale;
 		Vector3 Rotation;
-		RenderedObject3D(Shader* sh, Mesh m) : Shader_(*sh), Renderer_(&m), Position(0.0f), Rotation(0.0f), Scale(1.0f) {};
+		RenderedObject3D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a), Position(0.0f), Rotation(0.0f), Scale(1.0f) {};
 		void Delete();
 		virtual void Draw(Window* win) = 0;
 	};
@@ -316,5 +332,6 @@ namespace Melon
 	public:
 		static Texture* LoadTexture(const char* filename);
 		static Shader*  LoadShader(const char* vertFile, const char* fragFile);
+		static Shader*  LoadShader(const char* vertFile, const char* fragFile, const char* geomFile);
 	};
 }

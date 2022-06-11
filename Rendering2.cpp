@@ -9,7 +9,7 @@ void Melon::RenderedObject2D::BeginDraw(Window* win)
 
 	Camera2D* cam = (Camera2D*)win->MainCamera;
 
-	Matrix4 ortho(1.0f); // TODO: implement orthographic projection
+	Matrix4 ortho = Matrix4::Ortho(win->GetAspect(), 0, 100); // TODO: implement orthographic projection
 
 	Shader_.Use();
 	Shader_.SetMatrix4(model, "model");
@@ -22,7 +22,7 @@ void Melon::RenderedObject2D::Delete()
 	Renderer_.Delete();
 }
 Melon::Shape2D::Shape2D(Mesh m) : //              must be changed
-	RenderedObject2D(ResourceLoader::LoadShader("Projection.vert", "Color.frag"), m),
+	RenderedObject2D(ResourceLoader::LoadShader("Projection.vert", "Color.frag"), m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal | Renderer::Color)),
 	Color_(1, 1, 1, 1) {}
 
 void Melon::Shape2D::Draw(Window* win)
@@ -38,7 +38,7 @@ Melon::Shape2D::~Shape2D()
 }
 
 Melon::Sprite2D::Sprite2D(Texture * tex) : 
-	RenderedObject2D(ResourceLoader::LoadShader("Projection.vert", "Texture.frag"), Helpers::Meshes::Quad()),
+	RenderedObject2D(ResourceLoader::LoadShader("Projection.vert", "Texture.frag"), Helpers::Meshes::Quad(), (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal | Renderer::TextureCoords | Renderer::Color)),
 	Texture_(*tex) {}
 
 void Melon::Sprite2D::Draw(Window* win)
@@ -76,7 +76,7 @@ void Melon::RenderedObject3D::Delete()
 	Renderer_.Delete();
 }
 
-Melon::Shape3D::Shape3D(Mesh m) : RenderedObject3D(ResourceLoader::LoadShader("Projection.vert", "Color.frag"), m),
+Melon::Shape3D::Shape3D(Mesh m) : RenderedObject3D(ResourceLoader::LoadShader("Projection.vert", "Color.frag"), m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal | Renderer::Color)),
                                   Color_(1, 1, 1, 1) {}
 
 void Melon::Shape3D::Draw(Window* win)
@@ -91,7 +91,7 @@ Melon::Shape3D::~Shape3D()
 	Delete();
 }
 
-Melon::TexturedMesh::TexturedMesh(Texture* tex, Mesh m) : RenderedObject3D(ResourceLoader::LoadShader("Projection.vert", "Texture.frag"), m),
+Melon::TexturedMesh::TexturedMesh(Texture* tex, Mesh m) : RenderedObject3D(ResourceLoader::LoadShader("Projection.vert", "Texture.frag"), m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal | Renderer::TextureCoords | Renderer::Color)),
                                                           Texture_(*tex){}
 
 void Melon::TexturedMesh::Draw(Window* win)

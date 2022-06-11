@@ -65,7 +65,7 @@ void Melon::Shader::SetMatrix4(Matrix4 v, const char* name)
 	GLint l = glGetUniformLocation(handle, name);
 	glUniformMatrix4fv(l, 1, false, (const float*)v.Transpose().Value);
 }
-Melon::Renderer::Renderer(Mesh* mesh) : indexed(mesh->is_indexed), indC(mesh->indecies.size()), vertC(mesh->verticies.size()), PrimitiveType(mesh->PrimitiveType)
+Melon::Renderer::Renderer(Mesh* mesh, VertexAttributesConfig a) : indexed(mesh->is_indexed), indC(mesh->indecies.size()), vertC(mesh->verticies.size()), PrimitiveType(mesh->PrimitiveType)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -88,15 +88,26 @@ Melon::Renderer::Renderer(Mesh* mesh) : indexed(mesh->is_indexed), indC(mesh->in
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indecies.size() * sizeof(unsigned int), mesh->indecies.data(), GL_STATIC_DRAW);
 	}
 
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, 0, sizeof(Vertex), (void*)(offsetof(Vertex, Position)));
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, 0, sizeof(Vertex), (void*)(offsetof(Vertex, Color_)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, 0, sizeof(Vertex), (void*)(offsetof(Vertex, TextureCoords)));
-	glEnableVertexAttribArray(2);
+	if (a & Position3D)
+	{
+	    glVertexAttribPointer(0, 3, GL_FLOAT, 0, sizeof(Vertex), (void*)(offsetof(Vertex, Position)));
+	    glEnableVertexAttribArray(0);
+	}
+	if (a & Color)
+	{
+	    glVertexAttribPointer(1, 3, GL_FLOAT, 0, sizeof(Vertex), (void*)(offsetof(Vertex, Color_)));
+	    glEnableVertexAttribArray(1);
+	}
+	if (a & TextureCoords)
+	{
+	    glVertexAttribPointer(2, 2, GL_FLOAT, 0, sizeof(Vertex), (void*)(offsetof(Vertex, TextureCoords)));
+	    glEnableVertexAttribArray(2);
+	}
+	if (a & Normal)
+	{
+		glVertexAttribPointer(3, 3, GL_FLOAT, 0, sizeof(Vertex), (void*)(offsetof(Vertex, Normal)));
+		glEnableVertexAttribArray(3);
+	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -132,4 +143,10 @@ void Melon::Mesh::SetColor(Melon::Color c)
 	{
 		verticies[i].Color_ = c;
 	}
+}
+
+void Melon::Mesh::ComputeNormals(Vector3 center) // probably works only with simple shapes
+{
+	for (int i = 0; i < verticies.size(); i++) // loop thru all vertieces
+		verticies[i].Normal = (verticies[i].Position - center).Normalize(); // direction from center to the vertex
 }

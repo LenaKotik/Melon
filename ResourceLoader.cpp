@@ -103,3 +103,74 @@ Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const cha
 	shdr->ready = true;
 	return shdr;
 }
+
+Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const char* fragFile, const char* geomFile)
+{
+	Melon::String vertSrc = readFile(vertFile);
+	Melon::String fragSrc = readFile(fragFile);
+	Melon::String geomSrc = readFile(geomFile);
+
+	const char* vertSrcC = vertSrc.c_str();
+	const char* fragSrcC = fragSrc.c_str();
+	const char* geomSrcC = geomSrc.c_str();
+
+	Shader* shdr = new Shader;
+	shdr->ready = false;
+
+	GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
+	GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
+	GLuint geometry = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(vertex, 1, &vertSrcC, NULL);
+	glShaderSource(fragment, 1, &fragSrcC, NULL);
+	glShaderSource(geometry, 1, &geomSrcC, NULL);
+
+	glCompileShader(vertex);
+	glCompileShader(fragment);
+	glCompileShader(geometry);
+
+	GLint success;
+	char log[512];
+
+	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(vertex, 512, NULL, log);
+		fprintf(stderr, "VERTEX SHADER COMPILATION FAILED:\n %s", log);
+		delete shdr;
+		return nullptr;
+	}
+	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragment, 512, NULL, log);
+		fprintf(stderr, "FRAGMENT SHADER COMPILATION FAILED:\n %s", log);
+		delete shdr;
+		return nullptr;
+	}
+	glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(geometry, 512, NULL, log);
+		fprintf(stderr, "GEOMETRY SHADER COMPILATION FAILED:\n %s", log);
+		delete shdr;
+		return nullptr;
+	}
+	shdr->handle = glCreateProgram();
+	glAttachShader(shdr->handle, vertex);
+	glAttachShader(shdr->handle, fragment);
+	glAttachShader(shdr->handle, geometry);
+	glLinkProgram(shdr->handle);
+	glGetProgramiv(shdr->handle, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(fragment, 512, NULL, log);
+		fprintf(stderr, "SHADER PROGRAM LINKING FAILED:\n %s", log);
+		delete shdr;
+		return nullptr;
+	}
+	glDeleteShader(vertex);
+	glDeleteShader(fragment);
+	glDeleteShader(geometry);
+	shdr->ready = true;
+	return shdr;
+}

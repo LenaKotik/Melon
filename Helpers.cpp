@@ -23,7 +23,7 @@ Melon::Mesh Melon::Helpers::Meshes::Triangle()
         Vertex(Vector3(0.5f,-0.5f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3(-0.5f,-0.5f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
     };
-    return { verticies, GL_TRIANGLES, {0}, false };
+    return { verticies, GL_TRIANGLES };
 }
 
 Melon::Mesh Melon::Helpers::Meshes::Cube()
@@ -72,7 +72,9 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
         Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
         Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
     };
-    return { verticies, GL_TRIANGLES, {0}, false };
+    Mesh res = { verticies, GL_TRIANGLES };
+    res.ComputeNormals(0);
+    return res;
 }
 
 Melon::Mesh Melon::Helpers::Meshes::Sphere(unsigned int Haccuracy, unsigned int Vaccuracy) // doesn't work with textures
@@ -87,7 +89,9 @@ Melon::Mesh Melon::Helpers::Meshes::Sphere(unsigned int Haccuracy, unsigned int 
             cosf(Pi * unit.x) * 0.5f);
         verticies.push_back(Vertex(point, Color(0, 0, 0, 0), Vector2(0, 0)));
     }
-    return { verticies, GL_TRIANGLE_FAN, {0}, false };
+    Mesh res = { verticies, GL_TRIANGLE_FAN };
+    res.ComputeNormals(0);
+    return res;
 }
 
 Melon::Mesh Melon::Helpers::Meshes::Circle(unsigned int accuracy)
@@ -96,5 +100,5 @@ Melon::Mesh Melon::Helpers::Meshes::Circle(unsigned int accuracy)
     float angle = 2 * Pi / (float)accuracy;
     for (int i = 0; i < accuracy; i++)
         verticies.push_back(Vertex(Vector3(cos(i * angle)/2, sin(i * angle)/2, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f), Vector2(cos(i * angle)/2+1.0f, sin(i * angle) / 2 + 1.0f)));
-    return { verticies, GL_TRIANGLE_FAN, {0}, false };
+    return { verticies, GL_TRIANGLE_FAN };
 }

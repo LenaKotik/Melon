@@ -170,7 +170,12 @@
   <ItemGroup>
     <None Include="Color.frag" />
     <None Include="ColorWBorder.frag" />
+    <None Include="GColor.frag" />
+    <None Include="LightingProjection.vert" />
+    <None Include="NormalDisplay.geom" />
     <None Include="Phong.frag" />
+    <None Include="Point2Square.geom" />
+    <None Include="Normal.vert" />
     <None Include="Texture.frag" />
     <None Include="Projection.vert" />
   </ItemGroup>

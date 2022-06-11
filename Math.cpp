@@ -317,17 +317,15 @@ Melon::Matrix4 Melon::Matrix4::Perspective(float FOV, float aspect, float near, 
 	return res;
 }
 
-Melon::Matrix4 Melon::Matrix4::Ortho(float width, float height, float near, float far)
+Melon::Matrix4 Melon::Matrix4::Ortho(float aspect, float near, float far)
 {
-	Matrix4 res;
+	Matrix4 res(1.0f);
 
-	res.Value[0][0] =  2 / width;
-	res.Value[1][1] =  2 / height;
+	res.Value[0][0] =  1 / aspect;
 	res.Value[2][2] = -2 / (far - near);
-	res.Value[3][3] =  1.0f;
 
-	res.Value[3][0] = -1;
-	res.Value[3][1] = -1;
+	res.Value[3][0] = 0;
+	res.Value[3][1] = 0;
 	res.Value[3][2] = -(far + near) / (far - near);
 
 	return res;
@@ -339,19 +337,19 @@ Melon::Matrix4 Melon::Camera3D::GetView()
 	Up = Direction.Cross(right);
 
 	Matrix4 translation(1.0f);
-	translation.Value[0][3] = Position.x;
-	translation.Value[1][3] = Position.y;
-	translation.Value[2][3] = Position.z;
+	translation.Value[0][3] = -Position.x;
+	translation.Value[1][3] = -Position.y;
+	translation.Value[2][3] = -Position.z;
 	Matrix4 rotation(1.0f);
-	rotation.Value[0][0] = right.x;
-	rotation.Value[0][1] = right.y;
-	rotation.Value[0][2] = right.z;
-	rotation.Value[1][0] = -Up.x;
-	rotation.Value[1][1] = -Up.y;
-	rotation.Value[1][2] = -Up.z;
-	rotation.Value[2][0] = Direction.x;
-	rotation.Value[2][1] = Direction.y;
-	rotation.Value[2][2] = Direction.z;
+	rotation.Value[0][0] = -right.x;
+	rotation.Value[0][1] = -right.y;
+	rotation.Value[0][2] = -right.z;
+	rotation.Value[1][0] = Up.x;
+	rotation.Value[1][1] = Up.y;
+	rotation.Value[1][2] = Up.z;
+	rotation.Value[2][0] = -Direction.x;
+	rotation.Value[2][1] = -Direction.y;
+	rotation.Value[2][2] = -Direction.z;
 
 	return rotation * translation;
 }

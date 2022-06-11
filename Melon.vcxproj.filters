@@ -55,6 +55,11 @@
     <None Include="Color.frag" />
     <None Include="ColorWBorder.frag" />
     <None Include="Phong.frag" />
+    <None Include="Point2Square.geom" />
+    <None Include="GColor.frag" />
+    <None Include="NormalDisplay.geom" />
+    <None Include="Normal.vert" />
+    <None Include="LightingProjection.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="melon.png">

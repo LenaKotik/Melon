@@ -150,6 +150,13 @@ Melon::Vector2 Melon::Window::GetMousePosition()
 	return Vector2(x, y);
 }
 
+Melon::Vector2 Melon::Window::GetSize()
+{
+	int w, h;
+	glfwGetWindowSize(handle, &w, &h);
+	return { (float)w, (float)h };
+}
+
 bool Melon::Window::ShouldClose()
 {
 	return glfwWindowShouldClose(this->handle);
@@ -197,6 +204,19 @@ void Melon::Windowing::Terminate()
 }
 
 float Melon::Time::lastDeltaCall = 0.0f;
+float Melon::Time::lastLimitedFrame = 0.0f;
+float Melon::Time::MaxFrameRate = 0.0f;
+
+bool Melon::Time::FrameRateLimitSatisfied()
+{
+	float time = GetTime();
+	if (time - lastLimitedFrame >= 1.0f / MaxFrameRate)
+	{
+		lastLimitedFrame = GetTime();
+		return true;
+	}
+	return false;
+}
 
 float Melon::Time::GetTime()
 {

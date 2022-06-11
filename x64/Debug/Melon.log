@@ -1,6 +1,7 @@
 ﻿  Test.cpp
-D:\ProjectRoot\CppProj\Melon\Test.cpp(91,74): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(91,56): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(91,38): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(186): warning C4715: LightingScene: значение возвращается не при всех путях выполнения
+D:\ProjectRoot\CppProj\Melon\Test.cpp(87,74): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(87,56): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(87,38): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(237,40): warning C4305: аргумент: усечение из "double" в "float"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(206): warning C4715: LightingScene: значение возвращается не при всех путях выполнения
   Melon.vcxproj -> D:\ProjectRoot\CppProj\Melon\x64\Debug\Melon.exe
