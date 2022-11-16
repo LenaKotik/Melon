@@ -49,7 +49,7 @@ Melon::Texture* Melon::ResourceLoader::LoadTexture(const char* filename)
 }
 
 
-Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const char* fragFile)
+Melon::IShader* Melon::ResourceLoader::LoadShader(const char* vertFile, const char* fragFile)
 {
 	Melon::String vertSrc = readFile(vertFile);
 	Melon::String fragSrc = readFile(fragFile);
@@ -104,7 +104,7 @@ Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const cha
 	return shdr;
 }
 
-Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const char* fragFile, const char* geomFile)
+Melon::IShader* Melon::ResourceLoader::LoadShader(const char* vertFile, const char* fragFile, const char* geomFile)
 {
 	Melon::String vertSrc = readFile(vertFile);
 	Melon::String fragSrc = readFile(fragFile);

@@ -68,25 +68,25 @@ void Melon::Shader::SetMatrix4(Matrix4 v, const char* name)
 Melon::DynamicFloatArray Melon::Renderer::GenBuffer(DynamicVertexArray arr, VertexAttributesConfig bitmask, int* stride, DynamicUIntArray * offsets, DynamicUIntArray* sizes)
 {
 	int i = 0;
-	if (bitmask & Position3D)
+	if (bitmask & VertexAttributesConfig::Position3D)
 	{
 		offsets->push_back((GLuint)*stride);
 		sizes->push_back(3);
 		*stride += 3;
 	}
-	if (bitmask & TextureCoords)
+	if (bitmask & VertexAttributesConfig::TextureCoords)
 	{
 		offsets->push_back((GLuint)*stride);
 		sizes->push_back(2);
 		*stride += 2;
 	}
-	if (bitmask & Color)
+	if (bitmask & VertexAttributesConfig::Color)
 	{
 		offsets->push_back((GLuint)*stride);
 		sizes->push_back(3);
 		*stride += 3;
 	}
-	if (bitmask & Normal)
+	if (bitmask & VertexAttributesConfig::Normal)
 	{
 		offsets->push_back((GLuint)*stride);
 		sizes->push_back(3);
@@ -95,24 +95,24 @@ Melon::DynamicFloatArray Melon::Renderer::GenBuffer(DynamicVertexArray arr, Vert
 	DynamicFloatArray res;
 	for (int i = 0; i < arr.size(); i++)
 	{
-		if (bitmask & Position3D)
+		if (bitmask & VertexAttributesConfig::Position3D)
 		{
 			res.push_back(arr[i].Position.x);
 			res.push_back(arr[i].Position.y);
 			res.push_back(arr[i].Position.z);
 		}
-		if (bitmask & TextureCoords)
+		if (bitmask & VertexAttributesConfig::TextureCoords)
 		{
 			res.push_back(arr[i].TextureCoords.x);
 			res.push_back(arr[i].TextureCoords.y);
 		}
-		if (bitmask & Color)
+		if (bitmask & VertexAttributesConfig::Color)
 		{
 			res.push_back(arr[i].Color_.R);
 			res.push_back(arr[i].Color_.G);
 			res.push_back(arr[i].Color_.B);
 		}
-		if (bitmask & Normal)
+		if (bitmask & VertexAttributesConfig::Normal)
 		{
 			res.push_back(arr[i].Normal.x);
 			res.push_back(arr[i].Normal.y);

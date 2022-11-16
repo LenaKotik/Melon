@@ -164,6 +164,7 @@
     <ClCompile Include="Rendering2.cpp" />
     <ClCompile Include="ResourceLoader.cpp" />
     <ClCompile Include="ROLib.cpp" />
+    <ClCompile Include="ShaderLib.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="Test.cpp" />

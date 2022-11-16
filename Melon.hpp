@@ -15,6 +15,12 @@
 
 namespace Melon
 {
+	// Abstractions
+	class IDeleted // class that needs to "clean up" memory after itself
+	{
+	public:
+		virtual void Delete()=0;
+	};
 	// System & Math
 	using String = std::string;
 	const double Pi = 3.14159265358979323846;
@@ -169,25 +175,29 @@ namespace Melon
 		static float GetDelta(); // time since last call (seconds)
 	};
 	// Rendering1
-	class Texture
+	class Texture : IDeleted
 	{
 		friend class ResourceLoader;
 	private:
 		GLuint handle;
 	public:
 		void Bind();
-		void Delete();
+		void Delete() override;
 		~Texture();
 	};
-	class Shader
+	class IShader
+	{
+	protected:
+		GLuint handle;
+	};
+	class Shader : IShader, IDeleted
 	{
 		friend class ResourceLoader;
 	private:
-		GLuint handle;
 		bool ready;
 	public:
 		void Use();
-		void Delete();
+		void Delete() override;
 		~Shader();
 		void SetFloat(float v, const char* name);
 		void SetInt(int v, const char* name);
@@ -197,6 +207,24 @@ namespace Melon
 		void SetColor(Color v, const char* name);
 		void SetMatrix4(Matrix4 v, const char* name);
 	};
+	class ComputeShader : IShader, IDeleted
+	{
+		// not implemented yet
+	};
+	namespace Helpers
+	{
+		struct ShaderLoadOptions
+		{
+
+		};
+		class ShaderLib
+		{
+		public:
+			static IShader* Load(ShaderLoadOptions options);
+			static IShader* Load(String vert, String frag);
+			static IShader* Load(String vert, String frag, String geom);
+		};
+	}
 	struct Mesh
 	{
 	public:
@@ -221,14 +249,15 @@ namespace Melon
 			static Mesh Circle(unsigned int accuracy); // 2D
 		};
 	}
-	class Renderer
+
+	class Renderer : IDeleted
 	{
+		enum VertexAttributesConfig;
 	private:
 		bool indexed;
 		GLenum PrimitiveType;
 		GLuint VAO, VBO, EBO;
 		int indC, vertC;
-		enum VertexAttributesConfig;
 		DynamicFloatArray GenBuffer(DynamicVertexArray arr, VertexAttributesConfig bitmask, int* stride, DynamicUIntArray* offsets, DynamicUIntArray* sizes);
 	public:
 		enum VertexAttributesConfig
@@ -240,7 +269,7 @@ namespace Melon
 		};
 		Renderer(Mesh* m, VertexAttributesConfig);
 		void Draw();
-		void Delete();
+		void Delete() override;
 		~Renderer();
 	};
 	// Engine
@@ -270,7 +299,7 @@ namespace Melon
 		Camera2D() : Position(0.0f), Rotation(0.0f) {};
 		Matrix4 GetView();
 	};
-	class RenderedObject2D
+	class RenderedObject2D : IDeleted
 	{
 	protected:
 		void BeginDraw(Window* win);
@@ -290,8 +319,9 @@ namespace Melon
 	{
 		class Objects2D
 		{
-			static RenderedObject2D* Shape(Color c);
-			static RenderedObject2D* Sprite(Texture t);
+		public:
+			static RenderedObject2D* Shape(Mesh m);
+			static RenderedObject2D* Sprite();
 		};
 	}
 	// Physics
@@ -340,42 +370,37 @@ namespace Melon
 			Up(0.0f, 1.0f, 0.0f), FOV(45.0f) {};
 		Matrix4 GetView();
 	};
-	class RenderedObject3D
+	class RenderedObject3D : IDeleted
 	{
 	protected:
 		void BeginDraw(Window* win);
 	public:
 		Renderer Renderer_;
 		Shader Shader_;
+		Color Color_;
+		Texture Texture_;
 		Vector3 Position;
 		Vector3 Scale;
 		Vector3 Rotation;
 		RenderedObject3D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a), Position(0.0f), Rotation(0.0f), Scale(1.0f) {};
-		void Delete();
-		virtual void Draw(Window* win) = 0;
+		void Delete() override;
+		virtual void Draw(Window* win);
 	};
-	class Shape3D : public RenderedObject3D
+	namespace Helpers
 	{
-	public:
-		Color Color_;
-		Shape3D(Mesh m);
-		void Draw(Window* win);
-		~Shape3D();
-	};
-	class TexturedMesh : public RenderedObject3D
-	{
-	public:
-		Texture Texture_;
-		TexturedMesh(Texture* tex, Mesh m);
-		void Draw(Window* win);
-		~TexturedMesh();
-	};
+		class Objects3D
+		{
+		public:
+			static RenderedObject3D* Shape(Mesh m);
+			static RenderedObject3D* TexturedShape(Mesh m);
+		};
+	}
 	// Resources
 	class ResourceLoader 
 	{
 	public:
 		static Texture* LoadTexture(const char* filename);
-		static Shader*  LoadShader(const char* vertFile, const char* fragFile);
-		static Shader*  LoadShader(const char* vertFile, const char* fragFile, const char* geomFile);
+		static IShader*  LoadShader(const char* vertFile, const char* fragFile);
+		static IShader*  LoadShader(const char* vertFile, const char* fragFile, const char* geomFile);
 	};
 }

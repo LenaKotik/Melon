@@ -47,6 +47,9 @@ void Melon::RenderedObject3D::BeginDraw(Window* win)
 	Shader_.SetMatrix4(model, "model");
 	Shader_.SetMatrix4(cam->GetView(), "view");
 	Shader_.SetMatrix4(persp, "projection");
+
+	Texture_.Bind();
+	Shader_.SetColor(Color_, "Color");
 }
 
 void Melon::RenderedObject3D::Delete()
@@ -55,33 +58,9 @@ void Melon::RenderedObject3D::Delete()
 	Renderer_.Delete();
 }
 
-Melon::Shape3D::Shape3D(Mesh m) : RenderedObject3D(ResourceLoader::LoadShader("ShapeProjection.vert", "Color.frag"), m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal | Renderer::Color)),
-                                  Color_(1, 1, 1, 1) {}
-
-void Melon::Shape3D::Draw(Window* win)
+void Melon::RenderedObject3D::Draw(Window* win)
 {
 	BeginDraw(win);
-	Shader_.SetColor(Color_, "Color");
+	Shader_.Use();
 	Renderer_.Draw();
-}
-
-Melon::Shape3D::~Shape3D()
-{
-	Delete();
-}
-
-Melon::TexturedMesh::TexturedMesh(Texture* tex, Mesh m) : RenderedObject3D(ResourceLoader::LoadShader("TextureProjection.vert", "Texture.frag"), m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal | Renderer::TextureCoords | Renderer::Color)),
-                                                          Texture_(*tex){}
-
-void Melon::TexturedMesh::Draw(Window* win)
-{
-	BeginDraw(win);
-	Texture_.Bind();
-	Renderer_.Draw();
-}
-
-Melon::TexturedMesh::~TexturedMesh()
-{
-	Delete();
-	Texture_.Delete();
 }

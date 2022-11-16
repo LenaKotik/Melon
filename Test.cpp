@@ -82,7 +82,7 @@ int RandomTextureCubesScene()
 	cam.Position = Vector3(0.0f, 0.0f, 3.0f);
 	win->MainCamera = &cam;
 
-	TexturedMesh tm(texture, Helpers::Meshes::Cube());
+	RenderedObject3D tm = *Helpers::Objects3D::TexturedShape(Helpers::Meshes::Cube());
 
 	DynamicVector3Array pos;
 
@@ -108,7 +108,6 @@ int RandomTextureCubesScene()
 	}
 	Windowing::DestroyWindow(win);
 	Windowing::Terminate();
-
 	return 0;
 }
 int Simple2DScene()
@@ -116,12 +115,13 @@ int Simple2DScene()
 	Window* win = Windowing::Init(800, 800, "2D Crazyness", false);
 	if (!win) return -1;
 	
-	Shape2D shape(Helpers::Meshes::Quad());
-	Shape2D shape2(Helpers::Meshes::Circle(40));
-	Sprite2D sprite(ResourceLoader::LoadTexture("melon.png"));
+	RenderedObject2D shape = *Helpers::Objects2D::Shape(Helpers::Meshes::Circle(40));
+	RenderedObject2D shape2 = *Helpers::Objects2D::Shape(Helpers::Meshes::Quad());
+	RenderedObject2D sprite = *Helpers::Objects2D::Sprite();
 
 	shape.Color_ = Color::FromBytes(251, 71, 71, 255);
 	shape2.Color_ = Color::FromBytes(32, 217, 36, 255);
+	sprite.Texture_ = *ResourceLoader::LoadTexture("melon.png");
 	sprite.Scale = Vector2(2, 1);
 
 	Camera2D cam;
@@ -158,20 +158,20 @@ int LightingScene()
 	win->SetCursor(false);
 
 	Mesh m = Helpers::Meshes::Cube();
-	Shape3D shape(m);
+	RenderedObject3D shape = *Helpers::Objects3D::Shape(m);
 
 	m.PrimitiveType = GL_POINTS;
-	Shape3D normals(m);
+	RenderedObject3D normals = *Helpers::Objects3D::TexturedShape(m);
 
-	Shader* normalGeom = ResourceLoader::LoadShader("Normal.vert", "GColor.frag", "NormalDisplay.geom");
+	IShader* normalGeom = ResourceLoader::LoadShader("Normal.vert", "GColor.frag", "NormalDisplay.geom");
 	if (!normalGeom) return -1;
-	normals.Shader_ = *normalGeom;
+	normals.Shader_ = *(Shader*)normalGeom;
 
 	shape.Color_ = Color::FromBytes(163, 9, 193, 255);
-	shape.Shader_ = *ResourceLoader::LoadShader("LightingProjection.vert", "Phong.frag");
+	shape.Shader_ = *(Shader*)ResourceLoader::LoadShader("LightingProjection.vert", "Phong.frag");
 
 	m.PrimitiveType = GL_TRIANGLES;
-	Shape3D light(m);
+	RenderedObject3D light = *Helpers::Objects3D::Shape(m);
 	light.Color_ = Color::FromBytes(255, 0, 251, 255);
 	light.Position = Vector3(0, 1, -2);
 
@@ -213,16 +213,18 @@ int GeometryShaderScene()
 	Window* win = Windowing::Init(800, 800, "Geometry Shader", true);
 	if (!win) return -1;
 
+	win->SetCursor(false);
+
 	Mesh m = Helpers::Meshes::Cube();
 	m.SetColor(Color::FromBytes(251, 71, 71, 255));
-	Shape3D shape(m);
+	RenderedObject3D shape = *Helpers::Objects3D::Shape(m);
 	m.PrimitiveType = GL_POINTS;
 
-	Shape3D points(m);
+	RenderedObject3D points = *Helpers::Objects3D::Shape(m);
 
-	Shader* geom = ResourceLoader::LoadShader("ShapeProjection.vert", "GColor.frag", "Point2Square.geom");
+	IShader* geom = ResourceLoader::LoadShader("ShapeProjection.vert", "GColor.frag", "Point2Square.geom");
 	if (!geom) return -1;
-	points.Shader_ = *geom;
+	points.Shader_ = *(Shader*)geom;
 
 	Camera3D cam;
 
@@ -263,7 +265,7 @@ int KinematicBody2DScene()
 
 	win->MainCamera = new Camera2D();
 
-	Shape2D bodyRenderer(circleMesh);
+	RenderedObject2D bodyRenderer = *Helpers::Objects2D::Shape(circleMesh);
 
 	DynamicArray<KinematicBody2D> bodies(N);
 	CollisionSolver2D solver;
@@ -331,10 +333,10 @@ int ModelImportScene()
 
 int main()
 {
-    return RandomTextureCubesScene();
-	return LightingScene();
 	return GeometryShaderScene();
 	return Simple2DScene();
+    return RandomTextureCubesScene();
+	return LightingScene();
 	return ModelImportScene();
 	return KinematicBody2DScene();
 }
