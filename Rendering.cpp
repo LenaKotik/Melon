@@ -15,6 +15,26 @@ Melon::Texture::~Texture()
 	this->Delete();
 }
 
+GLint Melon::TextureUnitManager::GetMaxTextureUnits()
+{
+	return MaxUnits;
+}
+
+GLbyte Melon::TextureUnitManager::Add(Texture& t) // pass by reference because copying would be unnecessery
+{
+	// if texture overflow happens, we just wrap around, later should make this behavior configurable
+	if (cur >= MaxUnits) cur = 0; 
+	glActiveTexture(GL_TEXTURE0 + cur);
+	t.Bind();
+	units[cur] = t.handle;
+	return cur++;
+}
+
+void Melon::TextureUnitManager::Clear()
+{
+	cur = 0;
+}
+
 void Melon::Shader::Use()
 {
 	glUseProgram(this->handle);
@@ -64,6 +84,11 @@ void Melon::Shader::SetMatrix4(Matrix4 v, const char* name)
 {
 	GLint l = glGetUniformLocation(handle, name);
 	glUniformMatrix4fv(l, 1, false, (const float*)v.Transpose().Value);
+}
+void Melon::Shader::SetTexture(Texture t, const char* name)
+{
+	GLbyte u = TextureUnitManager::Add(t);
+	return SetInt(u, name);
 }
 Melon::DynamicFloatArray Melon::Renderer::GenBuffer(DynamicVertexArray arr, VertexAttributesConfig bitmask, int* stride, DynamicUIntArray * offsets, DynamicUIntArray* sizes)
 {

@@ -21,6 +21,12 @@ namespace Melon
 	public:
 		virtual void Delete()=0;
 	};
+
+	class IShader // intersection between Shader and ComputeShader, felt important, might delete later
+	{
+	protected:
+		GLuint handle;
+	};
 	// System & Math
 	using String = std::string;
 	const double Pi = 3.14159265358979323846;
@@ -178,6 +184,7 @@ namespace Melon
 	class Texture : IDeleted
 	{
 		friend class ResourceLoader;
+		friend class TextureUnitManager;
 	private:
 		GLuint handle;
 	public:
@@ -185,10 +192,17 @@ namespace Melon
 		void Delete() override;
 		~Texture();
 	};
-	class IShader
+	class TextureUnitManager
 	{
-	protected:
-		GLuint handle;
+		friend class Windowing;
+	private:
+		static GLuint* units;
+		static GLbyte cur;
+		static GLint MaxUnits;
+	public:
+		static GLint GetMaxTextureUnits();
+		static GLbyte Add(Texture& t);
+		static void Clear();
 	};
 	class Shader : IShader, IDeleted
 	{
@@ -206,6 +220,7 @@ namespace Melon
 		void SetVector3(Vector3 v, const char* name);
 		void SetColor(Color v, const char* name);
 		void SetMatrix4(Matrix4 v, const char* name);
+		void SetTexture(Texture t, const char* name);
 	};
 	class ComputeShader : IShader, IDeleted
 	{
@@ -215,14 +230,18 @@ namespace Melon
 	{
 		struct ShaderLoadOptions
 		{
-
+		public:
+			GLuint Attributes; // can't be an enum for some reason
+			bool UseQuaternionRotation;
+			bool UseLighting;
 		};
 		class ShaderLib
 		{
 		public:
-			static IShader* Load(ShaderLoadOptions options);
-			static IShader* Load(String vert, String frag);
-			static IShader* Load(String vert, String frag, String geom);
+			static ComputeShader* LoadCompute(String shadername); // load a specific compute shader
+			static Shader* LoadBasic(ShaderLoadOptions options); // load a basic pipeline by option
+			static Shader* LoadBasic(String shadername); // load a specific basic pipeline
+			static Shader* LoadGeom(String shadername); // load a specific geometry pipeline
 		};
 	}
 	struct Mesh
@@ -245,11 +264,22 @@ namespace Melon
 			static Mesh Quad(); // 2D
 			static Mesh Triangle(); // 2D
 			static Mesh Cube(); // 3D
-			static Mesh Sphere(unsigned int Haccuracy, unsigned int Vaccuracy); // do not use this, bad
+			static Mesh Sphere(unsigned int Haccuracy, unsigned int Vaccuracy); // looks sus
 			static Mesh Circle(unsigned int accuracy); // 2D
 		};
 	}
-
+	struct Brush // class that represents a union of fragment shadering methods
+	{
+	public:
+		bool isSolid;
+		Color Solid;
+		Texture Mapped;
+	};
+	class Material
+	{
+	public:
+		Brush Albedo,Diffuse,Specular;
+	};
 	class Renderer : IDeleted
 	{
 		enum VertexAttributesConfig;
@@ -312,7 +342,7 @@ namespace Melon
 		Vector2 Scale;
 		float Rotation;
 		RenderedObject2D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a), Position(0.0f), Rotation(0.0f), Scale(1.0f) {};
-		void Delete();
+		virtual void Delete();
 		virtual void Draw(Window* win);
 	};
 	namespace Helpers
@@ -400,7 +430,7 @@ namespace Melon
 	{
 	public:
 		static Texture* LoadTexture(const char* filename);
-		static IShader*  LoadShader(const char* vertFile, const char* fragFile);
-		static IShader*  LoadShader(const char* vertFile, const char* fragFile, const char* geomFile);
+		static Shader*  LoadShader(const char* vertFile, const char* fragFile);
+		static Shader*  LoadShader(const char* vertFile, const char* fragFile, const char* geomFile);
 	};
 }

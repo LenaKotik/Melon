@@ -113,6 +113,9 @@ Melon::Window* Melon::Windowing::Init(unsigned int Width, unsigned int Height, c
 	if (depth)
 		glEnable(GL_DEPTH_TEST);
 
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &TextureUnitManager::MaxUnits); // get this devices max texture units
+	TextureUnitManager::units = new GLuint[TextureUnitManager::MaxUnits]; // set the texture unit array
+
 	initialized = true;
 
 	return res;

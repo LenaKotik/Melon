@@ -163,12 +163,12 @@ int LightingScene()
 	m.PrimitiveType = GL_POINTS;
 	RenderedObject3D normals = *Helpers::Objects3D::TexturedShape(m);
 
-	IShader* normalGeom = ResourceLoader::LoadShader("Normal.vert", "GColor.frag", "NormalDisplay.geom");
+	Shader* normalGeom = ResourceLoader::LoadShader("Normal.vert", "GColor.frag", "NormalDisplay.geom");
 	if (!normalGeom) return -1;
-	normals.Shader_ = *(Shader*)normalGeom;
+	normals.Shader_ = *normalGeom;
 
 	shape.Color_ = Color::FromBytes(163, 9, 193, 255);
-	shape.Shader_ = *(Shader*)ResourceLoader::LoadShader("LightingProjection.vert", "Phong.frag");
+	shape.Shader_ = *ResourceLoader::LoadShader("LightingProjection.vert", "Phong.frag");
 
 	m.PrimitiveType = GL_TRIANGLES;
 	RenderedObject3D light = *Helpers::Objects3D::Shape(m);
@@ -222,9 +222,9 @@ int GeometryShaderScene()
 
 	RenderedObject3D points = *Helpers::Objects3D::Shape(m);
 
-	IShader* geom = ResourceLoader::LoadShader("ShapeProjection.vert", "GColor.frag", "Point2Square.geom");
+	Shader* geom = ResourceLoader::LoadShader("ShapeProjection.vert", "GColor.frag", "Point2Square.geom");
 	if (!geom) return -1;
-	points.Shader_ = *(Shader*)geom;
+	points.Shader_ = *geom;
 
 	Camera3D cam;
 
