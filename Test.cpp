@@ -83,6 +83,7 @@ int RandomTextureCubesScene()
 	win->MainCamera = &cam;
 
 	RenderedObject3D tm = *Helpers::Objects3D::TexturedShape(Helpers::Meshes::Cube());
+	tm.Material_.Albedo = *texture;
 
 	DynamicVector3Array pos;
 
@@ -119,9 +120,10 @@ int Simple2DScene()
 	RenderedObject2D shape2 = *Helpers::Objects2D::Shape(Helpers::Meshes::Quad());
 	RenderedObject2D sprite = *Helpers::Objects2D::Sprite();
 
-	shape.Color_ = Color::FromBytes(251, 71, 71, 255);
-	shape2.Color_ = Color::FromBytes(32, 217, 36, 255);
-	sprite.Texture_ = *ResourceLoader::LoadTexture("melon.png");
+	shape.Material_.Albedo = Color::FromBytes(251, 71, 71, 255);
+	shape2.Material_.Albedo = Color::FromBytes(32, 217, 36, 255);
+	sprite.Material_.Albedo = *ResourceLoader::LoadTexture("melon.png");
+
 	sprite.Scale = Vector2(2, 1);
 
 	Camera2D cam;
@@ -161,18 +163,18 @@ int LightingScene()
 	RenderedObject3D shape = *Helpers::Objects3D::Shape(m);
 
 	m.PrimitiveType = GL_POINTS;
-	RenderedObject3D normals = *Helpers::Objects3D::TexturedShape(m);
+	RenderedObject3D normals = *Helpers::Objects3D::Shape(m);
 
-	Shader* normalGeom = ResourceLoader::LoadShader("Normal.vert", "GColor.frag", "NormalDisplay.geom");
+	Shader* normalGeom = Helpers::ShaderLib::LoadGeom("NormalDisplay");
 	if (!normalGeom) return -1;
 	normals.Shader_ = *normalGeom;
 
-	shape.Color_ = Color::FromBytes(163, 9, 193, 255);
-	shape.Shader_ = *ResourceLoader::LoadShader("LightingProjection.vert", "Phong.frag");
+	shape.Material_.Albedo = Color::FromBytes(163, 9, 193, 255);
+	shape.Shader_ = *Helpers::ShaderLib::LoadBasic(Helpers::ShaderLoadOptions((Renderer::VertexAttributesConfig)(Renderer::Position3D|Renderer::Normal), false, true));
 
 	m.PrimitiveType = GL_TRIANGLES;
 	RenderedObject3D light = *Helpers::Objects3D::Shape(m);
-	light.Color_ = Color::FromBytes(255, 0, 251, 255);
+	light.Material_.Albedo = Color::FromBytes(255, 0, 251, 255);
 	light.Position = Vector3(0, 1, -2);
 
 	Camera3D cam;
@@ -189,13 +191,13 @@ int LightingScene()
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
-		printf("FPS:%d\n", (int)roundf(1 / delta));
+		//printf("FPS:%d\n", (int)roundf(1 / delta));
 		movement3D(win, delta);
 
 		win->Clear(Color::FromBytes(29, 29, 29, 255), true);
 
 		shape.Shader_.Use();
-		shape.Shader_.SetColor(light.Color_, "LightColor");
+		shape.Shader_.SetColor(light.Material_.Albedo.Solid, "LightColor");
 		shape.Shader_.SetVector3(light.Position, "LightPosition");
 		shape.Shader_.SetVector3(cam.Position, "CameraPosition");
 		shape.Draw(win);
@@ -216,15 +218,17 @@ int GeometryShaderScene()
 	win->SetCursor(false);
 
 	Mesh m = Helpers::Meshes::Cube();
-	m.SetColor(Color::FromBytes(251, 71, 71, 255));
+	//m.SetColor(Color::FromBytes(251, 71, 71, 255));
 	RenderedObject3D shape = *Helpers::Objects3D::Shape(m);
+	shape.Material_.Albedo = Color::FromBytes(251, 71, 71, 255);
 	m.PrimitiveType = GL_POINTS;
 
 	RenderedObject3D points = *Helpers::Objects3D::Shape(m);
 
-	Shader* geom = ResourceLoader::LoadShader("ShapeProjection.vert", "GColor.frag", "Point2Square.geom");
+	Shader* geom = Helpers::ShaderLib::LoadGeom("Point2Square");
 	if (!geom) return -1;
 	points.Shader_ = *geom;
+	points.Material_.Albedo = Color::FromBytes(251, 71, 71, 255);
 
 	Camera3D cam;
 
@@ -304,10 +308,10 @@ int KinematicBody2DScene()
 		win->Clear(Color::FromBytes(31, 31, 31, 255), false);
 
 		bodyRenderer.Scale = containerRadius * 2 * scaleFactor;
-		bodyRenderer.Color_ = Color::FromBytes(55, 55, 55, 255);
+		bodyRenderer.Material_.Albedo = Color::FromBytes(55, 55, 55, 255);
 		bodyRenderer.Position = 0;
 		bodyRenderer.Draw(win);
-	    bodyRenderer.Color_ = Color::FromBytes(77, 102, 255, 255);
+	    bodyRenderer.Material_.Albedo = Color::FromBytes(77, 102, 255, 255);
 
 		for (int i = 0; i < N; i++)
 		{
@@ -334,9 +338,9 @@ int ModelImportScene()
 int main()
 {
 	return GeometryShaderScene();
+	return LightingScene();
 	return Simple2DScene();
     return RandomTextureCubesScene();
-	return LightingScene();
-	return ModelImportScene();
 	return KinematicBody2DScene();
+	return ModelImportScene();
 }

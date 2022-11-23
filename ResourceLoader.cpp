@@ -53,6 +53,7 @@ Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const cha
 {
 	Melon::String vertSrc = readFile(vertFile);
 	Melon::String fragSrc = readFile(fragFile);
+	std::cout << vertFile << '\n';
 	const char* vertSrcC = vertSrc.c_str();
 	const char* fragSrcC = fragSrc.c_str();
 
@@ -109,6 +110,8 @@ Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const cha
 	Melon::String vertSrc = readFile(vertFile);
 	Melon::String fragSrc = readFile(fragFile);
 	Melon::String geomSrc = readFile(geomFile);
+
+	std::cout << vertFile << '\n';
 
 	const char* vertSrcC = vertSrc.c_str();
 	const char* fragSrcC = fragSrc.c_str();

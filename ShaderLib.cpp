@@ -13,14 +13,14 @@ Melon::Shader* Melon::Helpers::ShaderLib::LoadBasic(ShaderLoadOptions options)
 Melon::Shader* Melon::Helpers::ShaderLib::LoadBasic(String shadername)
 {
 	return ResourceLoader::LoadShader(
-		("ShaderLib/" + shadername + ".vert").c_str(), 
-		("ShaderLib/" + shadername + ".frag").c_str());
+		("ShaderLib/vert/" + shadername + ".vert").c_str(), 
+		("ShaderLib/frag/" + shadername + ".frag").c_str());
 }
 
 Melon::Shader* Melon::Helpers::ShaderLib::LoadGeom(String shadername)
 {
 	return ResourceLoader::LoadShader(
-		("ShaderLib/" + shadername + ".vert").c_str(), 
-		("ShaderLib/" + shadername + ".frag").c_str(),
-		("ShaderLib/" + shadername + ".geom").c_str());
+		("ShaderLib/vert/" + shadername + ".vert").c_str(), 
+		("ShaderLib/frag/" + shadername + ".frag").c_str(),
+		("ShaderLib/geom/" + shadername + ".geom").c_str());
 }

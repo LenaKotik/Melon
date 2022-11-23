@@ -1,5 +1,12 @@
 #include "Melon.hpp"
 
+Melon::Texture Melon::Texture::Default()
+{
+	Texture t;
+	t.handle = (GLuint)-1; // integer overflow, sets to maximum value, upon seeing 2**32 OpenGL should give an error
+	return t;
+}
+
 void Melon::Texture::Bind()
 {
 	glBindTexture(GL_TEXTURE_2D, this->handle);
@@ -9,18 +16,15 @@ void Melon::Texture::Delete()
 {
 	glDeleteTextures(1, &this->handle);
 }
-
-Melon::Texture::~Texture()
-{
-	this->Delete();
-}
-
+GLuint* Melon::TextureUnitManager::units = nullptr;
+GLbyte Melon::TextureUnitManager::cur = 0;
+GLint Melon::TextureUnitManager::MaxUnits = 16;
 GLint Melon::TextureUnitManager::GetMaxTextureUnits()
 {
 	return MaxUnits;
 }
 
-GLbyte Melon::TextureUnitManager::Add(Texture& t) // pass by reference because copying would be unnecessery
+GLbyte Melon::TextureUnitManager::Add(Texture t) // pass by reference because copying would be unnecessery
 {
 	// if texture overflow happens, we just wrap around, later should make this behavior configurable
 	if (cur >= MaxUnits) cur = 0; 
@@ -90,9 +94,26 @@ void Melon::Shader::SetTexture(Texture t, const char* name)
 	GLbyte u = TextureUnitManager::Add(t);
 	return SetInt(u, name);
 }
+
+void Melon::Shader::SetBrush(Melon::Brush b, const char* c_name)
+{
+	String name(c_name);
+	SetBool(b.isSolid, (name+"IsSolid").c_str());
+	if (b.isSolid) SetColor(b.Solid, (name + "Solid").c_str());
+	else SetTexture(b.Mapped, (name + "Map").c_str());
+}
+
+void Melon::Shader::SetMaterial(Melon::Material m, const char* c_name)
+{
+	String name(c_name);
+	SetBrush(m.Albedo, (name + ".albedo").c_str());
+	SetBrush(m.Diffuse, (name + ".diffuse").c_str());
+	SetBrush(m.Specular, (name + ".specular").c_str());
+	SetFloat(m.Shininess, (name + ".shininess").c_str());
+}
+
 Melon::DynamicFloatArray Melon::Renderer::GenBuffer(DynamicVertexArray arr, VertexAttributesConfig bitmask, int* stride, DynamicUIntArray * offsets, DynamicUIntArray* sizes)
 {
-	int i = 0;
 	if (bitmask & VertexAttributesConfig::Position3D)
 	{
 		offsets->push_back((GLuint)*stride);
@@ -220,4 +241,11 @@ void Melon::Mesh::ComputeNormals(Vector3 center) // probably works only with sim
 {
 	for (int i = 0; i < verticies.size(); i++) // loop thru all vertieces
 		verticies[i].Normal = (verticies[i].Position - center).Normalize(); // direction from center to the vertex
+}
+
+void Melon::Material::Delete()
+{
+	if (!Albedo.isSolid) Albedo.Mapped.Delete();
+	if (!Diffuse.isSolid) Diffuse.Mapped.Delete();
+	if (!Specular.isSolid) Specular.Mapped.Delete();
 }

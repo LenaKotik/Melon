@@ -1,65 +1,12 @@
-﻿  Math.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-D:\ProjectRoot\CppProj\Melon\Math.cpp(5,13): warning C4244: return: преобразование "double" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Math.cpp(11,13): warning C4244: return: преобразование "double" в "float", возможна потеря данных
-  MeshLib.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(84,23): warning C4018: <: несоответствие типов со знаком и без знака
-D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(84,59): warning C4018: <: несоответствие типов со знаком и без знака
-D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(87,31): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(87,55): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(88,21): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(88,45): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(89,21): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(100,17): warning C4244: инициализация: преобразование "double" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(101,23): warning C4018: <: несоответствие типов со знаком и без знака
-  Physics2D.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-  ROLib.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-  Rendering.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-D:\ProjectRoot\CppProj\Melon\Rendering.cpp(150,1): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
-  Rendering2.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-D:\ProjectRoot\CppProj\Melon\Rendering2.cpp(16,43): error C2664: "void Melon::Shader::SetMatrix4(Melon::Matrix4 &,const char *)": невозможно преобразовать аргумент 1 из "Melon::Matrix4" в "Melon::Matrix4 &"
-D:\ProjectRoot\CppProj\Melon\Rendering2.cpp(16,33): message : Неконстантная ссылка может быть связана только с левосторонним значением
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(222,8): message : см. объявление "Melon::Shader::SetMatrix4"
-D:\ProjectRoot\CppProj\Melon\Rendering2.cpp(48,43): error C2664: "void Melon::Shader::SetMatrix4(Melon::Matrix4 &,const char *)": невозможно преобразовать аргумент 1 из "Melon::Matrix4" в "Melon::Matrix4 &"
-D:\ProjectRoot\CppProj\Melon\Rendering2.cpp(48,33): message : Неконстантная ссылка может быть связана только с левосторонним значением
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(222,8): message : см. объявление "Melon::Shader::SetMatrix4"
-  ResourceLoader.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-  ShaderLib.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-  System.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-  Test.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(91,74): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(91,56): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(91,38): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(184,75): error C2664: "void Melon::Shader::SetColor(Melon::Color &,const char *)": невозможно преобразовать аргумент 1 из "Melon::Color" в "Melon::Color &"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(184,43): message : Неконстантная ссылка может быть связана только с левосторонним значением
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(221,8): message : см. объявление "Melon::Shader::SetColor"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(243,40): warning C4305: аргумент: усечение из "double" в "float"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(259,32): warning C4305: инициализация: усечение из "double" в "float"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(260,31): warning C4305: инициализация: усечение из "double" в "float"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(276,47): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-  Windowing.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(294,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(285): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-D:\ProjectRoot\CppProj\Melon\Windowing.cpp(153,20): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Windowing.cpp(153,17): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Windowing.cpp(226,20): warning C4244: return: преобразование "double" в "float", возможна потеря данных
-  Создание кода...
+﻿  Test.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(288,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(279): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(92,74): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(92,56): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(92,38): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(247,40): warning C4305: аргумент: усечение из "double" в "float"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(263,32): warning C4305: инициализация: усечение из "double" в "float"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(264,31): warning C4305: инициализация: усечение из "double" в "float"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(280,47): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(212): warning C4715: LightingScene: значение возвращается не при всех путях выполнения
+  Melon.vcxproj -> D:\ProjectRoot\CppProj\Melon\x64\Debug\Melon.exe

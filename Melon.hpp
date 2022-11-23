@@ -11,17 +11,19 @@
 //#include <assimp/scene.h>
 //#include <assimp/postprocess.h>
 
-//#define DEBUG_OUTPUT
+#define DEBUG_OUTPUT
 
 namespace Melon
 {
+	// Prototypes
+	class Camera;
+	class Renderer;
 	// Abstractions
 	class IDeleted // class that needs to "clean up" memory after itself
 	{
 	public:
 		virtual void Delete()=0;
 	};
-
 	class IShader // intersection between Shader and ComputeShader, felt important, might delete later
 	{
 	protected:
@@ -135,8 +137,11 @@ namespace Melon
 	};
 	using DynamicVertexArray = DynamicArray<Vertex>;
 
-	class Camera;
-    class Windowing;
+	// Algorithms
+	class ComputeShader : IShader, IDeleted
+	{
+		// not implemented yet
+	};
 
 	// Windowing
 	struct Window
@@ -188,9 +193,9 @@ namespace Melon
 	private:
 		GLuint handle;
 	public:
+		static Texture Default();
 		void Bind();
 		void Delete() override;
-		~Texture();
 	};
 	class TextureUnitManager
 	{
@@ -201,9 +206,11 @@ namespace Melon
 		static GLint MaxUnits;
 	public:
 		static GLint GetMaxTextureUnits();
-		static GLbyte Add(Texture& t);
+		static GLbyte Add(Texture t);
 		static void Clear();
 	};
+	struct Brush;
+	class Material;
 	class Shader : IShader, IDeleted
 	{
 		friend class ResourceLoader;
@@ -218,32 +225,13 @@ namespace Melon
 		void SetBool(bool v, const char* name);
 		void SetVector2(Vector2 v, const char* name);
 		void SetVector3(Vector3 v, const char* name);
-		void SetColor(Color v, const char* name);
 		void SetMatrix4(Matrix4 v, const char* name);
+		void SetColor(Color v, const char* name);
 		void SetTexture(Texture t, const char* name);
+		void SetBrush(Melon::Brush b, const char* name);
+		void SetMaterial(Melon::Material m, const char* name);
 	};
-	class ComputeShader : IShader, IDeleted
-	{
-		// not implemented yet
-	};
-	namespace Helpers
-	{
-		struct ShaderLoadOptions
-		{
-		public:
-			GLuint Attributes; // can't be an enum for some reason
-			bool UseQuaternionRotation;
-			bool UseLighting;
-		};
-		class ShaderLib
-		{
-		public:
-			static ComputeShader* LoadCompute(String shadername); // load a specific compute shader
-			static Shader* LoadBasic(ShaderLoadOptions options); // load a basic pipeline by option
-			static Shader* LoadBasic(String shadername); // load a specific basic pipeline
-			static Shader* LoadGeom(String shadername); // load a specific geometry pipeline
-		};
-	}
+
 	struct Mesh
 	{
 	public:
@@ -274,11 +262,17 @@ namespace Melon
 		bool isSolid;
 		Color Solid;
 		Texture Mapped;
+		Brush() : Brush(Color()) {} // as white solid
+		Brush(Color c) : Solid(c), isSolid(true), Mapped(Texture::Default()){}
+		Brush(Texture t) : Solid(), isSolid(false), Mapped(t) {}
 	};
-	class Material
+	class Material : IDeleted
 	{
 	public:
 		Brush Albedo,Diffuse,Specular;
+		float Shininess;
+		Material() {} // all set to white solid
+		void Delete() override;
 	};
 	class Renderer : IDeleted
 	{
@@ -302,6 +296,26 @@ namespace Melon
 		void Delete() override;
 		~Renderer();
 	};
+	namespace Helpers
+	{
+		struct ShaderLoadOptions
+		{
+		public:
+			GLuint Attributes; // can't be an enum for some reason
+			bool UseQuaternionRotation;
+			bool UseLighting;
+			ShaderLoadOptions(Renderer::VertexAttributesConfig attr, bool useQuat, bool useLight) :
+				Attributes((GLuint)attr), UseQuaternionRotation(useQuat), UseLighting(useLight) {}
+		};
+		class ShaderLib
+		{
+		public:
+			static ComputeShader* LoadCompute(String shadername); // load a specific compute shader
+			static Shader* LoadBasic(ShaderLoadOptions options); // load a basic pipeline by option
+			static Shader* LoadBasic(String shadername); // load a specific basic pipeline
+			static Shader* LoadGeom(String shadername); // load a specific geometry pipeline
+		};
+	}
 	// Engine
 	class Camera
 	{
@@ -336,8 +350,7 @@ namespace Melon
 	public:
 		Shader Shader_;
 		Renderer Renderer_;
-		Color Color_;
-		Texture Texture_;
+		Material Material_;
 		Vector2 Position;
 		Vector2 Scale;
 		float Rotation;
@@ -407,8 +420,7 @@ namespace Melon
 	public:
 		Renderer Renderer_;
 		Shader Shader_;
-		Color Color_;
-		Texture Texture_;
+		Material Material_;
 		Vector3 Position;
 		Vector3 Scale;
 		Vector3 Rotation;
