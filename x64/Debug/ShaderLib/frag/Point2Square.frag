@@ -3,8 +3,6 @@
 
 out vec4 outColor;
 
-in vec4 ColorGMul;
-
 struct Material {
     vec4 albedoSolid;
 	bool albedoIsSolid;
@@ -26,5 +24,5 @@ uniform Material material;
 
 void main()
 {
-	outColor = material.albedoSolid * ColorMul;
+	outColor = material.albedoSolid;
 }

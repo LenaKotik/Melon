@@ -1,10 +1,22 @@
 #include "Melon.hpp"
 
-Melon::Texture Melon::Texture::Default()
+
+Melon::Texture::Texture(TextureData data)
 {
-	Texture t;
-	t.handle = (GLuint)-1; // integer overflow, sets to maximum value, upon seeing 2**32 OpenGL should give an error
-	return t;
+	const GLenum color_spaces[] = { NULL, GL_RED, GL_RG, GL_RGB, GL_RGBA };
+
+	GLenum color_space = color_spaces[data.channels];
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glGenTextures(1, &handle);
+
+	glBindTexture(GL_TEXTURE_2D, handle);
+	glTexImage2D(GL_TEXTURE_2D, 0, color_space, data.width, data.height, 0, color_space, GL_UNSIGNED_BYTE, data.data);
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void Melon::Texture::Bind()
@@ -22,6 +34,10 @@ GLint Melon::TextureUnitManager::MaxUnits = 16;
 GLint Melon::TextureUnitManager::GetMaxTextureUnits()
 {
 	return MaxUnits;
+}
+void Melon::TextureData::Delete()
+{
+	stbi_image_free(data);
 }
 
 GLbyte Melon::TextureUnitManager::Add(Texture t) // pass by reference because copying would be unnecessery
@@ -49,11 +65,6 @@ void Melon::Shader::Delete()
 	glDeleteProgram(this->handle);
 }
 
-Melon::Shader::~Shader()
-{
-	if (this->ready)
-		this->Delete();
-}
 void Melon::Shader::SetFloat(float v, const char* name)
 {
 	GLint l = glGetUniformLocation(handle, name);

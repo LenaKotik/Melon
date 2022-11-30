@@ -1,145 +1,25 @@
-﻿glfw3.lib(win32_monitor.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glfw3.lib(wgl_context.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glfw3.lib(egl_context.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glfw3.lib(osmesa_context.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glfw3.lib(init.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glfw3.lib(win32_window.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glfw3.lib(win32_init.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glad.obj : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glfw3.lib(context.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glfw3.lib(window.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __security_check_cookie.
-glad.obj : error LNK2001: неразрешенный внешний символ __imp_strncmp.
-glfw3.lib(context.obj) : error LNK2001: неразрешенный внешний символ __imp_strncmp.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __imp_strncmp.
-glfw3.lib(egl_context.obj) : error LNK2001: неразрешенный внешний символ __imp_strncmp.
-glfw3.lib(osmesa_context.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(monitor.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(vulkan.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(wgl_context.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(egl_context.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(win32_window.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(win32_init.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(win32_monitor.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glad.obj : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(window.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glfw3.lib(init.obj) : error LNK2001: неразрешенный внешний символ __imp_free.
-glad.obj : error LNK2001: неразрешенный внешний символ strstr.
-glfw3.lib(context.obj) : error LNK2001: неразрешенный внешний символ strstr.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ strstr.
-glad.obj : error LNK2001: неразрешенный внешний символ __imp___stdio_common_vsscanf.
-glfw3.lib(context.obj) : error LNK2001: неразрешенный внешний символ __imp___stdio_common_vsscanf.
-glad.obj : error LNK2001: неразрешенный внешний символ __imp_malloc.
-Helpers.obj : error LNK2001: неразрешенный внешний символ __CxxFrameHandler4.
-Helpers.obj : error LNK2001: неразрешенный внешний символ __std_exception_destroy.
-Helpers.obj : error LNK2001: неразрешенный внешний символ "void * __cdecl operator new(unsigned __int64)" (??2@YAPEAX_K@Z).
-msvcprt.lib(locale0_implib.obj) : error LNK2001: неразрешенный внешний символ "void * __cdecl operator new(unsigned __int64)" (??2@YAPEAX_K@Z).
-Helpers.obj : error LNK2001: неразрешенный внешний символ __std_exception_copy.
-Helpers.obj : error LNK2001: неразрешенный внешний символ "void __cdecl operator delete(void *,unsigned __int64)" (??3@YAXPEAX_K@Z).
-msvcprt.lib(locale0_implib.obj) : error LNK2001: неразрешенный внешний символ "void __cdecl operator delete(void *,unsigned __int64)" (??3@YAXPEAX_K@Z).
-Helpers.obj : error LNK2001: неразрешенный внешний символ __std_terminate.
-Helpers.obj : error LNK2001: неразрешенный внешний символ "const type_info::`vftable'" (??_7type_info@@6B@).
-Helpers.obj : error LNK2001: неразрешенный внешний символ __imp__invalid_parameter_noinfo_noreturn.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp_fputc.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp___acrt_iob_func.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp_fflush.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp_fclose.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp_fgetc.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp___stdio_common_vfprintf.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp__unlock_file.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp__lock_file.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp_fwrite.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp_fgetpos.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp_setvbuf.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp_ungetc.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp_fsetpos.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp_fread.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp__fseeki64.
-ResourceLoader.obj : error LNK2001: неразрешенный внешний символ __imp__get_stream_buffer_pointers.
-stb_image.obj : error LNK2001: неразрешенный внешний символ __imp_ftell.
-stb_image.obj : error LNK2001: неразрешенный внешний символ __imp_ferror.
-stb_image.obj : error LNK2001: неразрешенный внешний символ __imp_realloc.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __imp_realloc.
-glfw3.lib(win32_monitor.obj) : error LNK2001: неразрешенный внешний символ __imp_realloc.
-glfw3.lib(monitor.obj) : error LNK2001: неразрешенный внешний символ __imp_realloc.
-stb_image.obj : error LNK2001: неразрешенный внешний символ __imp_fseek.
-stb_image.obj : error LNK2001: неразрешенный внешний символ __imp_fopen_s.
-stb_image.obj : error LNK2001: неразрешенный внешний символ __imp_strtol.
-stb_image.obj : error LNK2001: неразрешенный внешний символ __imp_ldexp.
-stb_image.obj : error LNK2001: неразрешенный внешний символ __imp_feof.
-Test.obj : error LNK2001: неразрешенный внешний символ _Init_thread_epoch.
-Test.obj : error LNK2001: неразрешенный внешний символ _Init_thread_footer.
-Test.obj : error LNK2001: неразрешенный внешний символ __imp_rand.
-Test.obj : error LNK2001: неразрешенный внешний символ _Init_thread_header.
-Test.obj : error LNK2001: неразрешенный внешний символ _Init_thread_abort.
-LINK : error LNK2001: неразрешенный внешний символ mainCRTStartup.
-glfw3.lib(wgl_context.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(egl_context.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(osmesa_context.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(win32_window.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(win32_init.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(win32_monitor.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(context.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(window.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(init.obj) : error LNK2001: неразрешенный внешний символ __GSHandlerCheck.
-glfw3.lib(wgl_context.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(egl_context.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(osmesa_context.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(win32_window.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(win32_init.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(win32_monitor.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(context.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(window.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(init.obj) : error LNK2001: неразрешенный внешний символ __security_cookie.
-glfw3.lib(window.obj) : error LNK2001: неразрешенный внешний символ __imp_strncpy.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __imp_strncpy.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ __imp_strncpy.
-glfw3.lib(monitor.obj) : error LNK2001: неразрешенный внешний символ __imp_strncpy.
-glfw3.lib(vulkan.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(wgl_context.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(egl_context.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(osmesa_context.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(win32_init.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(win32_monitor.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(monitor.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(window.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(init.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(win32_window.obj) : error LNK2001: неразрешенный внешний символ __imp_calloc.
-glfw3.lib(win32_init.obj) : error LNK2001: неразрешенный внешний символ memset.
-glfw3.lib(win32_monitor.obj) : error LNK2001: неразрешенный внешний символ memset.
-glfw3.lib(window.obj) : error LNK2001: неразрешенный внешний символ memset.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ memset.
-glfw3.lib(init.obj) : error LNK2001: неразрешенный внешний символ memset.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ memset.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ _fltused.
-glfw3.lib(win32_monitor.obj) : error LNK2001: неразрешенный внешний символ _fltused.
-glfw3.lib(monitor.obj) : error LNK2001: неразрешенный внешний символ _fltused.
-glfw3.lib(window.obj) : error LNK2001: неразрешенный внешний символ _fltused.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ _fltused.
-glfw3.lib(init.obj) : error LNK2001: неразрешенный внешний символ _fltused.
-glfw3.lib(win32_window.obj) : error LNK2001: неразрешенный внешний символ _fltused.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __imp_strcspn.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __imp_strspn.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ __imp_strtoul.
-glfw3.lib(input.obj) : error LNK2001: неразрешенный внешний символ memcpy.
-glfw3.lib(win32_monitor.obj) : error LNK2001: неразрешенный внешний символ memcpy.
-glfw3.lib(init.obj) : error LNK2001: неразрешенный внешний символ __imp___stdio_common_vsprintf.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ __imp___stdio_common_vsprintf.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ __imp_qsort.
-glfw3.lib(monitor.obj) : error LNK2001: неразрешенный внешний символ __imp_qsort.
-glfw3.lib(win32_joystick.obj) : error LNK2001: неразрешенный внешний символ strcmp.
-glfw3.lib(vulkan.obj) : error LNK2001: неразрешенный внешний символ strcmp.
-glfw3.lib(monitor.obj) : error LNK2001: неразрешенный внешний символ memmove.
-glfw3.lib(monitor.obj) : error LNK2001: неразрешенный внешний символ powf.
-msvcprt.lib(locale0_implib.obj) : error LNK2001: неразрешенный внешний символ atexit.
-msvcprt.lib(locale0_implib.obj) : error LNK2001: неразрешенный внешний символ __guard_dispatch_icall_fptr.
-D:\ProjectRoot\CppProj\Melon\x64\Release\Melon.exe : fatal error LNK1120: неразрешенных внешних элементов: 61
+﻿  glad.c
+  MeshLib.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,
+  Math.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,
+  Melon.cpp
+  Physics2D.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,
+  Rendering.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,
+  Rendering2.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,
+  ResourceLoader.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,
+  ROLib.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,
+  ShaderLib.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,
+  stb_image.cpp
+  System.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,
+  Test.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,
+  Windowing.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(10,10): fatal error C1083: Не удается открыть файл включение: assimp/Importer.hpp: No such file or directory,

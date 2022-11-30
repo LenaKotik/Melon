@@ -1,18 +1,21 @@
 #pragma once
 
+#include <bit>
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <cstring>
 #include <string>
 #include <glad/glad.h>
 #include <glfw3.h>
 #include <stb_image.h>
-//#include <assimp/Importer.hpp>
-//#include <assimp/scene.h>
-//#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h> 
+#include <AL/al.h>
+#include <AL/alc.h>
 
 #define DEBUG_OUTPUT
-
 namespace Melon
 {
 	// Prototypes
@@ -186,6 +189,17 @@ namespace Melon
 		static float GetDelta(); // time since last call (seconds)
 	};
 	// Rendering1
+	class TextureData : IDeleted
+	{
+	public:
+		GLubyte* data;
+		GLint width, height;
+		GLint channels;
+		TextureData() {}
+		TextureData(GLubyte* data_, GLint w, GLint h, GLint channels_)
+			: data(data_), width(w), height(h), channels(channels_) {}
+		void Delete() override;
+	};
 	class Texture : IDeleted
 	{
 		friend class ResourceLoader;
@@ -193,7 +207,8 @@ namespace Melon
 	private:
 		GLuint handle;
 	public:
-		static Texture Default();
+		Texture() : handle(-1) {}
+		Texture(TextureData);
 		void Bind();
 		void Delete() override;
 	};
@@ -214,12 +229,9 @@ namespace Melon
 	class Shader : IShader, IDeleted
 	{
 		friend class ResourceLoader;
-	private:
-		bool ready;
 	public:
 		void Use();
 		void Delete() override;
-		~Shader();
 		void SetFloat(float v, const char* name);
 		void SetInt(int v, const char* name);
 		void SetBool(bool v, const char* name);
@@ -263,8 +275,8 @@ namespace Melon
 		Color Solid;
 		Texture Mapped;
 		Brush() : Brush(Color()) {} // as white solid
-		Brush(Color c) : Solid(c), isSolid(true), Mapped(Texture::Default()){}
-		Brush(Texture t) : Solid(), isSolid(false), Mapped(t) {}
+		Brush(Color c) : Solid(c), isSolid(true){}
+		Brush(Texture t) : Mapped(t), isSolid(false){}
 	};
 	class Material : IDeleted
 	{
@@ -301,7 +313,7 @@ namespace Melon
 		struct ShaderLoadOptions
 		{
 		public:
-			GLuint Attributes; // can't be an enum for some reason
+			GLuint Attributes; 
 			bool UseQuaternionRotation;
 			bool UseLighting;
 			ShaderLoadOptions(Renderer::VertexAttributesConfig attr, bool useQuat, bool useLight) :
@@ -316,6 +328,32 @@ namespace Melon
 			static Shader* LoadGeom(String shadername); // load a specific geometry pipeline
 		};
 	}
+	// Audio
+	struct SoundMetaData
+	{
+	public:
+		ALint SampleRate;
+		ALint BitsPerSample;
+		GLuint Channels;
+		std::size_t Size; // size of the data, header excluded
+		ALdouble GetDuration();
+	};
+	class Listener
+	{
+
+	};
+	class Source
+	{
+
+	};
+	class SoundBuffer
+	{
+
+	};
+	class SoundStream
+	{
+
+	};
 	// Engine
 	class Camera
 	{
@@ -441,8 +479,9 @@ namespace Melon
 	class ResourceLoader 
 	{
 	public:
-		static Texture* LoadTexture(const char* filename);
-		static Shader*  LoadShader(const char* vertFile, const char* fragFile);
-		static Shader*  LoadShader(const char* vertFile, const char* fragFile, const char* geomFile);
+		static bool LoadTextureData(TextureData* result,const char* filename);
+		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile);
+		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile, const char* geomFile);
+		static bool LoadSound(SoundBuffer* result, const char* filename);
 	};
 }

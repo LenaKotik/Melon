@@ -75,15 +75,16 @@ int RandomTextureCubesScene()
 	if (!win) return -1;
 	win->SetCursor(false);
 
-	Texture* texture = ResourceLoader::LoadTexture("grass.jpeg");
-	if (!texture) return -1;
+	TextureData td;
+	if (!ResourceLoader::LoadTextureData(&td, "grass.jpeg")) return -1;
+	Texture texture(td);
 
 	Camera3D cam;
 	cam.Position = Vector3(0.0f, 0.0f, 3.0f);
 	win->MainCamera = &cam;
 
 	RenderedObject3D tm = *Helpers::Objects3D::TexturedShape(Helpers::Meshes::Cube());
-	tm.Material_.Albedo = *texture;
+	tm.Material_.Albedo = texture;
 
 	DynamicVector3Array pos;
 
@@ -120,9 +121,12 @@ int Simple2DScene()
 	RenderedObject2D shape2 = *Helpers::Objects2D::Shape(Helpers::Meshes::Quad());
 	RenderedObject2D sprite = *Helpers::Objects2D::Sprite();
 
+	TextureData td;
+	if (!ResourceLoader::LoadTextureData(&td, "melon.png")) return -1;
+
 	shape.Material_.Albedo = Color::FromBytes(251, 71, 71, 255);
 	shape2.Material_.Albedo = Color::FromBytes(32, 217, 36, 255);
-	sprite.Material_.Albedo = *ResourceLoader::LoadTexture("melon.png");
+	sprite.Material_.Albedo = Texture(td);
 
 	sprite.Scale = Vector2(2, 1);
 
@@ -218,7 +222,7 @@ int GeometryShaderScene()
 	win->SetCursor(false);
 
 	Mesh m = Helpers::Meshes::Cube();
-	//m.SetColor(Color::FromBytes(251, 71, 71, 255));
+	//m.SetColor(Color());
 	RenderedObject3D shape = *Helpers::Objects3D::Shape(m);
 	shape.Material_.Albedo = Color::FromBytes(251, 71, 71, 255);
 	m.PrimitiveType = GL_POINTS;
@@ -337,10 +341,10 @@ int ModelImportScene()
 
 int main()
 {
-	return GeometryShaderScene();
 	return LightingScene();
-	return Simple2DScene();
+	return GeometryShaderScene();
     return RandomTextureCubesScene();
+	return Simple2DScene();
 	return KinematicBody2DScene();
 	return ModelImportScene();
 }

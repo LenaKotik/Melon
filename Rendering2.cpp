@@ -7,7 +7,7 @@ void Melon::RenderedObject2D::BeginDraw(Window* win)
 	model = model.Rotate(Rotation, Vector3(0.0f, 0.0f, 1.0f));
 	model = model.Translate(Vector3(Position.x, Position.y, 0.0f));
 
-	Camera2D* cam = (Camera2D*)win->MainCamera; // abstract it
+	Camera* cam = win->MainCamera; // abstract it
 
 	Matrix4 ortho = Matrix4::Ortho(win->GetAspect(), 0, 100); // TODO: implement orthographic projection
 

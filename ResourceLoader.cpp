@@ -12,53 +12,27 @@ static Melon::String readFile(const char* file)
 	return res;
 }
 
-Melon::Texture* Melon::ResourceLoader::LoadTexture(const char* filename)
+bool Melon::ResourceLoader::LoadTextureData(TextureData* result, const char* filename)
 {
-	const GLenum color_spaces[] = { NULL, GL_RED, GL_RG, GL_RGB, GL_RGBA };
-
-	GLint width, height, channels;
-
 	stbi_set_flip_vertically_on_load(true);
 
-	GLubyte* img_mem = stbi_load(filename, &width, &height, &channels, 0);
+	result->data = stbi_load(filename, &result->width, &result->height, &result->channels, 0);
 
-	if (!img_mem)
+	if (!result->data)
 	{
 		fprintf(stderr, "failed to load texture: %s", filename);
-		return nullptr;
+		return false;
 	}
-
-	GLenum color_space = color_spaces[channels];
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	Texture* res = new Texture;
-
-	glGenTextures(1, &res->handle);
-
-	glBindTexture(GL_TEXTURE_2D, res->handle);
-	glTexImage2D(GL_TEXTURE_2D, 0, color_space, width, height, 0, color_space, GL_UNSIGNED_BYTE, img_mem);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	stbi_image_free(img_mem);
-
-	return res;
+	return true;
 }
 
 
-Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const char* fragFile)
+bool Melon::ResourceLoader::LoadShader(Melon::Shader* result, const char* vertFile, const char* fragFile)
 {
 	Melon::String vertSrc = readFile(vertFile);
 	Melon::String fragSrc = readFile(fragFile);
-	std::cout << vertFile << '\n';
 	const char* vertSrcC = vertSrc.c_str();
 	const char* fragSrcC = fragSrc.c_str();
-
-	Shader* shdr = new Shader;
-	shdr->ready = false;
 
 	GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -76,49 +50,40 @@ Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const cha
 	{
 		glGetShaderInfoLog(vertex, 512, NULL, log);
 		fprintf(stderr, "VERTEX SHADER COMPILATION FAILED:\n %s", log);
-		delete shdr;
-		return nullptr;
+		return false;
 	}
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
 		glGetShaderInfoLog(fragment, 512, NULL, log);
 		fprintf(stderr, "FRAGMENT SHADER COMPILATION FAILED:\n %s", log);
-		delete shdr;
-		return nullptr;
+		return false;
 	}
-	shdr->handle = glCreateProgram();
-	glAttachShader(shdr->handle, vertex);
-	glAttachShader(shdr->handle, fragment);
-	glLinkProgram(shdr->handle);
-	glGetProgramiv(shdr->handle, GL_LINK_STATUS, &success);
+	result->handle = glCreateProgram();
+	glAttachShader(result->handle, vertex);
+	glAttachShader(result->handle, fragment);
+	glLinkProgram(result->handle);
+	glGetProgramiv(result->handle, GL_LINK_STATUS, &success);
 	if (!success)
 	{
 		glGetProgramInfoLog(fragment, 512, NULL, log);
 		fprintf(stderr, "SHADER PROGRAM LINKING FAILED:\n %s", log);
-		delete shdr;
-		return nullptr;
+		return false;
 	}
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
-	shdr->ready = true;
-	return shdr;
+	return true;
 }
 
-Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const char* fragFile, const char* geomFile)
+bool Melon::ResourceLoader::LoadShader(Melon::Shader* result, const char* vertFile, const char* fragFile, const char* geomFile)
 {
 	Melon::String vertSrc = readFile(vertFile);
 	Melon::String fragSrc = readFile(fragFile);
 	Melon::String geomSrc = readFile(geomFile);
 
-	std::cout << vertFile << '\n';
-
 	const char* vertSrcC = vertSrc.c_str();
 	const char* fragSrcC = fragSrc.c_str();
 	const char* geomSrcC = geomSrc.c_str();
-
-	Shader* shdr = new Shader;
-	shdr->ready = false;
 
 	GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -139,41 +104,41 @@ Melon::Shader* Melon::ResourceLoader::LoadShader(const char* vertFile, const cha
 	{
 		glGetShaderInfoLog(vertex, 512, NULL, log);
 		fprintf(stderr, "VERTEX SHADER COMPILATION FAILED:\n %s", log);
-		delete shdr;
-		return nullptr;
+		return false;
 	}
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
 		glGetShaderInfoLog(fragment, 512, NULL, log);
 		fprintf(stderr, "FRAGMENT SHADER COMPILATION FAILED:\n %s", log);
-		delete shdr;
-		return nullptr;
+		return false;
 	}
 	glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
 		glGetShaderInfoLog(geometry, 512, NULL, log);
 		fprintf(stderr, "GEOMETRY SHADER COMPILATION FAILED:\n %s", log);
-		delete shdr;
-		return nullptr;
+		return false;
 	}
-	shdr->handle = glCreateProgram();
-	glAttachShader(shdr->handle, vertex);
-	glAttachShader(shdr->handle, fragment);
-	glAttachShader(shdr->handle, geometry);
-	glLinkProgram(shdr->handle);
-	glGetProgramiv(shdr->handle, GL_LINK_STATUS, &success);
+	result->handle = glCreateProgram();
+	glAttachShader(result->handle, vertex);
+	glAttachShader(result->handle, fragment);
+	glAttachShader(result->handle, geometry);
+	glLinkProgram(result->handle);
+	glGetProgramiv(result->handle, GL_LINK_STATUS, &success);
 	if (!success)
 	{
 		glGetProgramInfoLog(fragment, 512, NULL, log);
 		fprintf(stderr, "SHADER PROGRAM LINKING FAILED:\n %s", log);
-		delete shdr;
-		return nullptr;
+		return false;
 	}
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 	glDeleteShader(geometry);
-	shdr->ready = true;
-	return shdr;
+	return true;
+}
+
+bool Melon::ResourceLoader::LoadSound(SoundBuffer* result, const char* filename)
+{
+	return false;
 }
