@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bit>
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -95,6 +94,7 @@ namespace Melon
 	using DynamicIntArray = DynamicArray<int>;
 	using DynamicUIntArray = DynamicArray<unsigned int>;
 	using DynamicVector3Array = DynamicArray<Vector3>;
+	using DynamicStringArray = DynamicArray<String>;
 
 	struct Matrix4
 	{
@@ -147,7 +147,7 @@ namespace Melon
 	};
 
 	// Windowing
-	struct Window
+	struct Window : IDeleted
 	{
 	public:
 		GLFWwindow* handle;
@@ -162,8 +162,18 @@ namespace Melon
 		void Clear(Color, bool depth);
 		void Flip();
 		void Close();
-		void Destroy();
+		void Delete() override;
 		~Window();
+	};
+
+	struct AudioDevice : IDeleted
+	{
+	public:
+		static DynamicStringArray GetDeviceNames();
+		ALCdevice* handle;
+		ALCcontext* context;
+		void Delete() override;
+		~AudioDevice();
 	};
 
 	class Windowing
@@ -173,7 +183,10 @@ namespace Melon
 	public:
 		static Window* Init(unsigned int Width, unsigned int Height, const char* Title, bool depth); // initialize the current windowng system, that includes initializing glad
 		static Window* CreateWindow(unsigned int Width, unsigned int Height, const char* Title);
+		static AudioDevice* OpenAudioDevice();
+		static AudioDevice* OpenAudioDevice(const char* Device_name);
 		static void DestroyWindow(Window* win);
+		static void CloseAudioDevice(AudioDevice* device);
 		static void Terminate();
 		static void PollEvents();
 	};
@@ -344,11 +357,24 @@ namespace Melon
 	};
 	class Source
 	{
+	private:
+		ALuint handle;
+	public:
+		float Pitch = 1;
+		float Gain = 1;
+		Vector3 Position;
+		Vector3 Velocity;
+		bool loop;
 
 	};
-	class SoundBuffer
+	class SoundBuffer : IDeleted
 	{
-
+		friend class ResourceLoader;
+		friend class Source;
+	private:
+		ALuint handle;
+	public:
+		void Delete() override;
 	};
 	class SoundStream
 	{
@@ -476,12 +502,13 @@ namespace Melon
 		};
 	}
 	// Resources
+	bool LoadWav_(std::ifstream* file, Melon::SoundMetaData* header, char* data);
 	class ResourceLoader 
 	{
 	public:
 		static bool LoadTextureData(TextureData* result,const char* filename);
 		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile);
 		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile, const char* geomFile);
-		static bool LoadSound(SoundBuffer* result, const char* filename);
+		static bool LoadAudio(SoundBuffer* result, const char* filename);
 	};
 }

@@ -78,10 +78,38 @@ Melon::Window* Melon::Windowing::CreateWindow(unsigned int Width, unsigned int H
 	return res;
 }
 
+Melon::AudioDevice* Melon::Windowing::OpenAudioDevice()
+{
+	AudioDevice* device = new AudioDevice();
+	
+	device->handle = alcOpenDevice(nullptr);
+	
+	device->context = alcCreateContext(device->handle, nullptr); // TODO: add support for attributes
+	alcMakeContextCurrent(device->context);
+	
+	return device;
+}
+
+Melon::AudioDevice* Melon::Windowing::OpenAudioDevice(const char* Device_name)
+{
+	AudioDevice* device = new AudioDevice();
+	
+	device->handle = alcOpenDevice(Device_name);
+	
+	device->context = alcCreateContext(device->handle, nullptr); // TODO: add support for attributes
+	alcMakeContextCurrent(device->context);
+
+	return device;
+}
 
 void Melon::Windowing::DestroyWindow(Window* win)
 {
 	delete win;
+}
+
+void Melon::Windowing::CloseAudioDevice(AudioDevice* device)
+{
+	delete device;
 }
 
 
@@ -170,7 +198,7 @@ void Melon::Window::Close()
 	glfwSetWindowShouldClose(this->handle, true);
 }
 
-void Melon::Window::Destroy()
+void Melon::Window::Delete()
 {
 	this->Close();
 	printf("Window go bye bye\n");
@@ -179,7 +207,7 @@ void Melon::Window::Destroy()
 
 Melon::Window::~Window()
 {
-	this->Destroy();
+	this->Delete();
 }
 
 void Melon::Window::Flip()

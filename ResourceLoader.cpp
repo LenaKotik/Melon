@@ -138,7 +138,24 @@ bool Melon::ResourceLoader::LoadShader(Melon::Shader* result, const char* vertFi
 	return true;
 }
 
-bool Melon::ResourceLoader::LoadSound(SoundBuffer* result, const char* filename)
+bool Melon::ResourceLoader::LoadAudio(SoundBuffer* result, const char* filename) 
 {
-	return false;
+	SoundMetaData meta;
+	char* data = nullptr;
+
+	std::ifstream file(filename, std::ios::binary);
+	if (!file.is_open()) return false;
+
+	LoadWav_(&file, &meta, data); // TODO: implement more file formats
+	
+	file.close();
+
+	// the first bit is BPS (8=0;16=1) second bit is channel (1=0;2=1) 
+	ALenum format = AL_FORMAT_MONO8 + (meta.BitsPerSample == 16) + 2 * (meta.Channels == 2);
+
+	alGenBuffers(1, &result->handle);
+	alBufferData(result->handle, format, data, meta.Size, meta.SampleRate);
+
+	delete data;
+	return true;
 }

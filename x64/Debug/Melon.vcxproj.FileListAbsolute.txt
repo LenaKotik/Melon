@@ -1,1 +1,3 @@
 D:\ProjectRoot\CppProj\Melon\x64\Debug\Melon.exe
+D:\ProjectRoot\CppProj\Melon\x64\Debug\Melon.vcxproj.CopyComplete
+D:\ProjectRoot\CppProj\Melon\x64\Debug\OpenAL32.dll

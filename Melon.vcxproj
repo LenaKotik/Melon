@@ -179,6 +179,10 @@
   <ItemGroup>
     <ClInclude Include="Melon.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="better-call-saul.wav" />
+    <Media Include="me.wav" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

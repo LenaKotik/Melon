@@ -338,13 +338,46 @@ int ModelImportScene()
 {
 	return 0;
 }
+int SoundScene()
+{
+	Window * win = Windowing::Init(800, 800, "Sounds", false);
+	if (!win) return -1;
+
+	AudioDevice* audio = Windowing::OpenAudioDevice();
+	if (!audio) return -1;
+
+	RenderedObject2D circle = *Helpers::Objects2D::Shape(Helpers::Meshes::Circle(40));
+	circle.Material_.Albedo = Color::FromBytes(243, 28, 28, 255);
+
+	SoundBuffer buffer;
+	ResourceLoader::LoadAudio(&buffer, "me.wav");
+	
+	Camera2D cam;
+	win->MainCamera = &cam;
+
+	while (!win->ShouldClose())
+	{
+		//float delta = Time::GetDelta();
+
+		win->Clear(Color::FromBytes(255, 255, 255, 255), false);
+
+		circle.Draw(win);
+
+		win->Flip();
+		Windowing::PollEvents();
+	}
+	circle.Delete();
+	Windowing::Terminate();
+	return 0;
+}
 
 int main()
 {
+	return SoundScene();
+	return Simple2DScene();
 	return LightingScene();
 	return GeometryShaderScene();
     return RandomTextureCubesScene();
-	return Simple2DScene();
 	return KinematicBody2DScene();
 	return ModelImportScene();
 }
