@@ -3,14 +3,10 @@
 layout (points) in;
 layout (triangle_strip, max_vertices=4) out;
 
-uniform float radius;
-
-in vec4 ColorMul[];
-out vec4 ColorGMul;
+uniform float radius = 0.2f;
 
 void main()
 {
-    ColorGMul = ColorMul[0];
     gl_Position = gl_in[0].gl_Position + vec4(-radius, -radius, 0.0, 0.0);    // 1:bottom-left   
     EmitVertex();   
     gl_Position = gl_in[0].gl_Position + vec4( radius, -radius, 0.0, 0.0);    // 2:bottom-right

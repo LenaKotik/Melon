@@ -29,7 +29,7 @@ void Melon::Texture::Delete()
 	glDeleteTextures(1, &this->handle);
 }
 GLuint* Melon::TextureUnitManager::units = nullptr;
-GLbyte Melon::TextureUnitManager::cur = 0;
+Byte Melon::TextureUnitManager::cur = 0;
 GLint Melon::TextureUnitManager::MaxUnits = 16;
 GLint Melon::TextureUnitManager::GetMaxTextureUnits()
 {
@@ -40,7 +40,7 @@ void Melon::TextureData::Delete()
 	stbi_image_free(data);
 }
 
-GLbyte Melon::TextureUnitManager::Add(Texture t) // pass by reference because copying would be unnecessery
+Byte Melon::TextureUnitManager::Add(Texture t) // pass by reference because copying would be unnecessery
 {
 	// if texture overflow happens, we just wrap around, later should make this behavior configurable
 	if (cur >= MaxUnits) cur = 0; 
@@ -102,7 +102,7 @@ void Melon::Shader::SetMatrix4(Matrix4 v, const char* name)
 }
 void Melon::Shader::SetTexture(Texture t, const char* name)
 {
-	GLbyte u = TextureUnitManager::Add(t);
+	Byte u = TextureUnitManager::Add(t);
 	return SetInt(u, name);
 }
 
@@ -121,64 +121,65 @@ void Melon::Shader::SetMaterial(Melon::Material m, const char* c_name)
 	SetBrush(m.Diffuse, (name + ".diffuse").c_str());
 	SetBrush(m.Specular, (name + ".specular").c_str());
 	SetFloat(m.Shininess, (name + ".shininess").c_str());
+	SetFloat(m.Ambient, (name + ".ambient").c_str());
 }
 
 Melon::DynamicFloatArray Melon::Renderer::GenBuffer(DynamicVertexArray arr, VertexAttributesConfig bitmask, int* stride, DynamicUIntArray * offsets, DynamicUIntArray* sizes)
 {
 	if (bitmask & VertexAttributesConfig::Position3D)
 	{
-		offsets->push_back((GLuint)*stride);
-		sizes->push_back(3);
+		offsets->PushBack((GLuint)*stride);
+		sizes->PushBack(3);
 		*stride += 3;
 	}
 	if (bitmask & VertexAttributesConfig::TextureCoords)
 	{
-		offsets->push_back((GLuint)*stride);
-		sizes->push_back(2);
+		offsets->PushBack((GLuint)*stride);
+		sizes->PushBack(2);
 		*stride += 2;
 	}
 	if (bitmask & VertexAttributesConfig::Color)
 	{
-		offsets->push_back((GLuint)*stride);
-		sizes->push_back(3);
+		offsets->PushBack((GLuint)*stride);
+		sizes->PushBack(3);
 		*stride += 3;
 	}
 	if (bitmask & VertexAttributesConfig::Normal)
 	{
-		offsets->push_back((GLuint)*stride);
-		sizes->push_back(3);
+		offsets->PushBack((GLuint)*stride);
+		sizes->PushBack(3);
 		*stride += 3;
 	}
 	DynamicFloatArray res;
-	for (int i = 0; i < arr.size(); i++)
+	for (int i = 0; i < arr.Size(); i++)
 	{
 		if (bitmask & VertexAttributesConfig::Position3D)
 		{
-			res.push_back(arr[i].Position.x);
-			res.push_back(arr[i].Position.y);
-			res.push_back(arr[i].Position.z);
+			res.PushBack(arr[i].Position.x);
+			res.PushBack(arr[i].Position.y);
+			res.PushBack(arr[i].Position.z);
 		}
 		if (bitmask & VertexAttributesConfig::TextureCoords)
 		{
-			res.push_back(arr[i].TextureCoords.x);
-			res.push_back(arr[i].TextureCoords.y);
+			res.PushBack(arr[i].TextureCoords.x);
+			res.PushBack(arr[i].TextureCoords.y);
 		}
 		if (bitmask & VertexAttributesConfig::Color)
 		{
-			res.push_back(arr[i].Color_.R);
-			res.push_back(arr[i].Color_.G);
-			res.push_back(arr[i].Color_.B);
+			res.PushBack(arr[i].Color_.R);
+			res.PushBack(arr[i].Color_.G);
+			res.PushBack(arr[i].Color_.B);
 		}
 		if (bitmask & VertexAttributesConfig::Normal)
 		{
-			res.push_back(arr[i].Normal.x);
-			res.push_back(arr[i].Normal.y);
-			res.push_back(arr[i].Normal.z);
+			res.PushBack(arr[i].Normal.x);
+			res.PushBack(arr[i].Normal.y);
+			res.PushBack(arr[i].Normal.z);
 		}
 	}
 	return res;
 }
-Melon::Renderer::Renderer(Mesh* mesh, VertexAttributesConfig a) : indexed(mesh->is_indexed), indC(mesh->indecies.size()), vertC(mesh->verticies.size()), PrimitiveType(mesh->PrimitiveType)
+Melon::Renderer::Renderer(Mesh* mesh, VertexAttributesConfig a) : indexed(mesh->is_indexed), indC(mesh->indecies.Size()), vertC(mesh->verticies.Size()), PrimitiveType(mesh->PrimitiveType)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -196,17 +197,17 @@ Melon::Renderer::Renderer(Mesh* mesh, VertexAttributesConfig a) : indexed(mesh->
 	DynamicFloatArray buffer = GenBuffer(mesh->verticies, a, &stride, &offsets, &sizes);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(float), buffer.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, buffer.Size() * sizeof(float), buffer.Data, GL_STATIC_DRAW);
 
 	if (indexed)
 	{
 		glGenBuffers(1, &EBO);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indecies.size() * sizeof(unsigned int), mesh->indecies.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indecies.Size() * sizeof(unsigned int), mesh->indecies.Data, GL_STATIC_DRAW);
 	}
 
-	for (int i = 0; i < sizes.size(); i++)
+	for (int i = 0; i < sizes.Size(); i++)
 	{
 		glVertexAttribPointer(i, sizes[i], GL_FLOAT, 0, stride * sizeof(float), (void*)(offsets[i] * sizeof(float)));
 		glEnableVertexAttribArray(i);
@@ -242,7 +243,7 @@ Melon::Renderer::~Renderer()
 
 void Melon::Mesh::SetColor(Melon::Color c)
 {
-	for (int i = 0; i < verticies.size(); i++)
+	for (int i = 0; i < verticies.Size(); i++)
 	{
 		verticies[i].Color_ = c;
 	}
@@ -250,7 +251,7 @@ void Melon::Mesh::SetColor(Melon::Color c)
 
 void Melon::Mesh::ComputeNormals(Vector3 center) // probably works only with simple shapes
 {
-	for (int i = 0; i < verticies.size(); i++) // loop thru all vertieces
+	for (int i = 0; i < verticies.Size(); i++) // loop thru all vertieces
 		verticies[i].Normal = (verticies[i].Position - center).Normalize(); // direction from center to the vertex
 }
 

@@ -16,7 +16,7 @@ static std::int32_t big_endian(char* dword) // this whole thing is cursed
 	}
 	return *(std::int32_t*)dword;
 }
-bool LoadWavHeader(std::ifstream* file, Melon::SoundMetaData* result)
+bool LoadWavHeader(std::ifstream* file, Melon::AudioHeaderData* result)
 {
 	char buffer[5];
 	buffer[4] = '\0'; // set last to null, we never write here anyway
@@ -59,7 +59,7 @@ bool LoadWavHeader(std::ifstream* file, Melon::SoundMetaData* result)
 	
 	return !file->fail();
 }
-bool Melon::LoadWav_(std::ifstream* file, Melon::SoundMetaData* header, char* data)
+bool Melon::LoadWav_(std::ifstream* file, Melon::AudioHeaderData* header, char* data)
 {
 	if (!LoadWavHeader(file, header)) return false;
 	data = new char[header->Size];

@@ -8,13 +8,17 @@
 #include <glad/glad.h>
 #include <glfw3.h>
 #include <stb_image.h>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h> 
+//#include <assimp/Importer.hpp>
+//#include <assimp/scene.h>
+//#include <assimp/postprocess.h> 
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H // sus
 
 #define DEBUG_OUTPUT
+typedef std::uint8_t Byte;
+typedef unsigned long long Size_t;
 namespace Melon
 {
 	// Prototypes
@@ -31,8 +35,91 @@ namespace Melon
 	protected:
 		GLuint handle;
 	};
+	class Stream
+	{
+	public:
+		enum SeekPosition
+		{
+			Beginning = std::ios::_Seekbeg,
+			Current = std::ios::_Seekcur,
+			End = std::ios::_Seekend,
+		};
+		virtual bool Seek(Size_t offset, SeekPosition from)=0;
+		virtual Size_t Tell()=0;
+		virtual Size_t Size()=0;
+	};
+	class InputStream : Stream
+	{
+	public:
+		virtual bool Read(Byte* destination, Size_t bytes_to_read) = 0;
+	};
+	class OutputStream : Stream
+	{
+	public:
+		virtual bool Write(Byte* source, Size_t bytes_to_write) = 0;
+	};
+	
+	template <typename T,Size_t N>
+	class FixedArray
+	{
+	public:
+		T Data[N];
+		constexpr Size_t Size() const { return N; }
+		constexpr Size_t ByteSize() const { return N * sizeof(T); }
+		T& operator [](Size_t index) { return Data[index]; }
+		const T& operator [](Size_t index) const { return Data[index]; }
+		T* begin() const { return Data; }
+		T* end() const { return Data + N; }
+	};
+	template <typename T>
+	class DynamicArray
+	{
+	private:
+		Size_t actual_size;
+		Size_t size;
+	public:
+		T* Data;
+		/// <returns>amount of actual elements</returns>
+		Size_t Size() const;
+		/// <returns>ocupied size in bytes</returns>
+		Size_t ByteSize() const;
+		bool Resize(Size_t end_size);
+		void PushBack(T element);
+		T PeekBack();
+		T PopBack();
+		T& operator [](Size_t index);
+		const T& operator [](Size_t index) const;
+		T* begin() const; // foreach loop support
+		T* end() const;
+		DynamicArray(std::initializer_list<T>);
+		DynamicArray();
+	};
+	using DynamicFloatArray = DynamicArray<float>;
+	using DynamicIntArray = DynamicArray<int>;
+	using DynamicUIntArray = DynamicArray<unsigned int>;
+
+	template <Size_t IN, Size_t OUT>
+	class Controller
+	{
+	public:
+		virtual FixedArray<float, OUT> Value(FixedArray<float, IN>)=0;
+	};
+
+	template <Size_t IN>
+	class Controller<IN, 0>
+	{
+	public:
+		virtual void Value(FixedArray<float, IN>) = 0;
+	};
+	template <Size_t OUT>
+	class Controller<0, OUT>
+	{
+	public:
+		virtual FixedArray<float, OUT> Value() = 0;
+	};
 	// System & Math
 	using String = std::string;
+	using DynamicStringArray = DynamicArray<String>;
 	const double Pi = 3.14159265358979323846;
 
 	float deg2rad(float deg);
@@ -88,13 +175,8 @@ namespace Melon
 		float MagnitudeSqr() const;
 		Vector3 Normalize() const;
 	};
-	
-#define DynamicArray std::vector
-	using DynamicFloatArray = DynamicArray<float>;
-	using DynamicIntArray = DynamicArray<int>;
-	using DynamicUIntArray = DynamicArray<unsigned int>;
 	using DynamicVector3Array = DynamicArray<Vector3>;
-	using DynamicStringArray = DynamicArray<String>;
+
 
 	struct Matrix4
 	{
@@ -109,6 +191,7 @@ namespace Melon
 		Matrix4 operator-(const Matrix4& oth) const;
 		Matrix4 operator*(const Matrix4& oth) const;
 		Matrix4 operator*(const float& scalar) const;
+		Vector3 Transform(const Vector3 vec) const;
 		Matrix4 Translate(const Vector3 pos) const;
 		Matrix4 Rotate(const float angle, const Vector3 axis) const;
 		Matrix4 Scale(const float scalar) const;
@@ -135,6 +218,7 @@ namespace Melon
 		Color Color_;
 		Vector2 TextureCoords;
 		Vector3 Normal;
+		Vertex() {}
 		Vertex(Vector3 p, Color c, Vector2 st) : Position(p), Color_(c), TextureCoords(st), Normal(0) {};
 		Vertex(Vector3 p, Color c, Vector2 st, Vector3 n) : Position(p), Color_(c), TextureCoords(st), Normal(n) {};
 	};
@@ -170,6 +254,9 @@ namespace Melon
 	{
 	public:
 		static DynamicStringArray GetDeviceNames();
+		String GetName();
+		ALenum GetDeviceError();
+		ALenum GetContextError();
 		ALCdevice* handle;
 		ALCcontext* context;
 		void Delete() override;
@@ -205,11 +292,11 @@ namespace Melon
 	class TextureData : IDeleted
 	{
 	public:
-		GLubyte* data;
+		Byte* data;
 		GLint width, height;
 		GLint channels;
 		TextureData() {}
-		TextureData(GLubyte* data_, GLint w, GLint h, GLint channels_)
+		TextureData(Byte* data_, GLint w, GLint h, GLint channels_)
 			: data(data_), width(w), height(h), channels(channels_) {}
 		void Delete() override;
 	};
@@ -230,11 +317,11 @@ namespace Melon
 		friend class Windowing;
 	private:
 		static GLuint* units;
-		static GLbyte cur;
+		static Byte cur;
 		static GLint MaxUnits;
 	public:
 		static GLint GetMaxTextureUnits();
-		static GLbyte Add(Texture t);
+		static Byte Add(Texture t);
 		static void Clear();
 	};
 	struct Brush;
@@ -295,12 +382,21 @@ namespace Melon
 	{
 	public:
 		Brush Albedo,Diffuse,Specular;
-		float Shininess;
-		Material() {} // all set to white solid
+		float Shininess, Ambient;
+		Material() : Shininess(1), Ambient(1){}
 		void Delete() override;
 	};
+	namespace Helpers
+	{
+		class Materials
+		{
+		public:
+			static Material Gold();
+		};
+	}
 	class Renderer : IDeleted
 	{
+	public:
 		enum VertexAttributesConfig;
 	private:
 		bool indexed;
@@ -342,62 +438,83 @@ namespace Melon
 		};
 	}
 	// Audio
-	struct SoundMetaData
+	struct AudioHeaderData
 	{
 	public:
 		ALint SampleRate;
 		ALint BitsPerSample;
 		GLuint Channels;
-		std::size_t Size; // size of the data, header excluded
+		Size_t Size; // size of the data, header excluded
 		ALdouble GetDuration();
 	};
-	class Listener
-	{
-
-	};
-	class Source
-	{
-	private:
-		ALuint handle;
-	public:
-		float Pitch = 1;
-		float Gain = 1;
-		Vector3 Position;
-		Vector3 Velocity;
-		bool loop;
-
-	};
-	class SoundBuffer : IDeleted
+	class AudioBuffer : IDeleted
 	{
 		friend class ResourceLoader;
-		friend class Source;
+		friend class AudioSource;
 	private:
 		ALuint handle;
 	public:
 		void Delete() override;
 	};
-	class SoundStream
+	class AudioListener
 	{
 
 	};
+	class AudioSource : IDeleted
+	{
+	private:
+		ALuint handle;
+		DynamicArray<AudioBuffer> streamingBuffers;
+	public:
+		ALuint StreamingBufferCount; // the amount of buffers used to stream audio, don't change this mid-streaming
+		Size_t StreamingBufferSize; // the size of buffer used to stream audio, don't change this mid-streaming
+		ALfloat Pitch ;
+		ALfloat Gain;
+		Vector3 Position;
+		Vector3 Velocity;
+		bool Loop = false;
+		AudioSource();
+		void Delete() override;
+		void Play(AudioBuffer* buffer);
+		void Play(InputStream* stream, AudioHeaderData* header);
+		void Resume(); // if stopped, replays the source 
+		void Stop();
+		void Pause();
+		void Rewind();
+		bool IsPlaying();
+		/// <summary>
+		/// Must be called consistently after calling Play(InputStream), and until playing is finished/stopped.
+		/// Perfect call frequency depends on StreamingBufferCount and StreamingBufferSize,
+		/// but easiest way is to call per frame
+		/// </summary>
+		/// <param name="same_stream">the stream passed earlier to the Play function</param>
+		void UpdateStreaming(InputStream* same_stream);
+	};
 	// Engine
+	class CoordinateSystem
+	{
+	public:
+		virtual Matrix4 TransformationTo()=0;
+		virtual Matrix4 TransformationFrom()=0;
+	};
 	class Camera
 	{
 	public:
 		virtual Matrix4 GetView() = 0;
 	};
-	class PhysicsBody
-	{
-	public:
-		virtual void Update(float delta) = 0;
-	};
-	class Collider
-	{
-
-	};
 	class CollisionSolver {};
 	// Enigne 2D
 	// Rendering
+	class CoordinateSystem2D : CoordinateSystem
+	{
+	public:
+		Vector2 Position;
+		float Rotation;
+		Vector2 Scale;
+		CoordinateSystem2D() : Position(0.0f),Rotation(0.0f),Scale(1.0f) {}
+		Matrix4 TransformationTo() override;
+		Matrix4 TransformationFrom() override;
+	};
 	class Camera2D : public Camera
 	{
 	public:
@@ -405,6 +522,7 @@ namespace Melon
 		float Rotation;
 		float Zoom;
 		Camera2D() : Position(0.0f), Rotation(0.0f) {};
+		CoordinateSystem2D GetCoordinateSystem();
 		Matrix4 GetView();
 	};
 	class RenderedObject2D : IDeleted
@@ -415,10 +533,8 @@ namespace Melon
 		Shader Shader_;
 		Renderer Renderer_;
 		Material Material_;
-		Vector2 Position;
-		Vector2 Scale;
-		float Rotation;
-		RenderedObject2D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a), Position(0.0f), Rotation(0.0f), Scale(1.0f) {};
+		CoordinateSystem2D T;
+		RenderedObject2D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a) {};
 		virtual void Delete();
 		virtual void Draw(Window* win);
 	};
@@ -432,40 +548,19 @@ namespace Melon
 		};
 	}
 	// Physics
-	class Collider2D : public Collider
-	{
-	};
-	class CircleCollider2D : public Collider2D
-	{
-	public:
-		float Radius;
-		CircleCollider2D() : Radius(1.0f) {};
-		CircleCollider2D(float r) : Radius(r) {};
-	};
-	class PhysicsBody2D : public PhysicsBody
-	{
-	public:
-		Vector2 Position;
-		Collider2D* Collider_;
-		PhysicsBody2D() {};
-		PhysicsBody2D(Collider2D& coll) : Collider_(&coll) {};
-	};
-	class KinematicBody2D : public PhysicsBody2D
-	{
-	public:
-		Vector2 PositionLast;
-		Vector2 Acceleration;
-		KinematicBody2D() {};
-		KinematicBody2D(Collider2D& coll) : PhysicsBody2D(coll) {};
-		void Update(float delta);
-	};
-	class CollisionSolver2D : public CollisionSolver
-	{
-	public:
-		void Solve(CircleCollider2D& A, CircleCollider2D& B, Vector2*Ap, Vector2* Bp);
-	};
+	
 	// Engine 3D
 	// Rendering
+	class CoordinateSystem3D : CoordinateSystem
+	{
+	public:
+		Vector3 Position;
+		Vector3 Rotation;
+		Vector3 Scale;
+		CoordinateSystem3D() : Position(0.0f), Rotation(0.0f), Scale(1.0f) {}
+		Matrix4 TransformationTo() override;
+		Matrix4 TransformationFrom() override;
+	};
 	class Camera3D : public Camera
 	{
 	public:
@@ -475,6 +570,7 @@ namespace Melon
 		Vector3 Up;
 		Camera3D() : Position(0.0f), Direction(0.0f, 0.0f, -1.0f),
 			Up(0.0f, 1.0f, 0.0f), FOV(45.0f) {};
+		CoordinateSystem3D GetCoordinateSystem();
 		Matrix4 GetView();
 	};
 	class RenderedObject3D : IDeleted
@@ -485,10 +581,8 @@ namespace Melon
 		Renderer Renderer_;
 		Shader Shader_;
 		Material Material_;
-		Vector3 Position;
-		Vector3 Scale;
-		Vector3 Rotation;
-		RenderedObject3D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a), Position(0.0f), Rotation(0.0f), Scale(1.0f) {};
+		CoordinateSystem3D T;
+		RenderedObject3D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a) {};
 		void Delete() override;
 		virtual void Draw(Window* win);
 	};
@@ -502,13 +596,16 @@ namespace Melon
 		};
 	}
 	// Resources
-	bool LoadWav_(std::ifstream* file, Melon::SoundMetaData* header, char* data);
+	bool LoadWav_(std::ifstream* file, Melon::AudioHeaderData* header, char* data);
 	class ResourceLoader 
 	{
 	public:
 		static bool LoadTextureData(TextureData* result,const char* filename);
 		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile);
 		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile, const char* geomFile);
-		static bool LoadAudio(SoundBuffer* result, const char* filename);
+		static bool LoadAudio(AudioBuffer* result, const char* filename);
 	};
 }
+
+
+#include "Collections.inl"

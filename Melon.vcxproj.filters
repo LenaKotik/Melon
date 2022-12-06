@@ -63,6 +63,9 @@
     <ClCompile Include="AudioLoading.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Misc.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="melon.png">
@@ -84,5 +87,10 @@
     <Media Include="better-call-saul.wav">
       <Filter>Файлы ресурсов</Filter>
     </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Collections.inl">
+      <Filter>Файлы заголовков</Filter>
+    </None>
   </ItemGroup>
 </Project>

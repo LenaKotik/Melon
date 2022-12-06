@@ -114,7 +114,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/NODEFAULTLIB:MSVCRT %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>assimp-vc142-mtd.lib;glad.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mt.lib;glad.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\Libs</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -150,7 +150,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/NODEFAULTLIB:MSVCRT %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>assimp-vc142-mtd.lib;glad.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mt.lib;glad.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\Libs</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -161,6 +161,7 @@
     <ClCompile Include="MeshLib.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Melon.cpp" />
+    <ClCompile Include="Misc.cpp" />
     <ClCompile Include="Physics2D.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="Rendering2.cpp" />
@@ -182,6 +183,9 @@
   <ItemGroup>
     <Media Include="better-call-saul.wav" />
     <Media Include="me.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Collections.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

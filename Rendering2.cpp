@@ -2,10 +2,7 @@
 
 void Melon::RenderedObject2D::BeginDraw(Window* win)
 {
-	Matrix4 model(1.0f);
-	model = model.Scale(Vector3(Scale.x, Scale.y, 1.0f));
-	model = model.Rotate(Rotation, Vector3(0.0f, 0.0f, 1.0f));
-	model = model.Translate(Vector3(Position.x, Position.y, 0.0f));
+	Matrix4 model = T.TransformationFrom();
 
 	Camera* cam = win->MainCamera; // abstract it
 
@@ -34,10 +31,8 @@ void Melon::RenderedObject2D::Draw(Window* win)
 
 void Melon::RenderedObject3D::BeginDraw(Window* win)
 {
-	Matrix4 model(1.0f);
-	model = model.Scale(Scale);
-	model = model.Rotate(1.0f, Rotation);
-	model = model.Translate(Position);
+
+	Matrix4 model = T.TransformationFrom();
 
 	Camera3D* cam = (Camera3D *)win->MainCamera; // this too
 	Matrix4 persp = Matrix4::Perspective(cam->FOV, win->GetAspect(), 0.1f, 100.0f);
@@ -59,6 +54,5 @@ void Melon::RenderedObject3D::Delete()
 void Melon::RenderedObject3D::Draw(Window* win)
 {
 	BeginDraw(win);
-	Shader_.Use();
 	Renderer_.Draw();
 }

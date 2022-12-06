@@ -217,6 +217,20 @@ Melon::Matrix4 Melon::Matrix4::operator-(const Matrix4& oth) const
 *	for x,y in range 4x4:
 *		for i in range 4:
 *			cxy += axi * biy
+* 
+* mat x vector
+* 
+* [4, 2, 0]       [3]          [3 * 4 + 4 * 2 + 5 * 0]  [c0 = v0 * m00 + v1 * m01 + v2 * m02]
+* [0, 7, 2]   *   [4]     =    [3 * 0 + 4 * 7 + 5 * 2]  [c1 = v0 * m10 + v1 * m11 + v2 * m12]
+* [5, 4, 3]       [5]          [3 * 5 + 4 * 4 + 5 * 3]  [c2 = v0 * m20 + v1 * m21 + v2 * m22]
+* 
+*  cx = v0 * mx0 + v1 * mx1 + v2 * mx2
+* 
+*  cx = v0 * mx0 + v1 * mx1 + v2 * mx2 + v3 * mx3
+* 
+* for x,y in range 4x4:
+*    cx += vy * mxy
+* 
 */
 
 
@@ -234,6 +248,19 @@ Melon::Matrix4 Melon::Matrix4::operator*(const float& scalar) const
 	Matrix4 res;
 	for (int x = 0; x < 4; x++) for (int y = 0; y < 4; y++)
 		res.Value[x][y] = Value[x][y] * scalar;
+	return res;
+}
+
+Melon::Vector3 Melon::Matrix4::Transform(const Vector3 vec) const
+{
+	Vector3 res(0);
+	float w;
+	res.x = vec.x * Value[0][0] + vec.y * Value[0][1] + vec.z * Value[0][2] + Value[0][3];
+	res.y = vec.x * Value[1][0] + vec.y * Value[1][1] + vec.z * Value[1][2] + Value[1][3];
+	res.z = vec.x * Value[2][0] + vec.y * Value[2][1] + vec.z * Value[2][2] + Value[2][3];
+	w     = vec.x * Value[3][0] + vec.y * Value[3][1] + vec.z * Value[3][2] + Value[3][3];
+	res = res * (1.0f / w);
+
 	return res;
 }
 
@@ -359,4 +386,36 @@ Melon::Matrix4 Melon::Camera2D::GetView()
 	res = res.Translate(Vector3(-Position.x,-Position.y, 0));
 	res = res.Rotate(Rotation, Vector3(0.0f, 0.0f, 1.0f));
 	return res;
+}
+Melon::Matrix4 Melon::CoordinateSystem2D::TransformationTo()
+{
+	Matrix4 model(1.0f);
+	model = model.Translate(-Vector3(Position.x, Position.y, 0.0f));
+	model = model.Rotate(-Rotation, Vector3(0.0f, 0.0f, 1.0f));
+	model = model.Scale(Vector3(1.0f / Scale.x, 1.0f / Scale.y, 1.0f));
+	return model;
+}
+Melon::Matrix4 Melon::CoordinateSystem2D::TransformationFrom()
+{
+	Matrix4 model(1.0f);
+	model = model.Scale(Vector3(Scale.x, Scale.y, 1.0f));
+	model = model.Rotate(Rotation, Vector3(0.0f, 0.0f, 1.0f));
+	model = model.Translate(Vector3(Position.x, Position.y, 0.0f));
+	return model;
+}
+Melon::Matrix4 Melon::CoordinateSystem3D::TransformationTo()
+{
+	Matrix4 model(1.0f);
+	model = model.Translate(-Position);
+	model = model.Rotate(1.0f, Rotation);
+	model = model.Scale(Vector3(1.0f / Scale.x, 1.0f / Scale.y, 1.0f/Scale.z));
+	return model;
+}
+Melon::Matrix4 Melon::CoordinateSystem3D::TransformationFrom()
+{
+	Matrix4 model(1.0f);
+	model = model.Scale(Scale);
+	model = model.Rotate(1.0f, Rotation);
+	model = model.Translate(Position);
+	return model;
 }

@@ -1,13 +1,55 @@
-﻿  Test.cpp
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(300,3): warning C4240: нестандартное расширение: уровень доступа "Melon::Renderer::VertexAttributesConfig" теперь задан как "public", но ранее он был определен как "private"
-D:\ProjectRoot\CppProj\Melon\Melon.hpp(291): message : см. объявление "Melon::Renderer::VertexAttributesConfig"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(93,74): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(93,56): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(93,38): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(251,40): warning C4305: аргумент: усечение из "double" в "float"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(267,32): warning C4305: инициализация: усечение из "double" в "float"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(268,31): warning C4305: инициализация: усечение из "double" в "float"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(284,47): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(349,14): warning C4101: buffer: неиспользованная локальная переменная
-D:\ProjectRoot\CppProj\Melon\Test.cpp(216): warning C4715: LightingScene: значение возвращается не при всех путях выполнения
+﻿  Audio.cpp
+  AudioLoading.cpp
+  MeshLib.cpp
+D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(84,23): warning C4018: <: несоответствие типов со знаком и без знака
+D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(84,59): warning C4018: <: несоответствие типов со знаком и без знака
+D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(87,31): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(87,55): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(88,21): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(88,45): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(89,21): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(100,17): warning C4244: инициализация: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\MeshLib.cpp(101,23): warning C4018: <: несоответствие типов со знаком и без знака
+  Math.cpp
+D:\ProjectRoot\CppProj\Melon\Math.cpp(5,13): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Math.cpp(11,13): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  Misc.cpp
+  Physics2D.cpp
+  Rendering.cpp
+D:\ProjectRoot\CppProj\Melon\Rendering.cpp(182,98): warning C4244: инициализация: преобразование "Size_t" в "int", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Rendering.cpp(182,128): warning C4244: инициализация: преобразование "Size_t" в "int", возможна потеря данных
+  Rendering2.cpp
+  ResourceLoader.cpp
+D:\ProjectRoot\CppProj\Melon\ResourceLoader.cpp(153,56): warning C4244: аргумент: преобразование "Size_t" в "ALsizei", возможна потеря данных
+  ROLib.cpp
+  ShaderLib.cpp
+D:\ProjectRoot\CppProj\Melon\ShaderLib.cpp(37,1): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\ShaderLib.cpp(37,1): warning C4305: аргумент: усечение из "double" в "float"
+  System.cpp
+  Test.cpp
+D:\ProjectRoot\CppProj\Melon\Test.cpp(94,73): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(94,55): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(94,37): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(95,91): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=double
+          ]
+D:\ProjectRoot\CppProj\Melon\Test.cpp(95,59): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=double
+          ]
+D:\ProjectRoot\CppProj\Melon\Test.cpp(95,29): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=double
+          ]
+D:\ProjectRoot\CppProj\Melon\Test.cpp(249,40): warning C4305: аргумент: усечение из "double" в "float"
+  Windowing.cpp
+D:\ProjectRoot\CppProj\Melon\Windowing.cpp(181,20): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Windowing.cpp(181,17): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Windowing.cpp(254,20): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  Создание кода...
+D:\ProjectRoot\CppProj\Melon\Test.cpp(215): warning C4715: LightingScene: значение возвращается не при всех путях выполнения
   Melon.vcxproj -> D:\ProjectRoot\CppProj\Melon\x64\Debug\Melon.exe

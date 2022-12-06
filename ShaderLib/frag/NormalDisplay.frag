@@ -2,7 +2,6 @@
 
 out vec4 outColor;
 
-in vec4 ColorMul;
 struct Material {
     vec4 albedoSolid;
 	bool albedoIsSolid;
@@ -19,10 +18,10 @@ struct Material {
 	float shininess;
 */
 }; 
-  
+uniform vec4 LineColor;
 uniform Material material;
 
 void main()
 {
-	outColor = material.albedoSolid * ColorMul;
+	outColor = material.albedoSolid * LineColor;
 }
