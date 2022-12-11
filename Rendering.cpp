@@ -35,15 +35,56 @@ GLint Melon::TextureUnitManager::GetMaxTextureUnits()
 {
 	return MaxUnits;
 }
+
+Melon::CubeMap::CubeMap(FixedArray<TextureData, 6> data)
+{
+	glGenTextures(1, &handle);
+	Bind();
+	const GLint formats[]{GL_RED, GL_RG, GL_RGB, GL_RGBA};
+	for (int i = 0; i < 6; i++)
+	{
+		GLint format = formats[data[i].channels];
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, data[i].width, data[i].height,
+			0, GL_RGB, GL_UNSIGNED_BYTE, data[i].data);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	
+}
+
+void Melon::CubeMap::Bind()
+{
+	glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
+}
+
+void Melon::CubeMap::Delete()
+{
+	glDeleteTextures(1, &handle);
+}
+
 void Melon::TextureData::Delete()
 {
 	stbi_image_free(data);
 }
 
-Byte Melon::TextureUnitManager::Add(Texture t) // pass by reference because copying would be unnecessery
+Byte Melon::TextureUnitManager::Add(Texture t) 
 {
 	// if texture overflow happens, we just wrap around, later should make this behavior configurable
 	if (cur >= MaxUnits) cur = 0; 
+	glActiveTexture(GL_TEXTURE0 + cur);
+	t.Bind();
+	units[cur] = t.handle;
+	return cur++;
+}
+
+Byte Melon::TextureUnitManager::Add(CubeMap t)
+{
+	// if texture overflow happens, we just wrap around, later should make this behavior configurable
+	if (cur >= MaxUnits) cur = 0;
 	glActiveTexture(GL_TEXTURE0 + cur);
 	t.Bind();
 	units[cur] = t.handle;
@@ -101,6 +142,12 @@ void Melon::Shader::SetMatrix4(Matrix4 v, const char* name)
 	glUniformMatrix4fv(l, 1, false, (const float*)v.Transpose().Value);
 }
 void Melon::Shader::SetTexture(Texture t, const char* name)
+{
+	Byte u = TextureUnitManager::Add(t);
+	return SetInt(u, name);
+}
+
+void Melon::Shader::SetCubeMap(CubeMap t, const char* name)
 {
 	Byte u = TextureUnitManager::Add(t);
 	return SetInt(u, name);

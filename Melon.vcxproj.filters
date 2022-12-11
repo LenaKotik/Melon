@@ -74,6 +74,9 @@
     <Image Include="grass.jpeg">
       <Filter>Файлы ресурсов</Filter>
     </Image>
+    <Image Include="box.jpg">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Melon.hpp">

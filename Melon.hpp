@@ -24,6 +24,7 @@ namespace Melon
 	// Prototypes
 	class Camera;
 	class Renderer;
+	struct Window;
 	// Abstractions
 	class IDeleted // class that needs to "clean up" memory after itself
 	{
@@ -71,6 +72,14 @@ namespace Melon
 		T* begin() const { return Data; }
 		T* end() const { return Data + N; }
 	};
+	
+	template<Size_t N>
+	using FixedUintArray = FixedArray<unsigned int, N>;
+	template<Size_t N>
+	using FixedIntArray = FixedArray<int, N>;
+	template<Size_t N>
+	using FixedFloatArray = FixedArray<float, N>;
+	
 	template <typename T>
 	class DynamicArray
 	{
@@ -102,20 +111,20 @@ namespace Melon
 	class Controller
 	{
 	public:
-		virtual FixedArray<float, OUT> Value(FixedArray<float, IN>)=0;
+		virtual FixedFloatArray<OUT> Value(FixedFloatArray<IN>)=0;
 	};
 
 	template <Size_t IN>
 	class Controller<IN, 0>
 	{
 	public:
-		virtual void Value(FixedArray<float, IN>) = 0;
+		virtual void Value(FixedFloatArray<IN>) = 0;
 	};
 	template <Size_t OUT>
 	class Controller<0, OUT>
 	{
 	public:
-		virtual FixedArray<float, OUT> Value() = 0;
+		virtual FixedFloatArray<OUT> Value() = 0;
 	};
 	// System & Math
 	using String = std::string;
@@ -133,6 +142,9 @@ namespace Melon
 
 	template <typename T>
 	T clamp(T value, T minValue, T maxValue) { return max<T>(minValue, min<T>(maxValue, value)); }
+	
+	template <typename T>
+	T lerp(T a, T b, float t) { return a * (1.0f - t) + b * t; }
 
 	struct Vector2 // for now only floats, but this should be enough
 	{
@@ -140,7 +152,8 @@ namespace Melon
 		float x, y;
 		Vector2() : x(0), y(0) {};
 		Vector2(float X, float Y) : x(X), y(Y) {};
-		Vector2(float XandY) : x(XandY), y(XandY) {};
+		Vector2(float XandY) : Vector2(XandY, XandY){};
+		Vector2(FixedFloatArray<2> arr) : Vector2(arr[0], arr[1]) {}
 		Vector2 operator=(const Vector2& oth);
 		Vector2 operator+=(const Vector2& oth);
 		Vector2 operator-=(const Vector2& oth);
@@ -154,6 +167,7 @@ namespace Melon
 		float MagnitudeSqr() const;
 		Vector2 Normalize() const;
 	};
+
 	struct Vector3 // same thing
 	{
 	public:
@@ -161,6 +175,7 @@ namespace Melon
 		Vector3() : x(0), y(0), z(0) {};
 		Vector3(float X, float Y, float Z) : x(X), y(Y), z(Z) {};
 		Vector3(float xyz) : Vector3(xyz, xyz, xyz) {};
+		Vector3(FixedFloatArray<3> arr) : Vector3(arr[0], arr[1], arr[2]) {}
 		Vector3 operator=(const Vector3& oth);
 		Vector3 operator+=(const Vector3& oth);
 		Vector3 operator-=(const Vector3& oth);
@@ -177,7 +192,15 @@ namespace Melon
 	};
 	using DynamicVector3Array = DynamicArray<Vector3>;
 
-
+	struct Rotator
+	{
+	public:
+		float Angle;
+		Vector3 Axis;
+		Rotator() : Angle(0), Axis(0) {}
+		Rotator(float angle, Vector3 axis) : Angle(angle), Axis(axis) {}
+	};
+	
 	struct Matrix4
 	{
 	public:
@@ -193,7 +216,7 @@ namespace Melon
 		Matrix4 operator*(const float& scalar) const;
 		Vector3 Transform(const Vector3 vec) const;
 		Matrix4 Translate(const Vector3 pos) const;
-		Matrix4 Rotate(const float angle, const Vector3 axis) const;
+		Matrix4 Rotate(const Rotator rot) const;
 		Matrix4 Scale(const float scalar) const;
 		Matrix4 Scale(const Vector3 scalar) const;
 		Matrix4 Transpose() const;
@@ -209,8 +232,10 @@ namespace Melon
 		Color() : R(1), G(1), B(1), A(1) {};
 		Color(float r, float g, float b, float a) : R(r), G(g), B(b), A(a) {}; 
 		static Color FromBytes(GLubyte r, GLubyte g, GLubyte b, GLubyte a); // converts colors from [0-255] range to [0.0f-1.0f] range
-
+		Color operator+(Color);
+		Color operator*(float);
 	};
+
 	struct Vertex
 	{
 	public:
@@ -223,7 +248,43 @@ namespace Melon
 		Vertex(Vector3 p, Color c, Vector2 st, Vector3 n) : Position(p), Color_(c), TextureCoords(st), Normal(n) {};
 	};
 	using DynamicVertexArray = DynamicArray<Vertex>;
-
+	// Controllers
+	class KeyPressVector2Controller : Controller<0, 2>
+	{
+	public:
+		Window* win;
+		GLuint 
+			KeyUp = GLFW_KEY_W, KeyDown = GLFW_KEY_S,
+			KeyLeft = GLFW_KEY_A, KeyRight = GLFW_KEY_D;
+		explicit KeyPressVector2Controller(Window* w) : win(w) {}
+		FixedFloatArray<2> Value() override;
+	};
+	class KeyPressVector3Controller : Controller<0, 3>
+	{
+	public:
+		Window* win;
+		GLuint 
+			KeyForward = GLFW_KEY_W, KeyBackward = GLFW_KEY_S,
+			KeyLeft = GLFW_KEY_A, KeyRight = GLFW_KEY_D,
+			KeyUp = GLFW_KEY_SPACE, KeyDown = GLFW_KEY_LEFT_SHIFT;
+		explicit KeyPressVector3Controller(Window* w) : win(w) {}
+		FixedFloatArray<3> Value() override;
+	};
+	class MouseOffsetController : Controller<0, 2>
+	{
+	private:
+		Vector2 lastPos;
+		bool first = true;
+	public:
+		Window* win;
+		explicit MouseOffsetController(Window* w) : win(w) {}
+		FixedFloatArray<2> Value() override;
+	};
+	class PitchYaw2DirectionController : Controller<2, 3>
+	{
+	public:
+		FixedFloatArray<3> Value(FixedFloatArray<2> pitchYaw) override;
+	};
 	// Algorithms
 	class ComputeShader : IShader, IDeleted
 	{
@@ -277,6 +338,24 @@ namespace Melon
 		static void Terminate();
 		static void PollEvents();
 	};
+	class Event;
+	struct EventArgs
+	{
+	public:
+		Event* Sender;
+	};
+	class EventListener
+	{
+	public:
+		virtual void Callback(EventArgs*) = 0;
+	};
+	class Event
+	{
+		DynamicArray<EventListener*> subcribers;
+	public:
+		void Invoke(EventArgs*);
+		void operator +=(EventListener*);
+	};
 	class Time
 	{
 	private:
@@ -287,6 +366,28 @@ namespace Melon
 		static bool FrameRateLimitSatisfied();
 		static float GetTime(); // time since start (seconds)
 		static float GetDelta(); // time since last call (seconds)
+	};
+	class TimeoutEvent : public Event {};
+	class Timer
+	{
+		friend class Windowing;
+	private:
+		static DynamicArray<Timer*> all;
+		static void update_all();
+		void update();
+		float start_time;
+		float wait_time;
+		bool running;
+	public:
+		bool Loop = false;
+		Timer();
+		TimeoutEvent Timeout;
+		void Start(float time);
+		float GetTime();
+		float GetTimeLeft();
+		void Wait();
+		void Stop();
+		bool isRunning();
 	};
 	// Rendering1
 	class TextureData : IDeleted
@@ -302,13 +403,23 @@ namespace Melon
 	};
 	class Texture : IDeleted
 	{
-		friend class ResourceLoader;
 		friend class TextureUnitManager;
 	private:
 		GLuint handle;
 	public:
 		Texture() : handle(-1) {}
 		Texture(TextureData);
+		void Bind();
+		void Delete() override;
+	};
+	class CubeMap : IDeleted
+	{
+		friend class TextureUnitManager;
+	private:
+		GLuint handle;
+	public:
+		CubeMap() : handle(-1) {}
+		CubeMap(FixedArray<TextureData, 6>);
 		void Bind();
 		void Delete() override;
 	};
@@ -322,6 +433,7 @@ namespace Melon
 	public:
 		static GLint GetMaxTextureUnits();
 		static Byte Add(Texture t);
+		static Byte Add(CubeMap t);
 		static void Clear();
 	};
 	struct Brush;
@@ -340,6 +452,7 @@ namespace Melon
 		void SetMatrix4(Matrix4 v, const char* name);
 		void SetColor(Color v, const char* name);
 		void SetTexture(Texture t, const char* name);
+		void SetCubeMap(CubeMap t, const char* name);
 		void SetBrush(Melon::Brush b, const char* name);
 		void SetMaterial(Melon::Material m, const char* name);
 	};
@@ -515,6 +628,7 @@ namespace Melon
 		Matrix4 TransformationTo() override;
 		Matrix4 TransformationFrom() override;
 	};
+
 	class Camera2D : public Camera
 	{
 	public:
@@ -528,7 +642,8 @@ namespace Melon
 	class RenderedObject2D : IDeleted
 	{
 	protected:
-		void BeginDraw(Window* win);
+		virtual void SetGraphics(Window* win);
+		virtual void SetGeometry(Window* win);
 	public:
 		Shader Shader_;
 		Renderer Renderer_;
@@ -555,9 +670,9 @@ namespace Melon
 	{
 	public:
 		Vector3 Position;
-		Vector3 Rotation;
+		Rotator Rotation;
 		Vector3 Scale;
-		CoordinateSystem3D() : Position(0.0f), Rotation(0.0f), Scale(1.0f) {}
+		CoordinateSystem3D() : Position(0.0f), Rotation(), Scale(1.0f) {}
 		Matrix4 TransformationTo() override;
 		Matrix4 TransformationFrom() override;
 	};
@@ -568,6 +683,8 @@ namespace Melon
 		Vector3 Position;
 		Vector3 Direction;
 		Vector3 Up;
+		Vector3 Right;
+		void SetDirection(Vector3);
 		Camera3D() : Position(0.0f), Direction(0.0f, 0.0f, -1.0f),
 			Up(0.0f, 1.0f, 0.0f), FOV(45.0f) {};
 		CoordinateSystem3D GetCoordinateSystem();
@@ -576,7 +693,8 @@ namespace Melon
 	class RenderedObject3D : IDeleted
 	{
 	protected:
-		void BeginDraw(Window* win);
+		virtual void SetGraphics(Window* win);
+		virtual void SetGeometry(Window* win);
 	public:
 		Renderer Renderer_;
 		Shader Shader_;
@@ -584,6 +702,16 @@ namespace Melon
 		CoordinateSystem3D T;
 		RenderedObject3D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a) {};
 		void Delete() override;
+		virtual void Draw(Window* win);
+	};
+	class MappedCube : RenderedObject3D
+	{
+	protected:
+		virtual void SetGraphics(Window* win);
+	public:
+		CubeMap CubeMap_;
+		MappedCube() : RenderedObject3D(
+			Helpers::ShaderLib::LoadBasic("CubeMap"), Helpers::Meshes::Cube(), Renderer::Position3D) {}
 		virtual void Draw(Window* win);
 	};
 	namespace Helpers
@@ -606,6 +734,5 @@ namespace Melon
 		static bool LoadAudio(AudioBuffer* result, const char* filename);
 	};
 }
-
 
 #include "Collections.inl"

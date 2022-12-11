@@ -227,36 +227,10 @@ void Melon::Window::Clear(Color c, bool depth)
 void Melon::Windowing::PollEvents()
 {
 	glfwPollEvents();
+	Timer::update_all();
 }
 
 void Melon::Windowing::Terminate()
 {
 	glfwTerminate();
-}
-
-float Melon::Time::lastDeltaCall = 0.0f;
-float Melon::Time::lastLimitedFrame = 0.0f;
-float Melon::Time::MaxFrameRate = 0.0f;
-
-bool Melon::Time::FrameRateLimitSatisfied()
-{
-	float time = GetTime();
-	if (time - lastLimitedFrame >= 1.0f / MaxFrameRate)
-	{
-		lastLimitedFrame = GetTime();
-		return true;
-	}
-	return false;
-}
-
-float Melon::Time::GetTime()
-{
-	return glfwGetTime();
-}
-
-float Melon::Time::GetDelta()
-{
-	float delta = (GetTime() - lastDeltaCall);
-	lastDeltaCall = GetTime();
-	return delta;
 }

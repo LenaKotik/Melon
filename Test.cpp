@@ -2,21 +2,15 @@
 
 using namespace Melon;
 
-const float CamSpeed = 2.0f;
-const float sensitivity = 0.1f;
-bool cur = false;
-Vector2 PitchYaw(0.0f);
-
 void movement3D(Window* win, float delta)
 {
-	static Vector2 lastPos;
-	static bool firstMouse = true;
-
-	if (firstMouse)
-	{
-		firstMouse = false;
-		lastPos = win->GetMousePosition();
-	}
+	static MouseOffsetController ctrl(win);
+	KeyPressVector3Controller mov(win);
+	PitchYaw2DirectionController dir;
+	static float pitch, yaw;
+	static bool cur = false;
+	const float CamSpeed = 2.0f;
+	const float sensitivity = 0.1f;
 
 	if (win->IsKeyPressed(GLFW_KEY_ESCAPE))
 	{
@@ -25,58 +19,29 @@ void movement3D(Window* win, float delta)
 	}
 	Camera3D* cam = (Camera3D*)win->MainCamera;
 
-	if (win->IsKeyPressed(GLFW_KEY_A))
-		cam->Position -= cam->Direction.Cross(cam->Up).Normalize() * CamSpeed * delta;
-	if (win->IsKeyPressed(GLFW_KEY_D))
-		cam->Position += cam->Direction.Cross(cam->Up).Normalize() * CamSpeed * delta;
-	if (win->IsKeyPressed(GLFW_KEY_S))
-		cam->Position -= cam->Direction * CamSpeed * delta;
-	if (win->IsKeyPressed(GLFW_KEY_W))
-		cam->Position += cam->Direction * CamSpeed * delta;
-	if (win->IsKeyPressed(GLFW_KEY_LEFT_SHIFT) || win->IsKeyPressed(GLFW_KEY_RIGHT_SHIFT))
-		cam->Position -= cam->Up * CamSpeed * delta;
-	if (win->IsKeyPressed(GLFW_KEY_SPACE))
-		cam->Position += cam->Up * CamSpeed * delta;
+	Vector3 movement = Vector3(mov.Value()) * delta * CamSpeed;
+	
+	cam->Position += cam->Direction * movement.z;
+	cam->Position += cam->Up * movement.y;
+	cam->Position += cam->Right * movement.x;
 
-	Vector2 offset = (win->GetMousePosition() - lastPos) * sensitivity;
-	lastPos = win->GetMousePosition();
+	Vector2 offset = Vector2(ctrl.Value()) * sensitivity;
 
+	pitch += offset.y;
+	yaw += offset.x;
+	pitch = clamp(pitch, -89.0f, 89.0f);
 
-	PitchYaw.x += -offset.y;
-	PitchYaw.y += offset.x;
-	PitchYaw.x = clamp(PitchYaw.x, -89.0f, 89.0f);
-
-	cam->Direction.x = cos(deg2rad(PitchYaw.y)) * cos(deg2rad(PitchYaw.x));
-	cam->Direction.y = sin(deg2rad(PitchYaw.x));
-	cam->Direction.z = sin(deg2rad(PitchYaw.y)) * cos(deg2rad(PitchYaw.x));
-	cam->Direction = cam->Direction.Normalize();
-}
-void movement2D(Window* win, float delta)
-{
-	Camera2D* cam = (Camera2D*)win->MainCamera;
-
-	if (win->IsKeyPressed(GLFW_KEY_D))
-		cam->Position += Vector2(1, 0) * CamSpeed * delta;
-	if (win->IsKeyPressed(GLFW_KEY_A))
-		cam->Position -= Vector2(1, 0) * CamSpeed * delta;
-	if (win->IsKeyPressed(GLFW_KEY_W))
-		cam->Position += Vector2(0, 1) * CamSpeed * delta;
-	if (win->IsKeyPressed(GLFW_KEY_S))
-		cam->Position -= Vector2(0, 1) * CamSpeed * delta;
-	if (win->IsKeyPressed(GLFW_KEY_SPACE))
-		cam->Zoom += CamSpeed * delta;
-	if (win->IsKeyPressed(GLFW_KEY_LEFT_SHIFT) || win->IsKeyPressed(GLFW_KEY_RIGHT_SHIFT))
-		cam->Zoom -= CamSpeed * delta;
+	cam->SetDirection(dir.Value({ deg2rad(pitch), deg2rad(yaw) }));
 }
 
 int RandomTextureCubesScene()
 {
-	Window* win = Windowing::Init(800, 800, "Cubes", true);
+	Window* win = Windowing::Init(800, 800, "Box World", true);
 	if (!win) return -1;
 	win->SetCursor(false);
 
 	TextureData td;
-	if (!ResourceLoader::LoadTextureData(&td, "grass.jpeg")) return -1;
+	if (!ResourceLoader::LoadTextureData(&td, "box.jpg")) return -1;
 	Texture texture(td);
 
 	Camera3D cam;
@@ -87,10 +52,12 @@ int RandomTextureCubesScene()
 	tm.Material_.Albedo = texture;
 
 	DynamicVector3Array pos;
+	DynamicArray<Rotator> rot;
 
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 500; i++)
 	{
-		pos.PushBack(-Vector3(rand() % 25 - 10, rand() % 25 - 10, rand() % 25 - 10));
+		pos.PushBack(-Vector3(rand() % 50 - 25, rand() % 50 - 25, rand() % 50 - 25));
+		rot.PushBack(Rotator(rand()%7-3, Vector3(rand() % 25-10,rand()%25-10,rand()%25-10)));
 	}
 
 	while (!win->ShouldClose())
@@ -100,14 +67,17 @@ int RandomTextureCubesScene()
 		movement3D(win, delta);
 
 		win->Clear(Color::FromBytes(255, 69, 69, 255), true);
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 500; i++)
 		{
 			tm.T.Position = pos[i];
+			tm.T.Rotation = rot[i];
 			tm.Draw(win);
 		}
 		win->Flip();
 		Windowing::PollEvents();
 	}
+
+
 	Windowing::DestroyWindow(win);
 	Windowing::Terminate();
 	return 0;
@@ -133,11 +103,15 @@ int Simple2DScene()
 	Camera2D cam;
 	win->MainCamera = &cam;
 
+	const float camSpeed = 2.0f;
+	KeyPressVector2Controller movement(win);
+
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
 		printf("FPS:%d\n", (int)roundf(1 / delta));
-		movement2D(win, delta);
+		
+		cam.Position += Vector2(movement.Value()) * delta * camSpeed;
 
 		win->Clear(Color::FromBytes(42, 255, 190, 255), false);
 
@@ -260,6 +234,14 @@ int ModelImportScene()
 }
 int SoundScene()
 {
+
+class TimeoutEventListener : EventListener
+{
+	void Callback(EventArgs*) override
+	{
+		std::cout << "time out!\n";
+	}
+};
 	Window * win = Windowing::Init(800, 800, "Sounds", false);
 	if (!win) return -1;
 
@@ -274,15 +256,23 @@ int SoundScene()
 	
 	Camera2D cam;
 	win->MainCamera = &cam;
+	
+	Timer playback_timer;
 
 	AudioSource src;
 	src.Play(&buffer);
+
+	playback_timer.Start(2.0f);
+	TimeoutEventListener lstner;
+	playback_timer.Timeout += (EventListener*)&lstner;
 
 	std::cout << audio->GetName();
 
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
+
+		if (playback_timer.isRunning())std::cout << Time::GetTime() << '\n';
 
 		win->Clear(Color::FromBytes(255, 255, 255, 255), false);
 
@@ -308,14 +298,78 @@ int ConsoleTest()
 	std::cout << b.x << ' ' << b.y << ' ' << b.z << '\n';
 	return 0;
 }
+int SpinScene()
+{
+	FixedArray<String, 6> skybox_names = { "px", "nx", "py", "ny", "pz", "nz" };
+
+	Window* win = Windowing::Init(800, 800, "Speeeeeeeeen", true);
+	if (!win) return - 1;
+
+	TextureData grassTex;
+	if (!ResourceLoader::LoadTextureData(&grassTex, "grass.jpeg")) return -1;
+
+	FixedArray<TextureData, 6> skybox_data;
+	for (int i = 0; i < 6; i++)
+	{
+		ResourceLoader::LoadTextureData(&skybox_data[i], ("cubemap2/" + skybox_names[i] + ".png").c_str());
+	}
+
+	CubeMap skybox_tex(skybox_data);
+
+	Mesh cubeMesh = Helpers::Meshes::Cube();
+
+	MappedCube* skybox = new MappedCube();
+	skybox->CubeMap_ = skybox_tex;
+
+	RenderedObject3D* cube = Helpers::Objects3D::TexturedShape(cubeMesh);
+	if (!cube) return -1;
+	
+	Texture grass(grassTex);
+	cube->Material_.Albedo = grass;
+	cube->T.Position.x = 2;
+	cube->T.Rotation.Axis = Vector3(0.2, 0.5, 0.5);
+	
+	Camera3D cam;
+
+	win->MainCamera = &cam;
+	
+	win->SetCursor(false);
+
+	const float rotSpeed = 2.0f;
+
+	while (!win->ShouldClose())
+	{
+		float delta = Time::GetDelta();
+		movement3D(win, delta);
+		
+		cube->T.Rotation.Angle += delta * rotSpeed;
+
+		win->Clear(Color::FromBytes(0, 0, 0, 255), true);
+		glDepthMask(false);
+		skybox->Draw(win);
+		glDepthMask(true);
+		
+		cube->Draw(win);
+
+		win->Flip();
+		Windowing::PollEvents();
+	}
+	
+	cube->Delete();
+	win->Delete();
+	Windowing::Terminate();
+
+	return 0;
+}
 
 int main()
 {
-	SoundScene();
-	LightingScene();
-	GeometryShaderScene();
-	ConsoleTest();
-	Simple2DScene();
-    RandomTextureCubesScene();
-	ModelImportScene();
+	return SpinScene();
+    return RandomTextureCubesScene();
+	return Simple2DScene();
+	return SoundScene();
+	return LightingScene();
+	return GeometryShaderScene();
+	return ConsoleTest();
+	return ModelImportScene();
 }

@@ -30,13 +30,15 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
 {
     DynamicVertexArray verticies =
     {
-        Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
+        // front face
+        Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)), 
         Vertex(Vector3( 0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3( 0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
         Vertex(Vector3( 0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
         Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
 
+        // back face
         Vertex(Vector3(-0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
         Vertex(Vector3( 0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
@@ -44,20 +46,23 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
         Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3(-0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
 
-        Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
+        // left face
+        Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
-        Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
-        Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
+        Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
+        Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3(-0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
-        Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
+        Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
 
-        Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
+        // right face
+        Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3( 0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
-        Vertex(Vector3( 0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
-        Vertex(Vector3( 0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
+        Vertex(Vector3( 0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
+        Vertex(Vector3( 0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3( 0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
-        Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
-
+        Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
+        
+        // bottom face
         Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3( 0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
         Vertex(Vector3( 0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
@@ -65,6 +70,7 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
         Vertex(Vector3(-0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
         Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
 
+        // top face
         Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3( 0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
         Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
