@@ -1,0 +1,31 @@
+﻿  glad.c
+  Audio.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  AudioLoading.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  MeshLib.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  Math.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  Melon.cpp
+  Misc.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  Physics2D.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  Rendering.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  Rendering2.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  ResourceLoader.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  ROLib.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  ShaderLib.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  stb_image.cpp
+  System.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  Test.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,
+  Windowing.cpp
+D:\ProjectRoot\CppProj\Melon\Melon.hpp(14,10): fatal error C1083: Не удается открыть файл включение: AL/al.h: No such file or directory,

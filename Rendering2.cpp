@@ -63,13 +63,14 @@ void Melon::RenderedObject3D::SetGeometry(Window* win)
 	Shader_.SetMatrix4(T.TransformationFrom(), "model");
 }
 
-void Melon::MappedCube::SetGraphics(Window* win)
+void Melon::Skybox::SetGraphics(Window* win)
 {
 	Shader_.SetCubeMap(CubeMap_,"cube");
 }
 
-void Melon::MappedCube::Draw(Window* win)
+void Melon::Skybox::Draw(Window* win)
 {
+	glDepthMask(false);
 	Shader_.Use();
 	SetGeometry(win);
 	
@@ -91,4 +92,5 @@ void Melon::MappedCube::Draw(Window* win)
 	SetGraphics(win);
 	
 	Renderer_.Draw();
+	glDepthMask(true);
 }

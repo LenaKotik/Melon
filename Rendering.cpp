@@ -43,9 +43,9 @@ Melon::CubeMap::CubeMap(FixedArray<TextureData, 6> data)
 	const GLint formats[]{GL_RED, GL_RG, GL_RGB, GL_RGBA};
 	for (int i = 0; i < 6; i++)
 	{
-		GLint format = formats[data[i].channels];
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, data[i].width, data[i].height,
-			0, GL_RGB, GL_UNSIGNED_BYTE, data[i].data);
+		GLint format = formats[data[i].channels-1];
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, data[i].width, data[i].height,
+			0, format, GL_UNSIGNED_BYTE, data[i].data);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

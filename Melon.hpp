@@ -13,8 +13,8 @@
 //#include <assimp/postprocess.h> 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H // sus
+//#include <ft2build.h>
+//#include FT_FREETYPE_H // sus
 
 #define DEBUG_OUTPUT
 typedef std::uint8_t Byte;
@@ -704,13 +704,13 @@ namespace Melon
 		void Delete() override;
 		virtual void Draw(Window* win);
 	};
-	class MappedCube : RenderedObject3D
+	class Skybox : RenderedObject3D
 	{
 	protected:
 		virtual void SetGraphics(Window* win);
 	public:
 		CubeMap CubeMap_;
-		MappedCube() : RenderedObject3D(
+		Skybox() : RenderedObject3D(
 			Helpers::ShaderLib::LoadBasic("CubeMap"), Helpers::Meshes::Cube(), Renderer::Position3D) {}
 		virtual void Draw(Window* win);
 	};
@@ -728,6 +728,7 @@ namespace Melon
 	class ResourceLoader 
 	{
 	public:
+		static bool flipYTextures;
 		static bool LoadTextureData(TextureData* result,const char* filename);
 		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile);
 		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile, const char* geomFile);

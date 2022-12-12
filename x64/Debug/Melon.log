@@ -1,4 +1,12 @@
-﻿  Rendering.cpp
-D:\ProjectRoot\CppProj\Melon\Rendering.cpp(230,98): warning C4244: инициализация: преобразование "Size_t" в "int", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Rendering.cpp(230,128): warning C4244: инициализация: преобразование "Size_t" в "int", возможна потеря данных
+﻿  Test.cpp
+D:\ProjectRoot\CppProj\Melon\Test.cpp(59,73): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(59,55): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(59,37): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(60,81): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(60,68): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(60,55): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(60,32): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(220,40): warning C4305: аргумент: усечение из "double" в "float"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(330,47): warning C4305: аргумент: усечение из "double" в "float"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(186): warning C4715: LightingScene: значение возвращается не при всех путях выполнения
   Melon.vcxproj -> D:\ProjectRoot\CppProj\Melon\x64\Debug\Melon.exe

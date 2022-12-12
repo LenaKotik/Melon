@@ -307,18 +307,18 @@ int SpinScene()
 
 	TextureData grassTex;
 	if (!ResourceLoader::LoadTextureData(&grassTex, "grass.jpeg")) return -1;
-
+	ResourceLoader::flipYTextures = false;
 	FixedArray<TextureData, 6> skybox_data;
 	for (int i = 0; i < 6; i++)
 	{
-		ResourceLoader::LoadTextureData(&skybox_data[i], ("cubemap2/" + skybox_names[i] + ".png").c_str());
+		ResourceLoader::LoadTextureData(&skybox_data[i], ("skybox2/" + skybox_names[i] + ".jpg").c_str());
 	}
 
 	CubeMap skybox_tex(skybox_data);
 
 	Mesh cubeMesh = Helpers::Meshes::Cube();
 
-	MappedCube* skybox = new MappedCube();
+	Skybox* skybox = new Skybox();
 	skybox->CubeMap_ = skybox_tex;
 
 	RenderedObject3D* cube = Helpers::Objects3D::TexturedShape(cubeMesh);
@@ -345,9 +345,7 @@ int SpinScene()
 		cube->T.Rotation.Angle += delta * rotSpeed;
 
 		win->Clear(Color::FromBytes(0, 0, 0, 255), true);
-		glDepthMask(false);
 		skybox->Draw(win);
-		glDepthMask(true);
 		
 		cube->Draw(win);
 
@@ -364,12 +362,12 @@ int SpinScene()
 
 int main()
 {
-	return SpinScene();
-    return RandomTextureCubesScene();
-	return Simple2DScene();
-	return SoundScene();
-	return LightingScene();
-	return GeometryShaderScene();
-	return ConsoleTest();
-	return ModelImportScene();
+	SoundScene();
+	Simple2DScene();
+    RandomTextureCubesScene();
+	SpinScene();
+	GeometryShaderScene();
+	LightingScene();
+	ConsoleTest();
+	ModelImportScene();
 }
