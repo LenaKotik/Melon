@@ -12,7 +12,7 @@ inline Size_t Melon::DynamicArray<T>::ByteSize() const
 template<typename T>
 inline bool Melon::DynamicArray<T>::Resize(Size_t end_size)
 {
-	end_size = min(end_size,size); // no data loss;
+	end_size = max(end_size,size); // no data loss;
 	if (end_size == actual_size) return true; // we didn't fail if we did nothing, my motto in life
 	actual_size = end_size;
 	T* temp = Data;
@@ -34,13 +34,25 @@ inline void Melon::DynamicArray<T>::PushBack(T element)
 	Data = new T[++actual_size];
 	std::memcpy(Data, temp, size * sizeof(T));
 	delete temp;
-	return PushBack(element); // uneccessery recursion
+	return PushBack(element); // recursion
+}
+template<typename T>
+inline void Melon::DynamicArray<T>::Insert(T element, int idx)
+{
+	if (actual_size < size + 1)
+		Resize(size + 1);
+	for (int i = size - 1; i >= idx; i--)
+	{
+		Data[i + 1] = Data[i];
+	}
+	Data[idx] = element;
+	size++;
 }
 template<typename T>
 inline T Melon::DynamicArray<T>::PeekBack()
 {
 	if (size < 1) return T();
-	return Data[size];
+	return Data[size-1];
 }
 template<typename T>
 inline T Melon::DynamicArray<T>::PopBack()

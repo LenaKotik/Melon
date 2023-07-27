@@ -18,8 +18,9 @@ struct Material {
 	float shininess;
 */
 }; 
-uniform vec4 LineColor;
 uniform Material material;
+
+uniform vec4 LineColor;
 
 void main()
 {

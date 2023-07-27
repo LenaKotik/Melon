@@ -45,9 +45,6 @@
     <ClCompile Include="Math.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Melon.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="Physics2D.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -93,6 +90,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Collections.inl">
+      <Filter>Файлы заголовков</Filter>
+    </None>
+    <None Include="Animation.inl">
       <Filter>Файлы заголовков</Filter>
     </None>
   </ItemGroup>

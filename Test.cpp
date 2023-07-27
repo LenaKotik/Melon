@@ -45,11 +45,10 @@ int RandomTextureCubesScene()
 	Texture texture(td);
 
 	Camera3D cam;
-	cam.Position = Vector3(0.0f, 0.0f, 3.0f);
 	win->MainCamera = &cam;
 
 	RenderedObject3D tm = *Helpers::Objects3D::TexturedShape(Helpers::Meshes::Cube());
-	tm.Material_.Albedo = texture;
+	tm.Graphics->SetTexture(texture);
 
 	DynamicVector3Array pos;
 	DynamicArray<Rotator> rot;
@@ -94,9 +93,9 @@ int Simple2DScene()
 	TextureData td;
 	if (!ResourceLoader::LoadTextureData(&td, "melon.png")) return -1;
 
-	shape.Material_.Albedo = Color::FromBytes(251, 71, 71, 255);
-	shape2.Material_.Albedo = Color::FromBytes(32, 217, 36, 255);
-	sprite.Material_.Albedo = Texture(td);
+	shape.Graphics->SetColor(Color::FromBytes(251, 71, 71, 255));
+	shape2.Graphics->SetColor(Color::FromBytes(32, 217, 36, 255));
+	sprite.Graphics->SetTexture(Texture(td));
 
 	sprite.T.Scale = Vector2(2, 1);
 
@@ -139,18 +138,31 @@ int LightingScene()
 
 	Mesh m = Helpers::Meshes::Cube();
 	Shader* s = Helpers::ShaderLib::LoadBasic(Helpers::ShaderLoadOptions((Renderer::VertexAttributesConfig)(Renderer::Position3D|Renderer::Normal), false, true));
-	RenderedObject3D shape(s,m,(Renderer::VertexAttributesConfig)(Renderer::Position3D|Renderer::Normal));
+	RenderedObject3DBuilder builder;
+
+	builder.SetRenderer(m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal));
+	builder.SetShader(s);
+	builder.SetGraphics((ShaderGraphics*)new MaterialGraphics);
+	builder.SetTransform3D((ShaderTransform3D*)new DefaultTransform3D);
+
+	RenderedObject3D shape = *builder.Get();
 
 	m.PrimitiveType = GL_POINTS;
 	Shader* normalGeom = Helpers::ShaderLib::LoadGeom("NormalDisplay");
 	if (!normalGeom) return -1;
-	RenderedObject3D normals(normalGeom, m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal));;
 
-	shape.Material_ = Helpers::Materials::Gold();
+	builder.SetRenderer(m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal));
+	builder.SetShader(normalGeom);
+	builder.SetGraphics((ShaderGraphics*)new ColorGraphics);
+	RenderedObject3D normals = *builder.Get();
+
+
+	shape.Graphics->SetMaterial(Helpers::Materials::Gold());
 
 	m.PrimitiveType = GL_TRIANGLES;
 	RenderedObject3D light = *Helpers::Objects3D::Shape(m);
-	light.Material_.Albedo = Color::FromBytes(255, 255, 255, 255);
+	Color lightColor = Color::FromBytes(255, 255, 255, 255);
+	light.Graphics->SetColor(lightColor);
 	light.T.Position = Vector3(0, 1, -2);
 
 	Camera3D cam;
@@ -171,7 +183,7 @@ int LightingScene()
 		win->Clear(Color::FromBytes(29, 29, 29, 255), true);
 
 		shape.Shader_.Use();
-		shape.Shader_.SetColor(light.Material_.Albedo.Solid, "LightColor");
+		shape.Shader_.SetColor(lightColor, "LightColor");
 		shape.Shader_.SetVector3(light.T.Position, "LightPosition");
 		shape.Shader_.SetVector3(cam.Position, "CameraPosition");
 		shape.Draw(win);
@@ -193,7 +205,7 @@ int GeometryShaderScene()
 
 	Mesh m = Helpers::Meshes::Cube();
 	RenderedObject3D shape = *Helpers::Objects3D::Shape(m);
-	shape.Material_.Albedo = Color::FromBytes(251, 71, 71, 255);
+	shape.Graphics->SetColor(Color::FromBytes(251, 71, 71, 255),0);
 	m.PrimitiveType = GL_POINTS;
 
 	RenderedObject3D points = *Helpers::Objects3D::Shape(m);
@@ -201,7 +213,7 @@ int GeometryShaderScene()
 	Shader* geom = Helpers::ShaderLib::LoadGeom("Point2Square");
 	if (!geom) return -1;
 	points.Shader_ = *geom;
-	points.Material_.Albedo = Color::FromBytes(251, 71, 71, 255);
+	points.Graphics->SetColor(Color::FromBytes(251, 71, 71, 255),0);
 
 	Camera3D cam;
 
@@ -217,7 +229,7 @@ int GeometryShaderScene()
 
 		shape.Draw(win);
 		points.Shader_.Use();
-		points.Shader_.SetFloat(0.2, "radius");
+		points.Shader_.SetFloat(0.2, "scale");
 		points.Draw(win);
 
 		win->Flip();
@@ -252,7 +264,7 @@ class TimeoutEventListener : EventListener
 	ResourceLoader::LoadAudio(&buffer, "me.wav");
 	
 	RenderedObject2D circle = *Helpers::Objects2D::Shape(Helpers::Meshes::Circle(40));
-	circle.Material_.Albedo = Color::FromBytes(243, 28, 28, 255);
+	circle.Graphics->SetColor(Color::FromBytes(243, 28, 28, 255));
 	
 	Camera2D cam;
 	win->MainCamera = &cam;
@@ -289,13 +301,11 @@ class TimeoutEventListener : EventListener
 }
 int ConsoleTest()
 {
-	Vector3 a(0), b(0);
-	CoordinateSystem3D coord;
-	coord.Position = { 2,4,4 };
-	a = coord.TransformationTo().Transform(a);
-	std::cout << a.x << ' ' << a.y << ' ' << a.z << '\n';
-	b = coord.TransformationFrom().Transform(b);
-	std::cout << b.x << ' ' << b.y << ' ' << b.z << '\n';
+	DynamicIntArray I = { 1, 3, 5, 7 };
+	I.Insert(2, 1);
+	I.Insert(4, 3);
+	for (int i : I)
+		std::cout << i << ' ';
 	return 0;
 }
 int SpinScene()
@@ -313,19 +323,20 @@ int SpinScene()
 	{
 		ResourceLoader::LoadTextureData(&skybox_data[i], ("skybox2/" + skybox_names[i] + ".jpg").c_str());
 	}
+	ResourceLoader::flipYTextures = true;
 
 	CubeMap skybox_tex(skybox_data);
 
 	Mesh cubeMesh = Helpers::Meshes::Cube();
 
-	Skybox* skybox = new Skybox();
-	skybox->CubeMap_ = skybox_tex;
+	Skybox* skybox = SkyboxFactory::Create(skybox_tex);
 
 	RenderedObject3D* cube = Helpers::Objects3D::TexturedShape(cubeMesh);
 	if (!cube) return -1;
 	
 	Texture grass(grassTex);
-	cube->Material_.Albedo = grass;
+	TextureGraphics* cube_g = (TextureGraphics*)cube->Graphics;
+	cube_g->Texture_ = grass;
 	cube->T.Position.x = 2;
 	cube->T.Rotation.Axis = Vector3(0.2, 0.5, 0.5);
 	
@@ -359,15 +370,112 @@ int SpinScene()
 
 	return 0;
 }
+int TreeScene()
+{
+	Window* win = Windowing::Init(800, 800, "Cube", true);
+	if (!win) return -1;
+	win->SetCursor(0);
+
+	Mesh m = Helpers::Meshes::Cube();
+
+	RenderedObject3D* cube = Helpers::Objects3D::Shape(m);
+	if (!cube) return -1;
+	cube->Graphics->SetColor(Color::FromBytes(200,60,60,255));
+
+	RenderedObject3D* bar = Helpers::Objects3D::Shape(m);
+	if (!bar) return -1;
+	
+	ChildTransform3D bar_t;
+	bar_t.Parent = &cube->T;
+	bar->Transform = (ShaderTransform3D*)&bar_t;
+
+	bar->Graphics->SetColor(Color::FromBytes(70, 200, 70, 255));
+	bar->T.Position = Vector3(0, 2, 0);
+	bar->T.Scale = Vector3(0.5, 3, 0.5);
+
+	Camera3D cam;
+	win->MainCamera = (Camera*)&cam;
+
+	Time::GetDelta();
+	while (!win->ShouldClose())
+	{
+		float delta = Time::GetDelta();
+		movement3D(win, delta);
+
+		cube->T.Rotation = Rotator(2*(Time::GetTime()),Vector3(1,0,0));
+		bar->T.Position = Vector3(0, sin(2 * Time::GetTime()), 0);
+
+		win->Clear(Color::FromBytes(20, 20, 50, 255), true);
+		cube->Draw(win);
+		bar->Draw(win);
+		win->Flip();
+		Windowing::PollEvents();
+	}
+	cube->Delete();
+	bar->Delete();
+	win->Delete();
+	Windowing::Terminate();
+	return 0;
+}
+int AnimationScene()
+{
+	Window* win = Windowing::Init(800, 800, "Animation", false);
+	if (!win) return -1;
+
+	Mesh m = Helpers::Meshes::Quad();
+
+	RenderedObject2D* shape = Helpers::Objects2D::Shape(m);
+	shape->Graphics->SetColor(Color::FromBytes(174, 60, 197, 255));
+	
+	Animation<Vector2> anim;
+	InterpolationTrack<Vector2> scale_t, pos_t;
+	scale_t.Add({Vector2(0.5,0.5), 0});
+	scale_t.Add({Vector2(1,1), 0.5 });
+	scale_t.Add({Vector2(0.5, 0.5), 1 });
+
+	pos_t.Add({Vector2(-0.8,0), 0 });
+	pos_t.Add({Vector2(0, 0.5), 0.5 });
+	pos_t.Add({Vector2(0.8, 0), 1 });
+	pos_t.Add({ Vector2(-0.8,0), 1.5 });
+	
+	for (Keyframe<Vector2> p : pos_t.keyframes)
+		std::cerr << p.value.x << " " << p.value.y << "  ";
+
+	anim.Add(pos_t);
+	anim.Add(scale_t);
+	
+	Camera2D cam;
+	win->MainCamera = (Camera*)&cam;
+
+	anim.loop = true;
+	anim.Play();
+
+	while (!win->ShouldClose())
+	{
+		//std::cout << shape->T.Position.x << " " << shape->T.Position.y << "\n";
+		win->Clear(Color::FromBytes(83, 197, 60, 255),false);
+		shape->T.Position = anim[0];
+		shape->T.Scale = anim[1];
+		shape->Draw(win);
+		win->Flip();
+		Windowing::PollEvents();
+	}
+	shape->Delete();
+	win->Delete();
+	Windowing::Terminate();
+	return 0;
+}
 
 int main()
 {
-	SoundScene();
-	Simple2DScene();
-    RandomTextureCubesScene();
-	SpinScene();
-	GeometryShaderScene();
-	LightingScene();
-	ConsoleTest();
-	ModelImportScene();
+	return AnimationScene();
+	return TreeScene();
+	return ConsoleTest();
+	return LightingScene();
+	return GeometryShaderScene();
+	return SpinScene();
+	return Simple2DScene();
+    return RandomTextureCubesScene();
+	//return ModelImportScene();
+	//return SoundScene();
 }

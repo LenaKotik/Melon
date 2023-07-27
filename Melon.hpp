@@ -17,6 +17,18 @@
 //#include FT_FREETYPE_H // sus
 
 #define DEBUG_OUTPUT
+
+#define MELON_ABSTRACTIONS
+#define MELON_SYSTEM_AND_MATH
+#define MELON_CONTROLLERS
+#define MELON_WINDOWING
+#define MELON_RENDERING
+#define MELON_AUDIO
+#define MELON_ENGINE
+#define MELON_ENGINE_2D
+#define MELON_ENGINE_3D
+#define MELON_RESOURCES
+
 typedef std::uint8_t Byte;
 typedef unsigned long long Size_t;
 namespace Melon
@@ -25,7 +37,9 @@ namespace Melon
 	class Camera;
 	class Renderer;
 	struct Window;
-	// Abstractions
+
+#ifdef MELON_ABSTRACTIONS
+	// Abstractions & Templates
 	class IDeleted // class that needs to "clean up" memory after itself
 	{
 	public:
@@ -94,6 +108,8 @@ namespace Melon
 		Size_t ByteSize() const;
 		bool Resize(Size_t end_size);
 		void PushBack(T element);
+		/// <param name="idx">index of the new element</param>
+		void Insert(T element, int idx);
 		T PeekBack();
 		T PopBack();
 		T& operator [](Size_t index);
@@ -126,6 +142,9 @@ namespace Melon
 	public:
 		virtual FixedFloatArray<OUT> Value() = 0;
 	};
+#endif // MELON_ABSTRACTIONS
+
+#ifdef MELON_SYSTEM_AND_MATH
 	// System & Math
 	using String = std::string;
 	using DynamicStringArray = DynamicArray<String>;
@@ -197,7 +216,7 @@ namespace Melon
 	public:
 		float Angle;
 		Vector3 Axis;
-		Rotator() : Angle(0), Axis(0) {}
+		Rotator() : Angle(0), Axis(0,0,1) {}
 		Rotator(float angle, Vector3 axis) : Angle(angle), Axis(axis) {}
 	};
 	
@@ -248,6 +267,9 @@ namespace Melon
 		Vertex(Vector3 p, Color c, Vector2 st, Vector3 n) : Position(p), Color_(c), TextureCoords(st), Normal(n) {};
 	};
 	using DynamicVertexArray = DynamicArray<Vertex>;
+#endif // MELON_SYSTEM_AND_MATH
+
+#ifdef MELON_CONTROLLERS
 	// Controllers
 	class KeyPressVector2Controller : Controller<0, 2>
 	{
@@ -285,12 +307,17 @@ namespace Melon
 	public:
 		FixedFloatArray<3> Value(FixedFloatArray<2> pitchYaw) override;
 	};
+#endif // MELON_CONTROLLERS
+
+#ifdef MELON_ALGORITHMS
 	// Algorithms
 	class ComputeShader : IShader, IDeleted
 	{
 		// not implemented yet
 	};
+#endif // MELON_ALGORITHMS
 
+#ifdef MELON_WINDOWING
 	// Windowing
 	struct Window : IDeleted
 	{
@@ -389,6 +416,9 @@ namespace Melon
 		void Stop();
 		bool isRunning();
 	};
+#endif // MELON_WINDOWING
+
+#ifdef MELON_RENDERING
 	// Rendering1
 	class TextureData : IDeleted
 	{
@@ -544,12 +574,17 @@ namespace Melon
 		class ShaderLib
 		{
 		public:
+#ifdef MELON_ALGORITHMS
 			static ComputeShader* LoadCompute(String shadername); // load a specific compute shader
+#endif // MELON_ALGORITHMS
 			static Shader* LoadBasic(ShaderLoadOptions options); // load a basic pipeline by option
 			static Shader* LoadBasic(String shadername); // load a specific basic pipeline
 			static Shader* LoadGeom(String shadername); // load a specific geometry pipeline
 		};
 	}
+#endif // MELON_RENDERING
+
+#ifdef MELON_AUDIO
 	// Audio
 	struct AudioHeaderData
 	{
@@ -603,12 +638,16 @@ namespace Melon
 		/// <param name="same_stream">the stream passed earlier to the Play function</param>
 		void UpdateStreaming(InputStream* same_stream);
 	};
+#endif // MELON_AUDIO
+
+
+#ifdef MELON_ENGINE
 	// Engine
 	class CoordinateSystem
 	{
 	public:
-		virtual Matrix4 TransformationTo()=0;
-		virtual Matrix4 TransformationFrom()=0;
+		virtual Matrix4 TransformationTo() const = 0;
+		virtual Matrix4 TransformationFrom() const= 0;
 	};
 	class Camera
 	{
@@ -616,7 +655,83 @@ namespace Melon
 		virtual Matrix4 GetView() = 0;
 	};
 	class CollisionSolver {};
+	class ShaderGraphics
+	{
+	public:
+		virtual void SetGraphics(Shader*)=0;
+		virtual bool SetTexture(Texture, int id=0) { return 0; }
+		virtual bool SetColor(Color, int id=0) { return 0; }
+		virtual bool SetBrush(Brush, int id=0) { return 0; }
+		virtual bool SetMaterial(Material, int id=0) { return 0; }
+	};
+	class ColorGraphics : ShaderGraphics
+	{
+	public:
+		Color Color_;
+		virtual void SetGraphics(Shader*);
+		virtual bool SetColor(Color, int id=0) override;
+	};
+	class TextureGraphics : ShaderGraphics
+	{
+	public:
+		Texture Texture_;
+		virtual void SetGraphics(Shader*) override;
+		virtual bool SetTexture(Texture, int id=0) override;
+	};
+	class BrushGraphics : ShaderGraphics
+	{
+	public:
+		Brush Brush_;
+		virtual void SetGraphics(Shader*) override;
+		virtual bool SetColor(Color, int id = 0) override;
+		virtual bool SetTexture(Texture, int id = 0) override;
+		virtual bool SetBrush(Brush, int id = 0) override;
+	};
+	class MaterialGraphics : ShaderGraphics
+	{
+	public:
+		Material Material_;
+		virtual void SetGraphics(Shader*) override;
+		virtual bool SetColor(Color, int id = 0) override;
+		virtual bool SetTexture(Texture, int id = 0) override;
+		virtual bool SetBrush(Brush, int id = 0) override;
+		virtual bool SetMaterial(Material, int id = 0) override;
+	};
+	template <typename T>
+	struct Keyframe
+	{
+	public:
+		T value;
+		float time;
+	};
+	template <typename T>
+	class InterpolationTrack
+	{
+	public:
+		DynamicArray<Keyframe<T>> keyframes;
+		void Add(Keyframe<T> keyframe);
+		float Length();
+		T Get(float t);
+	};
+	template <typename T>
+	class Animation
+	{
+		float start_time;
+	public:
+		float length;
+		DynamicArray<InterpolationTrack<T>> tracks;
+		void Add(InterpolationTrack<T> track);
+		void ComputeLength();
+		T operator[](int idx);
+		bool backward;
+		bool loop;
+		void Play();
+		void Stop();
+		bool IsPlaying();
+	};
+	
 	// Enigne 2D
+#ifdef MELON_ENGINE_2D
 	// Rendering
 	class CoordinateSystem2D : CoordinateSystem
 	{
@@ -625,10 +740,19 @@ namespace Melon
 		float Rotation;
 		Vector2 Scale;
 		CoordinateSystem2D() : Position(0.0f),Rotation(0.0f),Scale(1.0f) {}
-		Matrix4 TransformationTo() override;
-		Matrix4 TransformationFrom() override;
+		Matrix4 TransformationTo() const override;
+		Matrix4 TransformationFrom() const override;
 	};
-
+	class ShaderTransform2D
+	{
+	public:
+		virtual void SetTransform(Shader*, const CoordinateSystem2D&) = 0;
+	};
+	class DefaultTransform2D : ShaderTransform2D
+	{
+	public:
+		virtual void SetTransform(Shader*, const CoordinateSystem2D&);
+	};
 	class Camera2D : public Camera
 	{
 	public:
@@ -641,17 +765,31 @@ namespace Melon
 	};
 	class RenderedObject2D : IDeleted
 	{
-	protected:
-		virtual void SetGraphics(Window* win);
-		virtual void SetGeometry(Window* win);
 	public:
 		Shader Shader_;
 		Renderer Renderer_;
-		Material Material_;
+		ShaderGraphics* Graphics;
+		ShaderTransform2D* Transform;
 		CoordinateSystem2D T;
-		RenderedObject2D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a) {};
+		RenderedObject2D(Shader* sh, Mesh *m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(m, a) {};
 		virtual void Delete();
 		virtual void Draw(Window* win);
+	};
+	class RenderedObject2DBuilder
+	{
+		char state;
+		Mesh* m;
+		Renderer::VertexAttributesConfig vac;
+		Shader* sh;
+		ShaderGraphics* gr;
+		ShaderTransform2D* tr;
+	public:
+		bool SetShader(Shader*);
+		bool SetGraphics(ShaderGraphics*);
+		bool SetTransform2D(ShaderTransform2D*);
+		bool SetRenderer(Mesh, Renderer::VertexAttributesConfig);
+		bool Done();
+		RenderedObject2D* Get();
 	};
 	namespace Helpers
 	{
@@ -664,6 +802,9 @@ namespace Melon
 	}
 	// Physics
 	
+#endif // MELON_ENGINE_2D
+
+#ifdef MELON_ENGINE_3D
 	// Engine 3D
 	// Rendering
 	class CoordinateSystem3D : CoordinateSystem
@@ -673,8 +814,24 @@ namespace Melon
 		Rotator Rotation;
 		Vector3 Scale;
 		CoordinateSystem3D() : Position(0.0f), Rotation(), Scale(1.0f) {}
-		Matrix4 TransformationTo() override;
-		Matrix4 TransformationFrom() override;
+		Matrix4 TransformationTo() const override;
+		Matrix4 TransformationFrom() const override;
+	};
+	class ShaderTransform3D
+	{
+	public:
+		virtual void SetTransform(Shader*, const CoordinateSystem3D&) = 0;
+	};
+	class DefaultTransform3D : ShaderTransform3D
+	{
+	public:
+		virtual void SetTransform(Shader*, const CoordinateSystem3D&);
+	};
+	class ChildTransform3D : ShaderTransform3D
+	{
+	public:
+		CoordinateSystem3D* Parent;
+		virtual void SetTransform(Shader*, const CoordinateSystem3D&);
 	};
 	class Camera3D : public Camera
 	{
@@ -692,27 +849,45 @@ namespace Melon
 	};
 	class RenderedObject3D : IDeleted
 	{
-	protected:
-		virtual void SetGraphics(Window* win);
-		virtual void SetGeometry(Window* win);
 	public:
 		Renderer Renderer_;
 		Shader Shader_;
-		Material Material_;
+		ShaderGraphics* Graphics;
+		ShaderTransform3D* Transform;
 		CoordinateSystem3D T;
-		RenderedObject3D(Shader* sh, Mesh m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(&m, a) {};
+		RenderedObject3D(Shader* sh, Mesh* m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(m, a) {};
 		void Delete() override;
 		virtual void Draw(Window* win);
 	};
+	class RenderedObject3DBuilder
+	{
+		char state;
+		Mesh* m;
+		Renderer::VertexAttributesConfig vac;
+		Shader* sh;
+		ShaderGraphics* gr;
+		ShaderTransform3D* tr;
+	public:
+		RenderedObject3DBuilder() : state(0) {}
+		bool SetRenderer(Mesh, Renderer::VertexAttributesConfig);
+		bool SetShader(Shader*);
+		bool SetGraphics(ShaderGraphics*);
+		bool SetTransform3D(ShaderTransform3D*);
+		bool Done();
+		RenderedObject3D* Get();
+	};
 	class Skybox : RenderedObject3D
 	{
-	protected:
-		virtual void SetGraphics(Window* win);
+	friend class SkyboxFactory;
+	Skybox(Shader*s,Mesh*m) : RenderedObject3D(s,m,Renderer::Position3D) {}
 	public:
 		CubeMap CubeMap_;
-		Skybox() : RenderedObject3D(
-			Helpers::ShaderLib::LoadBasic("CubeMap"), Helpers::Meshes::Cube(), Renderer::Position3D) {}
 		virtual void Draw(Window* win);
+	};
+	class SkyboxFactory
+	{
+	public:
+		static Skybox* Create(CubeMap);
 	};
 	namespace Helpers
 	{
@@ -723,6 +898,11 @@ namespace Melon
 			static RenderedObject3D* TexturedShape(Mesh m);
 		};
 	}
+#endif // MELON_ENGINE_3D
+
+#endif // MELON_ENGINE
+
+#ifdef MELON_RESOURCES
 	// Resources
 	bool LoadWav_(std::ifstream* file, Melon::AudioHeaderData* header, char* data);
 	class ResourceLoader 
@@ -734,6 +914,8 @@ namespace Melon
 		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile, const char* geomFile);
 		static bool LoadAudio(AudioBuffer* result, const char* filename);
 	};
+#endif // MELON_RESOURCES
 }
 
 #include "Collections.inl"
+#include "Animation.inl"

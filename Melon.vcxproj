@@ -160,7 +160,6 @@
     <ClCompile Include="AudioLoading.cpp" />
     <ClCompile Include="MeshLib.cpp" />
     <ClCompile Include="Math.cpp" />
-    <ClCompile Include="Melon.cpp" />
     <ClCompile Include="Misc.cpp" />
     <ClCompile Include="Physics2D.cpp" />
     <ClCompile Include="Rendering.cpp" />
@@ -186,6 +185,7 @@
     <Media Include="me.wav" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Animation.inl" />
     <None Include="Collections.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
