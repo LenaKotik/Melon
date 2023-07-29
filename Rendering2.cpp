@@ -112,6 +112,31 @@ bool Melon::MaterialGraphics::SetMaterial(Material m, int id)
 	Material_ = m;
 	return 1;
 }
+void Melon::BorderGraphics::SetGraphics(Shader* sh)
+{
+	sh->SetColor(Color_, "Color");
+	sh->SetColor(BorderColor, "BorderColor");
+	sh->SetFloat(BorderWidth, "BorderWidth");
+}
+bool Melon::BorderGraphics::SetColor(Color c, int id)
+{
+	if (id == 0)
+	{
+		Color_ = c;
+		return true;
+	}
+	if (id == 1)
+	{
+		BorderColor = c;
+		return true;
+	}
+	return false;
+}
+bool Melon::BorderGraphics::SetWidth(float w)
+{
+	BorderWidth = w;
+	return true;
+}
 
 void Melon::RenderedObject2D::Delete()
 {
@@ -123,12 +148,12 @@ void Melon::RenderedObject2D::Draw(Window* win)
 {
 	Shader_.Use();
 
-	Camera* cam = win->MainCamera; // abstract it
+	Camera2D* cam = (Camera2D*)win->MainCamera; // abstract it
 
 	Matrix4 ortho = Matrix4::Ortho(win->GetAspect(), 0, 100);
 
 	Transform->SetTransform(&Shader_, T);
-	Shader_.SetMatrix4(cam->GetView(), "view"); // this 
+	Shader_.SetMatrix4(cam->GetCoordinateSystem().TransformationTo(), "view"); // this 
 	Shader_.SetMatrix4(ortho, "projection");
 	
 	Graphics->SetGraphics(&Shader_);

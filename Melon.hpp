@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
+#include <tuple>
 #include <fstream>
 #include <cstring>
 #include <string>
@@ -14,7 +14,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 //#include <ft2build.h>
-//#include FT_FREETYPE_H // sus
+//#include FT_FREETYPE_H
 
 #define DEBUG_OUTPUT
 
@@ -161,9 +161,6 @@ namespace Melon
 
 	template <typename T>
 	T clamp(T value, T minValue, T maxValue) { return max<T>(minValue, min<T>(maxValue, value)); }
-	
-	template <typename T>
-	T lerp(T a, T b, float t) { return a * (1.0f - t) + b * t; }
 
 	struct Vector2 // for now only floats, but this should be enough
 	{
@@ -182,6 +179,7 @@ namespace Melon
 		Vector2 operator*(const float& scalar) const;
 		Vector2 operator-() const;
 		float Dot(const Vector2& oth) const;
+		float Angle(const Vector2& oth) const;
 		float Magnitude() const;
 		float MagnitudeSqr() const;
 		Vector2 Normalize() const;
@@ -205,6 +203,7 @@ namespace Melon
 		Vector3 operator-() const;
 		Vector3 Cross(const Vector3& oth);
 		float Dot(const Vector3& oth) const;
+		float Angle(const Vector3& oth) const;
 		float Magnitude() const;
 		float MagnitudeSqr() const;
 		Vector3 Normalize() const;
@@ -217,8 +216,19 @@ namespace Melon
 		float Angle;
 		Vector3 Axis;
 		Rotator() : Angle(0), Axis(0,0,1) {}
-		Rotator(float angle, Vector3 axis) : Angle(angle), Axis(axis) {}
+		Rotator(float angle, Vector3 axis) : Angle(angle), Axis(axis.Normalize()) {}
+		Rotator(Vector3 euler_vector) 
+		{
+			Angle = euler_vector.Magnitude();
+			Axis = euler_vector * (1.0f / Angle);
+		}
+		Vector3 AsEulerVector() const { return Axis * Angle; }
 	};
+	template <typename T>
+	T lerp(T a, T b, float t);
+
+	template <>
+	Rotator lerp(Rotator a, Rotator b, float t);
 	
 	struct Matrix4
 	{
@@ -250,7 +260,7 @@ namespace Melon
 		float R, G, B, A;
 		Color() : R(1), G(1), B(1), A(1) {};
 		Color(float r, float g, float b, float a) : R(r), G(g), B(b), A(a) {}; 
-		static Color FromBytes(GLubyte r, GLubyte g, GLubyte b, GLubyte a); // converts colors from [0-255] range to [0.0f-1.0f] range
+		static Color FromBytes(GLubyte r, GLubyte g, GLubyte b, GLubyte a=255); // converts colors from [0-255] range to [0.0f-1.0f] range
 		Color operator+(Color);
 		Color operator*(float);
 	};
@@ -640,7 +650,6 @@ namespace Melon
 	};
 #endif // MELON_AUDIO
 
-
 #ifdef MELON_ENGINE
 	// Engine
 	class CoordinateSystem
@@ -696,6 +705,17 @@ namespace Melon
 		virtual bool SetTexture(Texture, int id = 0) override;
 		virtual bool SetBrush(Brush, int id = 0) override;
 		virtual bool SetMaterial(Material, int id = 0) override;
+	};
+	class BorderGraphics : ShaderGraphics
+	{
+	public:
+		Color Color_;
+		Color BorderColor;
+		float BorderWidth;
+		virtual void SetGraphics(Shader*) override;
+		/// <param name="id">0 = Interior| 1 = Border</param>
+		virtual bool SetColor(Color, int id) override;
+		bool SetWidth(float);
 	};
 	template <typename T>
 	struct Keyframe

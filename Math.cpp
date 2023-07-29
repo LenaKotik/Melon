@@ -5,10 +5,15 @@ float Melon::deg2rad(float deg)
 	return deg / (180.0 / Pi);
 }
 
-
 float Melon::rad2deg(float rad)
 {
 	return rad * (180.0 / Pi);
+}
+
+template <>
+Melon::Rotator Melon::lerp(Melon::Rotator a, Melon::Rotator b, float t)
+{
+	return Melon::Rotator(Melon::lerp(a.AsEulerVector(), b.AsEulerVector(), t));
 }
 
 Melon::Vector2 Melon::Vector2::operator=(const Vector2& oth)
@@ -58,6 +63,11 @@ Melon::Vector2 Melon::Vector2::operator-() const
 float Melon::Vector2::Dot(const Vector2& oth) const
 {
 	return x*oth.x + y*oth.y;
+}
+
+float Melon::Vector2::Angle(const Vector2& oth) const
+{
+	return acosf(Dot(oth) / Magnitude() * oth.Magnitude());
 }
 
 float Melon::Vector2::Magnitude() const
@@ -128,6 +138,11 @@ Melon::Vector3 Melon::Vector3::Cross(const Vector3& oth)
 float Melon::Vector3::Dot(const Vector3& oth) const
 {
 	return this->x * oth.x + this->y * oth.y, this->z * oth.z;
+}
+
+float Melon::Vector3::Angle(const Vector3& oth) const
+{
+	return acosf(Dot(oth) / Magnitude() * oth.Magnitude());
 }
 
 float Melon::Vector3::Magnitude() const
@@ -275,7 +290,7 @@ Melon::Matrix4 Melon::Matrix4::Translate(const Vector3 pos) const
 
 Melon::Matrix4 Melon::Matrix4::Rotate(Rotator rotator) const
 {
-	rotator.Axis = rotator.Axis.Normalize();
+	//rotator.Axis = rotator.Axis.Normalize();
 	Matrix4 res;
 	float CosTheta = cosf(rotator.Angle);
 	float SinTheta = sinf(rotator.Angle);
@@ -381,9 +396,18 @@ Melon::Matrix4 Melon::Camera3D::GetView()
 
 	return rotation * translation;
 }
+Melon::CoordinateSystem3D Melon::Camera3D::GetCoordinateSystem()
+{
+	CoordinateSystem3D res;
+	res.Position = Position;
+	Vector3 axis = Vector3(0.0f, 0.0f, -1.0f).Cross(Direction);
+	float angle =  Direction.Angle(Vector3(0.0f, 0.0f, -1.0f)); //asinf(axis.Magnitude());
+	res.Rotation = Rotator(angle, axis.Normalize());
+	return res;
+}
 void Melon::Camera3D::SetDirection(Vector3 dir)
 {
-	Direction = dir;
+	Direction = dir.Normalize();
 	Right = Direction.Cross(Up).Normalize();
 	Up = Right.Cross(Direction).Normalize();
 }
@@ -392,6 +416,13 @@ Melon::Matrix4 Melon::Camera2D::GetView()
 	Matrix4 res(1.0f);
 	res = res.Translate(Vector3(-Position.x,-Position.y, 0));
 	res = res.Rotate(Rotator(Rotation, Vector3(0.0f, 0.0f, 1.0f)));
+	return res;
+}
+Melon::CoordinateSystem2D Melon::Camera2D::GetCoordinateSystem()
+{
+	CoordinateSystem2D res;
+	res.Position = Position;
+	res.Rotation = Rotation;
 	return res;
 }
 Melon::Matrix4 Melon::CoordinateSystem2D::TransformationTo() const

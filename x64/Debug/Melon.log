@@ -1,28 +1,51 @@
 ﻿  Test.cpp
-D:\ProjectRoot\CppProj\Melon\Test.cpp(58,73): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(58,55): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(58,37): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(59,81): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(59,68): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(59,55): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(59,32): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Test.cpp(232,39): warning C4305: аргумент: усечение из "double" в "float"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(60,73): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(60,55): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(60,37): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(61,81): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(61,68): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(61,55): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(61,32): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Test.cpp(234,39): warning C4305: аргумент: усечение из "double" в "float"
 D:\ProjectRoot\CppProj\Melon\Test.cpp(341,47): warning C4305: аргумент: усечение из "double" в "float"
 D:\ProjectRoot\CppProj\Melon\Test.cpp(436,27): warning C4305: аргумент: усечение из "double" в "float"
 D:\ProjectRoot\CppProj\Melon\Test.cpp(438,27): warning C4305: аргумент: усечение из "double" в "float"
 D:\ProjectRoot\CppProj\Melon\Test.cpp(439,28): warning C4305: аргумент: усечение из "double" в "float"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(496,46): warning C4305: аргумент: усечение из "double" в "float"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(497,49): warning C4305: аргумент: усечение из "double" в "float"
+D:\ProjectRoot\CppProj\Melon\Test.cpp(497,50): warning C4305: аргумент: усечение из "double" в "float"
 D:\ProjectRoot\CppProj\Melon\Collections.inl(44,13): warning C4244: инициализация: преобразование "Size_t" в "int", возможна потеря данных
-D:\ProjectRoot\CppProj\Melon\Collections.inl(41): message : во время компиляции функции-члена класс шаблон "void Melon::DynamicArray<int>::Insert(T,int)"
+D:\ProjectRoot\CppProj\Melon\Collections.inl(41): message : во время компиляции функции-члена класс шаблон "void Melon::DynamicArray<Melon::Keyframe<T>>::Insert(Melon::Keyframe<T>,int)"
           with
           [
-              T=int
+              T=Melon::Vector2
           ]
-D:\ProjectRoot\CppProj\Melon\Test.cpp(305): message : выполняется компиляция ссылки на экземпляр шаблон функции "void Melon::DynamicArray<int>::Insert(T,int)"
+D:\ProjectRoot\CppProj\Melon\Animation.inl(17): message : выполняется компиляция ссылки на экземпляр шаблон функции "void Melon::DynamicArray<Melon::Keyframe<T>>::Insert(Melon::Keyframe<T>,int)"
           with
           [
-              T=int
+              T=Melon::Vector2
           ]
-D:\ProjectRoot\CppProj\Melon\Test.cpp(304): message : выполняется компиляция ссылки на экземпляр класс шаблон функции "Melon::DynamicArray<int>"
-D:\ProjectRoot\CppProj\Melon\Test.cpp(198): warning C4715: LightingScene: значение возвращается не при всех путях выполнения
-D:\ProjectRoot\CppProj\Melon\Animation.inl(48): warning C4715: Melon::InterpolationTrack<Melon::Vector2>::Get: значение возвращается не при всех путях выполнения
+D:\ProjectRoot\CppProj\Melon\Animation.inl(6): message : во время компиляции функции-члена класс шаблон "void Melon::InterpolationTrack<T>::Add(Melon::Keyframe<T>)"
+          with
+          [
+              T=Melon::Vector2
+          ]
+D:\ProjectRoot\CppProj\Melon\Test.cpp(432): message : выполняется компиляция ссылки на экземпляр шаблон функции "void Melon::InterpolationTrack<T>::Add(Melon::Keyframe<T>)"
+          with
+          [
+              T=Melon::Vector2
+          ]
+D:\ProjectRoot\CppProj\Melon\Test.cpp(431): message : выполняется компиляция ссылки на экземпляр класс шаблон функции "Melon::InterpolationTrack<T>"
+          with
+          [
+              T=Melon::Vector2
+          ]
+  Windowing.cpp
+D:\ProjectRoot\CppProj\Melon\Windowing.cpp(181,20): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
+D:\ProjectRoot\CppProj\Melon\Windowing.cpp(181,17): warning C4244: аргумент: преобразование "double" в "float", возможна потеря данных
+  Создание кода...
+D:\ProjectRoot\CppProj\Melon\Animation.inl(51): warning C4715: Melon::InterpolationTrack<Melon::Vector2>::Get: значение возвращается не при всех путях выполнения
+D:\ProjectRoot\CppProj\Melon\Animation.inl(51): warning C4715: Melon::InterpolationTrack<Melon::Rotator>::Get: значение возвращается не при всех путях выполнения
+D:\ProjectRoot\CppProj\Melon\Animation.inl(51): warning C4715: Melon::InterpolationTrack<Melon::Color>::Get: значение возвращается не при всех путях выполнения
+D:\ProjectRoot\CppProj\Melon\Test.cpp(200): warning C4715: LightingScene: значение возвращается не при всех путях выполнения
   Melon.vcxproj -> D:\ProjectRoot\CppProj\Melon\x64\Debug\Melon.exe

@@ -1,10 +1,10 @@
 #version 330 core
 
-in vec4 ColorMul;
 in vec2 TexCoords;
 
 out vec4 outColor;
 
+uniform vec4 Color;
 uniform vec4 BorderColor;
 uniform float BorderWidth;
 
@@ -14,7 +14,7 @@ void main()
    float min_ = BorderWidth;
    if (TexCoords.x < max_ && TexCoords.x > min_ && TexCoords.y < max_ && TexCoords.y > min_)
    {
-		outColor = ColorMul;
+		outColor = Color;
    }
 	else
 		outColor = BorderColor;

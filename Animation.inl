@@ -1,4 +1,7 @@
 template <typename T>
+T Melon::lerp(T a, T b, float t) { return a * (1.0f - t) + b * t; }
+
+template <typename T>
 inline void Melon::InterpolationTrack<T>::Add(Melon::Keyframe<T> kf) // TODO: rewrite this stupid shit, add some kind of sorting. push back then sort
 {
 	if (keyframes.Size() == 0) // no elements
@@ -50,6 +53,7 @@ template <typename T>
 inline void Melon::Animation<T>::Add(InterpolationTrack<T> t)
 {
 	tracks.PushBack(t);
+	ComputeLength(); // ik
 }
 template <typename T>
 inline void Melon::Animation<T>::ComputeLength()
@@ -65,7 +69,6 @@ inline void Melon::Animation<T>::ComputeLength()
 template <typename T>
 inline T Melon::Animation<T>::operator [](int idx)
 {
-	ComputeLength(); // idk
 	float t = Time::GetTime();
 	if (t > start_time + length && loop) start_time += length;
 	t -= start_time;
