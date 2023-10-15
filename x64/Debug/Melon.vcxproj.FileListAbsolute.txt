@@ -1,3 +1,9 @@
 D:\ProjectRoot\CppProj\Melon\x64\Debug\Melon.exe
 D:\ProjectRoot\CppProj\Melon\x64\Debug\Melon.vcxproj.CopyComplete
 D:\ProjectRoot\CppProj\Melon\x64\Debug\OpenAL32.dll
+D:\ProjectRoot\CppProj\Melon\x64\Debug\freetyped.dll
+D:\ProjectRoot\CppProj\Melon\x64\Debug\zlibd1.dll
+D:\ProjectRoot\CppProj\Melon\x64\Debug\bz2d.dll
+D:\ProjectRoot\CppProj\Melon\x64\Debug\libpng16d.dll
+D:\ProjectRoot\CppProj\Melon\x64\Debug\brotlidec.dll
+D:\ProjectRoot\CppProj\Melon\x64\Debug\brotlicommon.dll

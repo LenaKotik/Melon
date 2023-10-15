@@ -1,6 +1,7 @@
 #include "Melon.hpp"
 
 bool Melon::Windowing::initialized = false;
+FT_Library Melon::Windowing::freetype_handle = NULL;
 
 static void on_windowResized(GLFWwindow* win, int width, int height)
 {
@@ -102,6 +103,12 @@ Melon::AudioDevice* Melon::Windowing::OpenAudioDevice(const char* Device_name)
 	return device;
 }
 
+bool Melon::Windowing::InitFreetype()
+{
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // no
+	return !FT_Init_FreeType(&freetype_handle);
+}
+
 void Melon::Windowing::DestroyWindow(Window* win)
 {
 	delete win;
@@ -145,6 +152,9 @@ Melon::Window* Melon::Windowing::Init(unsigned int Width, unsigned int Height, c
 	TextureUnitManager::units = new GLuint[TextureUnitManager::MaxUnits]; // set the texture unit array
 
 	initialized = true;
+
+	glEnable(GL_BLEND); // TODO: yeah
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	return res;
 }
@@ -232,5 +242,7 @@ void Melon::Windowing::PollEvents()
 
 void Melon::Windowing::Terminate()
 {
+	if (freetype_handle)
+		FT_Done_FreeType(freetype_handle);
 	glfwTerminate();
 }

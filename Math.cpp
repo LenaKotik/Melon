@@ -413,16 +413,14 @@ void Melon::Camera3D::SetDirection(Vector3 dir)
 }
 Melon::Matrix4 Melon::Camera2D::GetView()
 {
-	Matrix4 res(1.0f);
-	res = res.Translate(Vector3(-Position.x,-Position.y, 0));
-	res = res.Rotate(Rotator(Rotation, Vector3(0.0f, 0.0f, 1.0f)));
-	return res;
+	return GetCoordinateSystem().TransformationTo();
 }
 Melon::CoordinateSystem2D Melon::Camera2D::GetCoordinateSystem()
 {
 	CoordinateSystem2D res;
 	res.Position = Position;
 	res.Rotation = Rotation;
+	res.Scale = Vector2(Scale);
 	return res;
 }
 Melon::Matrix4 Melon::CoordinateSystem2D::TransformationTo() const

@@ -12,6 +12,10 @@ void Melon::DefaultTransform2D::SetTransform(Shader* sh, const CoordinateSystem2
 {
 	sh->SetMatrix4(T.TransformationFrom(), "model");
 }
+void Melon::ChildTransform2D::SetTransform(Shader* sh, const CoordinateSystem2D& T)
+{
+	sh->SetMatrix4(Parent->TransformationFrom() * T.TransformationFrom(), "model");
+}
 bool Melon::ColorGraphics::SetColor(Color c, int)
 {
 	Color_ = c;
@@ -153,7 +157,7 @@ void Melon::RenderedObject2D::Draw(Window* win)
 	Matrix4 ortho = Matrix4::Ortho(win->GetAspect(), 0, 100);
 
 	Transform->SetTransform(&Shader_, T);
-	Shader_.SetMatrix4(cam->GetCoordinateSystem().TransformationTo(), "view"); // this 
+	Shader_.SetMatrix4(cam->GetView(), "view"); // this 
 	Shader_.SetMatrix4(ortho, "projection");
 	
 	Graphics->SetGraphics(&Shader_);

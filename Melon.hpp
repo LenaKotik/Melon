@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include <tuple>
+#include <map>
 #include <fstream>
 #include <cstring>
 #include <string>
@@ -13,8 +13,8 @@
 //#include <assimp/postprocess.h> 
 #include <AL/al.h>
 #include <AL/alc.h>
-//#include <ft2build.h>
-//#include FT_FREETYPE_H
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #define DEBUG_OUTPUT
 
@@ -122,7 +122,10 @@ namespace Melon
 	using DynamicFloatArray = DynamicArray<float>;
 	using DynamicIntArray = DynamicArray<int>;
 	using DynamicUIntArray = DynamicArray<unsigned int>;
-
+	
+	template <typename K,typename V>
+	using Map = std::map<K, V>;
+	
 	template <Size_t IN, Size_t OUT>
 	class Controller
 	{
@@ -184,6 +187,7 @@ namespace Melon
 		float MagnitudeSqr() const;
 		Vector2 Normalize() const;
 	};
+	using DynamicVector2Array = DynamicArray<Vector2>;
 
 	struct Vector3 // same thing
 	{
@@ -209,6 +213,15 @@ namespace Melon
 		Vector3 Normalize() const;
 	};
 	using DynamicVector3Array = DynamicArray<Vector3>;
+
+	struct Rect
+	{
+		Vector2 Position;
+		Vector2 Size;
+		Rect() : Position(0), Size(0) {}
+		Rect(Vector2 pos, Vector2 size) : Position(pos),Size(size) {}
+		Rect(float x, float y, float w, float h) : Position(x,y),Size(w,h) {}
+	};
 
 	struct Rotator
 	{
@@ -370,6 +383,8 @@ namespace Melon
 		static Window* CreateWindow(unsigned int Width, unsigned int Height, const char* Title);
 		static AudioDevice* OpenAudioDevice();
 		static AudioDevice* OpenAudioDevice(const char* Device_name);
+		static FT_Library freetype_handle;
+		static bool InitFreetype();
 		static void DestroyWindow(Window* win);
 		static void CloseAudioDevice(AudioDevice* device);
 		static void Terminate();
@@ -436,9 +451,10 @@ namespace Melon
 		Byte* data;
 		GLint width, height;
 		GLint channels;
+		GLenum wraping_mode;
 		TextureData() {}
-		TextureData(Byte* data_, GLint w, GLint h, GLint channels_)
-			: data(data_), width(w), height(h), channels(channels_) {}
+		TextureData(Byte* data_, GLint w, GLint h, GLint channels_,GLenum wm)
+			: data(data_), width(w), height(h), channels(channels_), wraping_mode(wm) {}
 		void Delete() override;
 	};
 	class Texture : IDeleted
@@ -472,6 +488,7 @@ namespace Melon
 		static GLint MaxUnits;
 	public:
 		static GLint GetMaxTextureUnits();
+		static Byte GetCurrentUnit();
 		static Byte Add(Texture t);
 		static Byte Add(CubeMap t);
 		static void Clear();
@@ -500,6 +517,7 @@ namespace Melon
 	struct Mesh
 	{
 	public:
+		Mesh() {};
 		Mesh(DynamicVertexArray vert, GLenum pt) : verticies(vert), PrimitiveType(pt), indecies({ 0 }), is_indexed(false) {};
 		Mesh(DynamicVertexArray vert, GLenum pt, DynamicUIntArray ind, bool i) : verticies(vert), PrimitiveType(pt), indecies(ind), is_indexed(i) {};
 		void SetColor(Color c);
@@ -515,6 +533,7 @@ namespace Melon
 		{
 		public:
 			static Mesh Quad(); // 2D
+			static Mesh QuadFromRect(Rect);
 			static Mesh Triangle(); // 2D
 			static Mesh Cube(); // 3D
 			static Mesh Sphere(unsigned int Haccuracy, unsigned int Vaccuracy); // looks sus
@@ -556,8 +575,8 @@ namespace Melon
 		GLenum PrimitiveType;
 		GLuint VAO, VBO, EBO;
 		int indC, vertC;
-		DynamicFloatArray GenBuffer(DynamicVertexArray arr, VertexAttributesConfig bitmask, int* stride, DynamicUIntArray* offsets, DynamicUIntArray* sizes);
 	public:
+		static DynamicFloatArray GenBuffer(DynamicVertexArray arr, VertexAttributesConfig bitmask, int* stride, DynamicUIntArray* offsets, DynamicUIntArray* sizes);
 		enum VertexAttributesConfig
 		{
 			Position3D = 1,
@@ -569,6 +588,29 @@ namespace Melon
 		void Draw();
 		void Delete() override;
 		~Renderer();
+	};
+	struct Glyph
+	{
+	public:
+		Texture texture;
+		Vector2 Size;
+		Vector2 Bearing;
+		unsigned int Advance;
+		Rect GetBoundingBox();
+	};
+	class Font : IDeleted
+	{
+		friend class ResourceLoader;
+	private:
+		FT_Face handle;
+		Map<char, Glyph> glyphs;
+	public:
+		static const String ASCII;
+		Glyph GetGlyph(char);
+		bool AutoPreload = false;
+		bool PreloadGlyph(char);
+		bool PreloadGlyphs(String);
+		void Delete() override;
 	};
 	namespace Helpers
 	{
@@ -717,6 +759,8 @@ namespace Melon
 		virtual bool SetColor(Color, int id) override;
 		bool SetWidth(float);
 	};
+	
+
 	template <typename T>
 	struct Keyframe
 	{
@@ -749,7 +793,7 @@ namespace Melon
 		void Stop();
 		bool IsPlaying();
 	};
-	
+
 	// Enigne 2D
 #ifdef MELON_ENGINE_2D
 	// Rendering
@@ -773,13 +817,19 @@ namespace Melon
 	public:
 		virtual void SetTransform(Shader*, const CoordinateSystem2D&);
 	};
+	class ChildTransform2D : ShaderTransform2D
+	{
+	public:
+		CoordinateSystem2D* Parent;
+		virtual void SetTransform(Shader*, const CoordinateSystem2D&);
+	};
 	class Camera2D : public Camera
 	{
 	public:
 		Vector2 Position;
 		float Rotation;
-		float Zoom;
-		Camera2D() : Position(0.0f), Rotation(0.0f) {};
+		float Scale;
+		Camera2D() : Position(0.0f), Rotation(0.0f),Scale(1.0f){};
 		CoordinateSystem2D GetCoordinateSystem();
 		Matrix4 GetView();
 	};
@@ -818,6 +868,29 @@ namespace Melon
 		public:
 			static RenderedObject2D* Shape(Mesh m);
 			static RenderedObject2D* Sprite();
+		};
+	}
+	class RenderedText : IDeleted
+	{
+	private:
+		unsigned int VAO, VBO;
+		Mesh mesh;
+	public:
+		RenderedText(Shader*,Font*);
+		Shader Shader_;
+		CoordinateSystem2D T;
+		Color Color_;
+		Font* Font_;
+		String Text;
+		void Draw(Window*);
+		virtual void Delete() override;
+	};
+	namespace Helpers
+	{
+		class Text
+		{
+		public:
+			static RenderedText* Default(Font*);
 		};
 	}
 	// Physics
@@ -933,6 +1006,7 @@ namespace Melon
 		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile);
 		static bool LoadShader(Shader* result, const char* vertFile, const char* fragFile, const char* geomFile);
 		static bool LoadAudio(AudioBuffer* result, const char* filename);
+		static bool LoadFont(Font* result, const char* filename,long face_index=0);
 	};
 #endif // MELON_RESOURCES
 }

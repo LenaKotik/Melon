@@ -125,3 +125,9 @@ Melon::RenderedObject3D* Melon::Helpers::Objects3D::TexturedShape(Melon::Mesh m)
 	b.SetTransform3D((ShaderTransform3D*)(new DefaultTransform3D));
 	return b.Get();
 }
+Melon::RenderedText* Melon::Helpers::Text::Default(Font* f)
+{
+	Shader* sh = Helpers::ShaderLib::LoadBasic("Text");
+	if (!sh) return nullptr;
+	return new RenderedText(sh,f);
+}

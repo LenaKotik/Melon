@@ -25,6 +25,8 @@ bool Melon::ResourceLoader::LoadTextureData(TextureData* result, const char* fil
 		fprintf(stderr, "failed to load texture: %s", filename);
 		return false;
 	}
+	result->wraping_mode = GL_MIRRORED_REPEAT;
+
 	return true;
 }
 
@@ -157,3 +159,22 @@ bool Melon::ResourceLoader::LoadAudio(AudioBuffer* result, const char* filename)
 	delete data;
 	return true;
 }
+bool Melon::ResourceLoader::LoadFont(Font* result, const char* filename,long face_index)
+{
+	if (!Windowing::freetype_handle)
+	{
+		fprintf(stderr, "FREETYPE NOT INITALIZED");
+		return false;
+	}
+	FT_Face handle;
+	if (FT_New_Face(Windowing::freetype_handle, filename, face_index, &handle))
+	{
+		fprintf(stderr, "FAILED TO LOAD FONT");
+		return false;
+	}
+	FT_Set_Pixel_Sizes(handle, 0, 48); // idk
+	
+	result->handle = handle;
+	return true;
+}
+

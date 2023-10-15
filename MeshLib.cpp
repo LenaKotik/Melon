@@ -16,6 +16,20 @@ Melon::Mesh Melon::Helpers::Meshes::Quad()
 	return { verticies, GL_TRIANGLES , indecies, true };
 }
 
+Melon::Mesh Melon::Helpers::Meshes::QuadFromRect(Rect rect)
+{
+    DynamicVertexArray verticies = {
+        Vertex(Vector3(rect.Position.x            ,rect.Position.y+rect.Size.y,0),Color(1,1,1,1),Vector2(0.0f,0.0f)),
+        Vertex(Vector3(rect.Position.x            ,rect.Position.y            ,0),Color(1,1,1,1),Vector2(0.0f,1.0f)),
+        Vertex(Vector3(rect.Position.x+rect.Size.x,rect.Position.y            ,0),Color(1,1,1,1),Vector2(1.0f,1.0f)),
+
+        Vertex(Vector3(rect.Position.x            ,rect.Position.y+rect.Size.y,0),Color(1,1,1,1),Vector2(0.0f,0.0f)),
+        Vertex(Vector3(rect.Position.x+rect.Size.x,rect.Position.y            ,0),Color(1,1,1,1),Vector2(1.0f,1.0f)),
+        Vertex(Vector3(rect.Position.x+rect.Size.x,rect.Position.y+rect.Size.y,0),Color(1,1,1,1),Vector2(1.0f,0.0f)),
+    };
+    return { verticies, GL_TRIANGLES };
+}
+
 Melon::Mesh Melon::Helpers::Meshes::Triangle()
 {
     DynamicVertexArray verticies = {
@@ -87,7 +101,7 @@ Melon::Mesh Melon::Helpers::Meshes::Sphere(unsigned int Haccuracy, unsigned int 
 {
     // (x, y, z) = (sin(Pi * m/M) cos(2Pi * n/N), sin(Pi * m/M) sin(2Pi * n/N), cos(Pi * m/M))
     DynamicVertexArray verticies;
-    for (int x = 0; x < Haccuracy; x++) for (int y = 0; y < Vaccuracy; y++)
+    for (unsigned int x = 0; x < Haccuracy; x++) for (unsigned int y = 0; y < Vaccuracy; y++)
     {
         Vector2 unit(((float)x) / ((float)Haccuracy), ((float)y) / ((float)Vaccuracy));
         Vector3 point(sinf(Pi * unit.x) * cosf(2 * Pi * unit.y) * 0.5f,
@@ -104,7 +118,7 @@ Melon::Mesh Melon::Helpers::Meshes::Circle(unsigned int accuracy)
 {
     DynamicVertexArray verticies;
     float angle = 2 * Pi / (float)accuracy;
-    for (int i = 0; i < accuracy; i++)
+    for (unsigned int i = 0; i < accuracy; i++)
         verticies.PushBack(Vertex(Vector3(cos(i * angle)/2, sin(i * angle)/2, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f), Vector2(cos(i * angle)/2+1.0f, sin(i * angle) / 2 + 1.0f)));
     return { verticies, GL_TRIANGLE_FAN };
 }

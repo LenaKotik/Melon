@@ -63,9 +63,6 @@
     <ClCompile Include="Misc.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Melon.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="melon.png">
@@ -98,5 +95,10 @@
     <None Include="Animation.inl">
       <Filter>Файлы заголовков</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="arialmt.ttf">
+      <Filter>Файлы ресурсов</Filter>
+    </Font>
   </ItemGroup>
 </Project>

@@ -158,7 +158,6 @@
     <ClCompile Include="..\..\..\Misc\glad\src\glad.c" />
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="AudioLoading.cpp" />
-    <ClCompile Include="Melon.cpp" />
     <ClCompile Include="MeshLib.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Misc.cpp" />
@@ -188,6 +187,9 @@
   <ItemGroup>
     <None Include="Animation.inl" />
     <None Include="Collections.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="arialmt.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,13 +4,11 @@
 Melon::Texture::Texture(TextureData data)
 {
 	const GLenum color_spaces[] = { NULL, GL_RED, GL_RG, GL_RGB, GL_RGBA };
-
 	GLenum color_space = color_spaces[data.channels];
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, data.wraping_mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, data.wraping_mode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	glGenTextures(1, &handle);
 
@@ -34,6 +32,11 @@ GLint Melon::TextureUnitManager::MaxUnits = 16;
 GLint Melon::TextureUnitManager::GetMaxTextureUnits()
 {
 	return MaxUnits;
+}
+
+Byte Melon::TextureUnitManager::GetCurrentUnit()
+{
+	return cur;
 }
 
 Melon::CubeMap::CubeMap(FixedArray<TextureData, 6> data)
@@ -73,6 +76,8 @@ void Melon::TextureData::Delete()
 
 Byte Melon::TextureUnitManager::Add(Texture t) 
 {
+	for (int i = 0; i < MaxUnits; i++) // try finding existing
+		if (units[i] == t.handle) return i;
 	// if texture overflow happens, we just wrap around, later should make this behavior configurable
 	if (cur >= MaxUnits) cur = 0; 
 	glActiveTexture(GL_TEXTURE0 + cur);
@@ -83,6 +88,8 @@ Byte Melon::TextureUnitManager::Add(Texture t)
 
 Byte Melon::TextureUnitManager::Add(CubeMap t)
 {
+	for (int i = 0; i < MaxUnits; i++) // try finding existing
+		if (units[i] == t.handle) return i;
 	// if texture overflow happens, we just wrap around, later should make this behavior configurable
 	if (cur >= MaxUnits) cur = 0;
 	glActiveTexture(GL_TEXTURE0 + cur);
@@ -228,9 +235,6 @@ Melon::DynamicFloatArray Melon::Renderer::GenBuffer(DynamicVertexArray arr, Vert
 }
 Melon::Renderer::Renderer(Mesh* mesh, VertexAttributesConfig a) : indexed(mesh->is_indexed), indC(mesh->indecies.Size()), vertC(mesh->verticies.Size()), PrimitiveType(mesh->PrimitiveType)
 {
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	GLuint VBO, EBO;
 
 	glGenVertexArrays(1, &VAO);
@@ -307,4 +311,127 @@ void Melon::Material::Delete()
 	if (!Albedo.isSolid) Albedo.Mapped.Delete();
 	if (!Diffuse.isSolid) Diffuse.Mapped.Delete();
 	if (!Specular.isSolid) Specular.Mapped.Delete();
+}
+
+const Melon::String Melon::Font::ASCII = " !\"#$ % &\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+
+Melon::Glyph Melon::Font::GetGlyph(char c)
+{
+	auto search = glyphs.find(c);
+	if (search != glyphs.end()) // no syntax, and no life :(
+		return search->second;
+	if (AutoPreload && PreloadGlyph(c))
+		return glyphs[c];
+}
+
+bool Melon::Font::PreloadGlyph(char c)
+{
+	if (FT_Load_Char(handle, c, FT_LOAD_RENDER))
+	{
+		fprintf(stderr, "FAILED TO LOAD CHAR %c", c);
+		return false;
+	}
+	FT_Bitmap* bitmap = &handle->glyph->bitmap; // convinience
+	TextureData glyph_td(bitmap->buffer, bitmap->width, bitmap->rows, 1, GL_CLAMP_TO_EDGE);
+	Glyph result = {
+		Texture(glyph_td),
+		Vector2(bitmap->width,bitmap->rows),
+		Vector2(handle->glyph->bitmap_left,handle->glyph->bitmap_top),
+		(handle->glyph->advance.x >> 6)
+	};
+	glyphs[c] = result;
+	return true;
+}
+
+bool Melon::Font::PreloadGlyphs(String str)
+{
+	for (char c : str)
+	{
+		if (!PreloadGlyph(c)) return false;
+	}
+	return true;
+}
+
+void Melon::Font::Delete()
+{
+	FT_Done_Face(handle);
+	for (std::pair<char, Glyph> pair : glyphs)
+		pair.second.texture.Delete();
+}
+
+Melon::Rect Melon::Glyph::GetBoundingBox()
+{
+	return Rect(Vector2(Bearing.x, -(Size.y - Bearing.y)), Size);
+}
+
+Melon::RenderedText::RenderedText(Shader* sh, Font* f) : Shader_(*sh), Font_(f) // this is the same as Renderer, I should probably do something about it
+{
+	mesh = Helpers::Meshes::QuadFromRect(Rect(0, 0, 1, 1)); // placeholder
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	DynamicUIntArray sizes;
+	DynamicUIntArray offsets;
+	int stride = 0;
+	DynamicFloatArray bufffer = Renderer::GenBuffer(mesh.verticies, (Renderer::VertexAttributesConfig)(Renderer::Position3D|Renderer::TextureCoords),&stride,&offsets,&sizes);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * bufffer.Size(), NULL, GL_DYNAMIC_DRAW);
+
+	for (int i = 0; i < sizes.Size(); i++)
+	{
+		glVertexAttribPointer(i, sizes[i], GL_FLOAT, 0, stride * sizeof(float), (void*)(offsets[i] * sizeof(float)));
+		glEnableVertexAttribArray(i);
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void Melon::RenderedText::Draw(Window* win)
+{
+	Shader_.Use();
+	Shader_.SetColor(Color_,"TextColor");
+	Shader_.SetMatrix4(T.TransformationFrom(), "model");
+	Matrix4 ortho = Matrix4::Ortho(win->GetAspect(), 0, 100);
+	Shader_.SetMatrix4(ortho, "projection");
+	Byte cur_unit = TextureUnitManager::GetCurrentUnit();
+	glActiveTexture(GL_TEXTURE0 + cur_unit);
+	glBindVertexArray(VAO);
+
+	float advance = 0;
+	for (char c : Text)
+	{
+		Glyph glyph = Font_->GetGlyph(c);
+
+		Rect glyph_box = glyph.GetBoundingBox();
+		glyph_box.Position.x += advance; // advance to the right
+		glyph_box.Position += T.Position;
+		mesh = Helpers::Meshes::QuadFromRect(glyph_box);
+		
+		DynamicUIntArray offsets, sizes;
+		int stride;
+		DynamicFloatArray bufffer = Renderer::GenBuffer(mesh.verticies, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::TextureCoords), &stride, &offsets, &sizes);
+
+		glBindBuffer(GL_ARRAY_BUFFER,VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, bufffer.Size() * sizeof(float), bufffer.Data);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glyph.texture.Bind(); // we are using same texture unit for all textures
+		Shader_.SetInt(cur_unit, "glyph");
+
+		glDrawArrays(mesh.PrimitiveType, 0, mesh.verticies.Size());
+
+		advance += (float)glyph.Advance;
+	}
+	glBindVertexArray(0);
+}
+
+void Melon::RenderedText::Delete()
+{
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
 }

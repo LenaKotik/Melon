@@ -64,7 +64,7 @@ int RandomTextureCubesScene()
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
-		//printf("FPS:%d\n", (int)roundf(1 / delta));
+		printf("FPS:%d\n", (int)roundf(1 / delta));
 		movement3D(win, delta);
 
 		win->Clear(Color::FromBytes(255, 69, 69, 255), true);
@@ -103,6 +103,7 @@ int Simple2DScene()
 
 	Camera2D cam;
 	win->MainCamera = &cam;
+	cam.Scale = 10;
 
 	const float camSpeed = 2.0f;
 	KeyPressVector2Controller movement(win);
@@ -303,10 +304,7 @@ class TimeoutEventListener : EventListener
 }
 int ConsoleTest()
 {
-	std::tuple<int, float, bool, float> t;
-	for (int i = 0; i < 4; i++)
-		std::cout << std::get<0>(t);
-	return 0;
+	return 1;
 }
 int SpinScene()
 {
@@ -533,18 +531,173 @@ int RotateScene()
 	Windowing::Terminate();
 	return 0;
 }
+int BlendScene()
+{
+	Window* win = Windowing::Init(800, 800, "Will It Blend?", false);
+	if (!win) return -1;
+	if (!Windowing::InitFreetype()) return -1;
+
+	Mesh quad = Helpers::Meshes::Quad();
+
+	RenderedObject2D* object1 = Helpers::Objects2D::Shape(quad);
+	if (!object1) return -1;
+	object1->Graphics->SetColor(Color::FromBytes(0,0,255,200));
+	object1->T.Position = Vector2(0.25f);
+
+	RenderedObject2D* object2 = Helpers::Objects2D::Shape(quad);
+	if (!object2) return -1;
+	object2->Graphics->SetColor(Color::FromBytes(0,255,0,200));
+	object2->T.Position = Vector2(-0.25f);
+
+	Camera2D cam;
+	win->MainCamera = &cam;
+
+	Time::GetDelta();
+	while (!win->ShouldClose())
+	{
+		float delta = Time::GetDelta();
+
+		object1->Graphics->SetColor(Color::FromBytes(0,0,255, 100*(sinf(Time::GetTime())+1)));
+
+		win->Clear(Color::FromBytes(255,0,0),false);
+		object1->Draw(win);
+		object2->Draw(win);
+		win->Flip();
+		Windowing::PollEvents();
+	}
+	object1->Delete();
+	object2->Delete();
+	win->Delete();
+	Windowing::Terminate();
+	return 0;
+}
+int TextScene()
+{
+	Window* win = Windowing::Init(800, 800, "Text", false);
+	if (!win) return -1;
+	if (!Windowing::InitFreetype()) return -1;
+
+	RenderedObject2D* sprite = Helpers::Objects2D::Sprite();
+	if (!sprite) return -1;
+
+	TextureData td;
+	if (!ResourceLoader::LoadTextureData(&td, "melon.png")) return -1;
+
+	sprite->Graphics->SetTexture(Texture(td));
+	//sprite->T.Position = Vector2(0.5f,-0.5f);
+
+	Font font;
+	if (!ResourceLoader::LoadFont(&font, "arialmt.ttf")) return -1;
+	font.PreloadGlyphs(Font::ASCII);
+
+	sprite->Shader_ = *Helpers::ShaderLib::LoadBasic("Text");
+	sprite->Shader_.Use();
+	sprite->Shader_.SetTexture(font.GetGlyph('a').texture, "glyph");
+	sprite->Shader_.SetColor(Color::FromBytes(0, 0, 0),"TextColor");
+	sprite->T.Rotation = Pi; // cringe
+
+	RenderedText* text = Helpers::Text::Default(&font);
+	text->Color_ = Color::FromBytes(0, 0, 0);
+	text->Text = "Hello, world!";
+	text->T.Position = Vector2(400, 400);
+
+	Camera2D cam;
+	win->MainCamera = &cam;
+	cam.Scale = 5.0f;
+
+	const float camSpeed = 2.0f;
+	KeyPressVector2Controller movement(win);
+	Time::GetDelta();
+	while (!win->ShouldClose())
+	{
+		float delta = Time::GetDelta();
+		cam.Position +=  Vector2(movement.Value()) * delta * camSpeed;
+
+		win->Clear(Color::FromBytes(255, 255, 255), false);
+		sprite->Draw(win);
+		text->Draw(win);
+		win->Flip();
+		Windowing::PollEvents();
+	}
+	sprite->Delete();
+	text->Delete();
+	font.Delete();
+	win->Delete();
+	Windowing::Terminate();
+	return 0;
+}
+int ScreenSaverScene()
+{
+	Window* win = Windowing::Init(800, 800, "Satisfactory", false);
+	if (!win) return -1;
+
+	RenderedObject2D* shape = Helpers::Objects2D::Shape(Helpers::Meshes::Quad());
+	if (!shape) return -1;
+	shape->Graphics->SetColor(Color::FromBytes(250, 10, 10));
+	shape->T.Scale = Vector2(0.3f);
+
+	Camera2D cam;
+	win->MainCamera = &cam;
+
+	srand(time(0));
+
+	float angle = deg2rad(float(rand() % 360));
+	Vector2 velocity(cosf(angle),sinf(angle));
+	
+	glfwMaximizeWindow(win->handle);
+
+	win->Clear(Color::FromBytes(255, 255, 255), false);
+	win->Flip();
+	win->Clear(Color::FromBytes(255, 255, 255), false);
+	
+	while (!win->ShouldClose())
+	{
+		float delta = Time::GetDelta();
+		//printf("FPS: %d \n", (int)roundf(1.0f / delta));
+
+		shape->T.Position += velocity*delta;
+		
+		if (abs(shape->T.Position.x) >= (2.1f - 0.3f))
+		{
+			velocity.x = copysignf(velocity.x,-shape->T.Position.x);
+			
+			shape->Graphics->SetColor(Color::FromBytes(rand() % 256, rand() % 256, rand() % 256));
+			velocity *= 1.01f;
+		}
+		if (abs(shape->T.Position.y) >= (1.2f - 0.3f))
+		{
+			velocity.y = copysignf(velocity.y, -shape->T.Position.y);
+			
+			shape->Graphics->SetColor(Color::FromBytes(rand() % 256, rand() % 256, rand() % 256));
+			velocity *= 1.01f;
+		}
+
+		//win->Clear(Color::FromBytes(255, 255, 255), false);
+		shape->Draw(win);
+		win->Flip();
+
+		Windowing::PollEvents();
+	}
+	shape->Delete();
+	win->Delete();
+	Windowing::Terminate();
+	return 0;
+}
 
 int main()
 {
-	return ConsoleTest();
-    return RandomTextureCubesScene();
-	return RotateScene();
-	return Simple2DScene();
-	return AnimationScene();
-	return TreeScene();
-	return SpinScene();
-	return LightingScene();
 	return GeometryShaderScene();
-	//return ModelImportScene();
-	//return SoundScene();
+	return SoundScene();
+	return LightingScene();
+	return SpinScene();
+	return TreeScene();
+	return ScreenSaverScene();
+	return AnimationScene();
+	return Simple2DScene();
+	return RotateScene();
+	return TextScene();
+	return BlendScene();
+    return RandomTextureCubesScene();
+	return ConsoleTest();
+	return ModelImportScene();
 }
