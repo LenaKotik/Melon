@@ -119,6 +119,7 @@ Melon::RenderedObject3D* Melon::Helpers::Objects3D::TexturedShape(Melon::Mesh m)
 	Renderer::VertexAttributesConfig conf = (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::TextureCoords);
 	RenderedObject3DBuilder b;
 	b.SetRenderer(m, conf);
+	printf("If I remove this print the entire shit goes up in flames, I have no idea why");
 	b.SetShader(
 		Helpers::ShaderLib::LoadBasic(ShaderLoadOptions(conf, false, false )));
 	b.SetGraphics((ShaderGraphics*)(new TextureGraphics));
