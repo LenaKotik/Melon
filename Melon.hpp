@@ -1,12 +1,14 @@
 #pragma once
 
+#include "MelonConfig.h"
+
 #include <iostream>
 #include <map>
 #include <fstream>
 #include <cstring>
 #include <string>
 #include <glad/glad.h>
-#include <glfw3.h>
+#include <GLFW/glfw3.h>
 #include <stb_image.h>
 //#include <assimp/Importer.hpp>
 //#include <assimp/scene.h>
@@ -290,6 +292,8 @@ namespace Melon
 		Vertex(Vector3 p, Color c, Vector2 st, Vector3 n) : Position(p), Color_(c), TextureCoords(st), Normal(n) {};
 	};
 	using DynamicVertexArray = DynamicArray<Vertex>;
+
+	const String SourceDir = SOURCE_DIR;
 #endif // MELON_SYSTEM_AND_MATH
 
 #ifdef MELON_CONTROLLERS
