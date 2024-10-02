@@ -1,5 +1,7 @@
 #include "Melon.hpp"
 
+using namespace Melon;
+
 int main()
 {
 	Window* win = Windowing::Init(800, 800, "Animation", false);
@@ -19,7 +21,7 @@ int main()
 	pos_t.Add({Vector2(-0.8,0), 0 });
 	pos_t.Add({Vector2(0, 0.5), 0.5 });
 	pos_t.Add({Vector2(0.8, 0), 1 });
-	pos_t.Add({ Vector2(-0.8,0), 1.5 });
+	pos_t.Add({Vector2(-0.8,0), 1.5 });
 	
 	for (Keyframe<Vector2> p : pos_t.keyframes)
 		std::cerr << p.value.x << " " << p.value.y << "  ";
@@ -31,6 +33,7 @@ int main()
 	win->MainCamera = (Camera*)&cam;
 
 	anim.loop = true;
+	//anim.backward = true;
 	anim.Play();
 	
 	while (!win->ShouldClose())

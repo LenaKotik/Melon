@@ -1,7 +1,3 @@
-#include "Melon.hpp"
-
-using namespace Melon;
-
 void movement3D(Window* win, float delta)
 {
 	static MouseOffsetController ctrl(win);

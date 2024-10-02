@@ -6,6 +6,7 @@ bool Melon::RenderedObject3DBuilder::SetRenderer(Melon::Mesh mesh, Melon::Render
 	m = &mesh;
 	vac = a;
 	state |= 1;
+	printf("If I remove this print the entire shit goes up in flames, I have no idea why\n");
 	return 1;
 }
 bool Melon::RenderedObject3DBuilder::SetShader(Melon::Shader* s)
@@ -46,6 +47,7 @@ bool Melon::RenderedObject2DBuilder::SetRenderer(Melon::Mesh mesh, Melon::Render
 	m = &mesh;
 	vac = a;
 	state |= 1;
+	printf("If I remove this print the entire shit goes up in flames, I have no idea why\n");
 	return 1;
 }
 bool Melon::RenderedObject2DBuilder::SetShader(Melon::Shader* s)
@@ -103,7 +105,7 @@ Melon::RenderedObject2D* Melon::Helpers::Objects2D::Sprite()
 	b.SetTransform2D((ShaderTransform2D*)(new DefaultTransform2D));
 	return b.Get();
 }
-Melon::RenderedObject3D* Melon::Helpers::Objects3D::Shape(Melon::Mesh m)
+Melon::RenderedObject3D* Melon::Helpers::Objects3D::ColoredShape(Melon::Mesh m)
 {
 	RenderedObject3DBuilder b;
 	b.SetRenderer(m, Renderer::Position3D);
@@ -119,10 +121,20 @@ Melon::RenderedObject3D* Melon::Helpers::Objects3D::TexturedShape(Melon::Mesh m)
 	Renderer::VertexAttributesConfig conf = (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::TextureCoords);
 	RenderedObject3DBuilder b;
 	b.SetRenderer(m, conf);
-	printf("If I remove this print the entire shit goes up in flames, I have no idea why");
 	b.SetShader(
 		Helpers::ShaderLib::LoadBasic(ShaderLoadOptions(conf, false, false )));
 	b.SetGraphics((ShaderGraphics*)(new TextureGraphics));
+	b.SetTransform3D((ShaderTransform3D*)(new DefaultTransform3D));
+	return b.Get();
+}
+Melon::RenderedObject3D* Melon::Helpers::Objects3D::Shape(Melon::Mesh m)
+{
+	Renderer::VertexAttributesConfig conf = (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::TextureCoords);
+	RenderedObject3DBuilder b;
+	b.SetRenderer(m, conf);
+	b.SetShader(
+		Helpers::ShaderLib::LoadBasic(ShaderLoadOptions(conf, false, false)));
+	b.SetGraphics((ShaderGraphics*)(new BrushGraphics()));
 	b.SetTransform3D((ShaderTransform3D*)(new DefaultTransform3D));
 	return b.Get();
 }

@@ -1,5 +1,8 @@
 #include "Melon.hpp"
 
+using namespace Melon;
+#include "Examples/movement3d.h"
+
 int main()
 {
 	Window* win = Windowing::Init(800, 800, "Geometry Shader", true);

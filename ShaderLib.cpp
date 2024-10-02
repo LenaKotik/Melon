@@ -11,10 +11,17 @@ Melon::Shader* Melon::Helpers::ShaderLib::LoadBasic(ShaderLoadOptions options)
 
 Melon::Shader* Melon::Helpers::ShaderLib::LoadBasic(String shadername)
 {
+	printf(shadername.c_str());
 	Shader* res = new Shader();
 	if (!ResourceLoader::LoadShader(res,
+#ifdef SHADER_LIB_IN_SOURCE
 		(SourceDir + "/ShaderLib/vert/" + shadername + ".vert").c_str(),
-		(SourceDir + "/ShaderLib/frag/" + shadername + ".frag").c_str())) return nullptr;
+		(SourceDir + "/ShaderLib/frag/" + shadername + ".frag").c_str()))
+#else
+		(shadername + ".vert").c_str(),
+		(shadername + ".frag").c_str()))
+#endif
+		return nullptr;
 	return res;
 	
 }

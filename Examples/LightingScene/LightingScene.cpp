@@ -1,5 +1,8 @@
 #include "Melon.hpp"
 
+using namespace Melon;
+#include "Examples/movement3d.h"
+
 int main()
 {
 	Window* win = Windowing::Init(800, 800, "Phong Lighting", true);
@@ -27,11 +30,10 @@ int main()
 	builder.SetGraphics((ShaderGraphics*)new ColorGraphics);
 	RenderedObject3D normals = *builder.Get();
 
-
 	shape.Graphics->SetMaterial(Helpers::Materials::Gold());
 
 	m.PrimitiveType = GL_TRIANGLES;
-	RenderedObject3D light = *Helpers::Objects3D::Shape(m);
+	RenderedObject3D light = *Helpers::Objects3D::ColoredShape(m);
 	Color lightColor = Color::FromBytes(255, 255, 255, 255);
 	light.Graphics->SetColor(lightColor);
 	light.T.Position = Vector3(0, 1, -2);

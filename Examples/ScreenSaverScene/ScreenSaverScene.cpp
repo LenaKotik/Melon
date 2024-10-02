@@ -1,5 +1,7 @@
 #include "Melon.hpp"
 
+using namespace Melon;
+
 int main()
 {
 	Window* win = Windowing::Init(800, 800, "Satisfactory", false);

@@ -1,5 +1,9 @@
 #include "Melon.hpp"
 
+using namespace Melon;
+
+#include "Examples/movement3d.h"
+
 int main()
 {
 	FixedArray<String, 6> skybox_names = { "px", "nx", "py", "ny", "pz", "nz" };
@@ -8,12 +12,12 @@ int main()
 	if (!win) return - 1;
 
 	TextureData grassTex;
-	if (!ResourceLoader::LoadTextureData(&grassTex, "grass.jpeg")) return -1;
+	if (!ResourceLoader::LoadTextureData(&grassTex, (SourceDir + "/Examples/SkyboxScene/grass.jpeg").c_str())) return -1;
 	ResourceLoader::flipYTextures = false;
 	FixedArray<TextureData, 6> skybox_data;
 	for (int i = 0; i < 6; i++)
 	{
-		ResourceLoader::LoadTextureData(&skybox_data[i], ("skybox2/" + skybox_names[i] + ".jpg").c_str());
+		ResourceLoader::LoadTextureData(&skybox_data[i], (SourceDir + "/Examples/SkyboxScene/skybox/" + skybox_names[i] + ".jpg").c_str());
 	}
 	ResourceLoader::flipYTextures = true;
 
@@ -23,15 +27,16 @@ int main()
 
 	Skybox* skybox = SkyboxFactory::Create(skybox_tex);
 
-	RenderedObject3D* cube = Helpers::Objects3D::TexturedShape(cubeMesh);
+	RenderedObject3D* cube = Helpers::Objects3D::Shape(cubeMesh);
 	if (!cube) return -1;
-	
 	Texture grass(grassTex);
-	TextureGraphics* cube_g = (TextureGraphics*)cube->Graphics;
-	cube_g->Texture_ = grass;
+	//TextureGraphics* cube_g = (TextureGraphics*)cube->Graphics;
+	//cube_g->Texture_ = grass;
+	Brush cube_brush(grass, Color::FromBytes(22, 222, 55));
+	cube_brush.isSolid = true;
+	cube->Graphics->SetBrush(cube_brush);
 	cube->T.Position.x = 2;
 	cube->T.Rotation.Axis = Vector3(0.2, 0.5, 0.5);
-	
 	Camera3D cam;
 
 	win->MainCamera = &cam;

@@ -155,7 +155,7 @@ bool Melon::ResourceLoader::LoadAudio(AudioBuffer* result, const char* filename)
 	ALenum format = AL_FORMAT_MONO8 + (meta.BitsPerSample == 16) + 2 * (meta.Channels == 2);
 	alGenBuffers(1, &result->handle);
 	alBufferData(result->handle, format, (void*)data, meta.Size, meta.SampleRate);
-
+	result->headerData = meta;
 	delete data;
 	return true;
 }

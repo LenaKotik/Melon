@@ -4,17 +4,9 @@ void Melon::DefaultTransform3D::SetTransform(Shader* sh, const CoordinateSystem3
 {
 	sh->SetMatrix4(T.TransformationFrom(), "model");
 }
-void Melon::ChildTransform3D::SetTransform(Shader* sh, const CoordinateSystem3D& T)
-{
-	sh->SetMatrix4(Parent->TransformationFrom() * T.TransformationFrom(), "model");
-}
 void Melon::DefaultTransform2D::SetTransform(Shader* sh, const CoordinateSystem2D& T)
 {
 	sh->SetMatrix4(T.TransformationFrom(), "model");
-}
-void Melon::ChildTransform2D::SetTransform(Shader* sh, const CoordinateSystem2D& T)
-{
-	sh->SetMatrix4(Parent->TransformationFrom() * T.TransformationFrom(), "model");
 }
 bool Melon::ColorGraphics::SetColor(Color c, int)
 {
@@ -187,7 +179,7 @@ void Melon::RenderedObject3D::Draw(Window* win)
 Melon::Skybox* Melon::SkyboxFactory::Create(CubeMap m)
 {
 	Mesh mesh = Helpers::Meshes::Cube();
-	Shader* s = Helpers::ShaderLib::LoadBasic("CubeMap");
+	Shader* s = Helpers::ShaderLib::LoadBasic("Skybox");
 	if (!s) return 0;
 	Skybox* box = new Skybox(s, &mesh);
 	box->CubeMap_ = m;

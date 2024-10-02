@@ -1,5 +1,7 @@
 #include "Melon.hpp"
 
+using namespace Melon;
+
 int main()
 {
 	Window* win = Windowing::Init(800, 800, "Will It Blend?", false);
@@ -15,7 +17,7 @@ int main()
 
 	RenderedObject2D* object2 = Helpers::Objects2D::Shape(quad);
 	if (!object2) return -1;
-	object2->Graphics->SetColor(Color::FromBytes(0,255,0,200));
+	object2->Graphics->SetColor(Color::FromBytes(0,255,0,128));
 	object2->T.Position = Vector2(-0.25f);
 
 	Camera2D cam;

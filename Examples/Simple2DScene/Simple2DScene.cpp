@@ -1,5 +1,7 @@
 #include "Melon.hpp"
 
+using namespace Melon;
+
 int main()
 {
 	Window* win = Windowing::Init(800, 800, "2D Crazyness", false);
@@ -10,7 +12,7 @@ int main()
 	RenderedObject2D sprite = *Helpers::Objects2D::Sprite();
 
 	TextureData td;
-	if (!ResourceLoader::LoadTextureData(&td, "melon.png")) return -1;
+	if (!ResourceLoader::LoadTextureData(&td, (SourceDir + "/Examples/Simple2DScene/melon.png").c_str())) return -1;
 
 	shape.Graphics->SetColor(Color::FromBytes(251, 71, 71, 255));
 	shape2.Graphics->SetColor(Color::FromBytes(32, 217, 36, 255));
@@ -20,7 +22,7 @@ int main()
 
 	Camera2D cam;
 	win->MainCamera = &cam;
-	cam.Scale = 10;
+	cam.Scale = 2;
 
 	const float camSpeed = 2.0f;
 	KeyPressVector2Controller movement(win);

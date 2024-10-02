@@ -43,7 +43,12 @@ Melon::AudioDevice::~AudioDevice()
 
 ALdouble Melon::AudioHeaderData::GetDuration()
 {
-	return ((double)Size) / (BitsPerSample / 8.0) / Channels / SampleRate;
+	return ((double)Size) / ((double)BitsPerSample / 8.0) / (double)Channels / (double)SampleRate;
+}
+
+Melon::AudioHeaderData Melon::AudioBuffer::GetHeaderData() const
+{
+	return headerData;
 }
 
 void Melon::AudioBuffer::Delete()
@@ -57,16 +62,21 @@ Melon::AudioSource::AudioSource() :
 	alGenSources(1, &handle);
 }
 
-void Melon::AudioSource::Play(AudioBuffer* buffer)
+void Melon::AudioSource::Play()
 {
 	alSourcef(handle, AL_PITCH, Pitch);
 	alSourcef(handle, AL_GAIN, Gain);
 	alSource3f(handle, AL_POSITION, Position.x, Position.y, Position.z);
 	alSource3f(handle, AL_VELOCITY, Velocity.x, Velocity.y, Velocity.z);
 	alSourcei(handle, AL_LOOPING, Loop);
-	alSourcei(handle, AL_BUFFER, buffer->handle);
+	alSourcei(handle, AL_BUFFER, Buffer->handle);
 
 	alSourcePlay(handle);
+}
+void Melon::AudioSource::Play(AudioBuffer* buffer)
+{
+	Buffer = buffer;
+	Play();
 }
 
 void Melon::AudioSource::Play(InputStream* stream, AudioHeaderData* header)

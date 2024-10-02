@@ -1,5 +1,7 @@
 #include "Melon.hpp"
 
+using namespace Melon;
+
 int main()
 {
 	Window* win = Windowing::Init(800, 800, "Text", false);
@@ -10,13 +12,13 @@ int main()
 	if (!sprite) return -1;
 
 	TextureData td;
-	if (!ResourceLoader::LoadTextureData(&td, "melon.png")) return -1;
+	if (!ResourceLoader::LoadTextureData(&td, (SourceDir+"/Examples/TextScene/melon.png").c_str())) return -1;
 
 	sprite->Graphics->SetTexture(Texture(td));
 	//sprite->T.Position = Vector2(0.5f,-0.5f);
 
 	Font font;
-	if (!ResourceLoader::LoadFont(&font, "arialmt.ttf")) return -1;
+	if (!ResourceLoader::LoadFont(&font, (SourceDir+"/Examples/TextScene/arialmt.ttf").c_str())) return -1;
 	font.PreloadGlyphs(Font::ASCII);
 
 	sprite->Shader_ = *Helpers::ShaderLib::LoadBasic("Text");

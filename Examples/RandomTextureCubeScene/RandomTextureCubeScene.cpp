@@ -1,5 +1,7 @@
 #include "Melon.hpp"
-#include "movement3d.h"
+
+using namespace Melon;
+#include "Examples/movement3d.h"
 
 int main()
 {
@@ -14,8 +16,7 @@ int main()
 	Camera3D cam;
 	win->MainCamera = &cam;
 
-	printf("starting and farting");
-	RenderedObject3D tm = *Helpers::Objects3D::TexturedShape(Helpers::Meshes::Cube());
+	RenderedObject3D tm = *Helpers::Objects3D::Shape(Helpers::Meshes::Cube());
 	tm.Graphics->SetTexture(texture);
 	DynamicVector3Array pos;
 	DynamicArray<Rotator> rot;
@@ -28,7 +29,7 @@ int main()
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
-		printf("FPS:%d\n", (int)roundf(1 / delta));
+		//printf("FPS:%d\n", (int)roundf(1 / delta));
 		movement3D(win, delta);
 
 		win->Clear(Color::FromBytes(255, 69, 69, 255), true);

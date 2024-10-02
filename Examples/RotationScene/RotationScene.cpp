@@ -1,4 +1,7 @@
 #include "Melon.hpp"
+using namespace Melon;
+#include "Examples/movement3d.h"
+
 
 int main()
 {

@@ -423,7 +423,7 @@ Melon::CoordinateSystem2D Melon::Camera2D::GetCoordinateSystem()
 	res.Scale = Vector2(Scale);
 	return res;
 }
-Melon::Matrix4 Melon::CoordinateSystem2D::TransformationTo() const
+Melon::Matrix4 Melon::CoordinateSystem2D::LocalTransformationTo() const
 {
 	Matrix4 model(1.0f);
 	model = model.Translate(-Vector3(Position.x, Position.y, 0.0f));
@@ -431,7 +431,7 @@ Melon::Matrix4 Melon::CoordinateSystem2D::TransformationTo() const
 	model = model.Scale(Vector3(1.0f / Scale.x, 1.0f / Scale.y, 1.0f));
 	return model;
 }
-Melon::Matrix4 Melon::CoordinateSystem2D::TransformationFrom() const
+Melon::Matrix4 Melon::CoordinateSystem2D::LocalTransformationFrom() const
 {
 	Matrix4 model(1.0f);
 	model = model.Scale(Vector3(Scale.x, Scale.y, 1.0f));
@@ -439,7 +439,19 @@ Melon::Matrix4 Melon::CoordinateSystem2D::TransformationFrom() const
 	model = model.Translate(Vector3(Position.x, Position.y, 0.0f));
 	return model;
 }
-Melon::Matrix4 Melon::CoordinateSystem3D::TransformationTo() const
+Melon::Matrix4 Melon::CoordinateSystem2D::TransformationTo() const
+{
+	if (Parent != nullptr)
+		return LocalTransformationTo() * Parent->TransformationTo();
+	return LocalTransformationTo();
+}
+Melon::Matrix4 Melon::CoordinateSystem2D::TransformationFrom() const
+{
+	if (Parent != nullptr)
+		return Parent->TransformationFrom() * LocalTransformationFrom();
+	return LocalTransformationFrom();
+}
+Melon::Matrix4 Melon::CoordinateSystem3D::LocalTransformationTo() const
 {
 	Matrix4 model(1.0f);
 	model = model.Translate(-Position);
@@ -447,11 +459,23 @@ Melon::Matrix4 Melon::CoordinateSystem3D::TransformationTo() const
 	model = model.Scale(Vector3(1.0f / Scale.x, 1.0f / Scale.y, 1.0f/Scale.z));
 	return model;
 }
-Melon::Matrix4 Melon::CoordinateSystem3D::TransformationFrom() const
+Melon::Matrix4 Melon::CoordinateSystem3D::LocalTransformationFrom() const
 {
 	Matrix4 model(1.0f);
 	model = model.Scale(Scale);
 	model = model.Rotate(Rotation);
 	model = model.Translate(Position);
 	return model;
+}
+Melon::Matrix4 Melon::CoordinateSystem3D::TransformationTo() const
+{
+	if (Parent != nullptr)
+		return LocalTransformationTo() * Parent->TransformationTo();
+	return LocalTransformationTo();
+}
+Melon::Matrix4 Melon::CoordinateSystem3D::TransformationFrom() const
+{
+	if (Parent != nullptr)
+		return Parent->TransformationFrom() * LocalTransformationFrom();
+	return LocalTransformationFrom();
 }

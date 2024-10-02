@@ -38,6 +38,18 @@ add_library(Melon
 			Windowing.cpp
 	)
 
+
+function (optional_def def desc)
+	option(${def} ${desc} ON)
+	if(${def})
+		target_compile_definitions(Melon PUBLIC "${def}")
+	endif()
+endfunction()
+
+optional_def(SHADER_LIB_IN_SOURCE "The engine will look for shader files in the SOURCE_DIR(${CMAKE_SOURCE_DIR}/ShaderLib),\nif it's off it will look for shaders in the directory with the *.exe file")
+
+
+
 target_link_libraries(Melon PUBLIC glfw glad::glad OpenAL::OpenAL Freetype::Freetype)
 
 target_include_directories(Melon PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})

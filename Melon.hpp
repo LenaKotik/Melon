@@ -553,6 +553,7 @@ namespace Melon
 		Brush() : Brush(Color()) {} // as white solid
 		Brush(Color c) : Solid(c), isSolid(true){}
 		Brush(Texture t) : Mapped(t), isSolid(false){}
+		Brush(Texture t, Color c) : Mapped(t), Solid(c), isSolid(false) {}
 	};
 	class Material : IDeleted
 	{
@@ -657,7 +658,9 @@ namespace Melon
 		friend class AudioSource;
 	private:
 		ALuint handle;
+		AudioHeaderData headerData;
 	public:
+		AudioHeaderData GetHeaderData() const;
 		void Delete() override;
 	};
 	class AudioListener
@@ -672,13 +675,15 @@ namespace Melon
 	public:
 		ALuint StreamingBufferCount; // the amount of buffers used to stream audio, don't change this mid-streaming
 		Size_t StreamingBufferSize; // the size of buffer used to stream audio, don't change this mid-streaming
-		ALfloat Pitch ;
+		AudioBuffer* Buffer;
+		ALfloat Pitch;
 		ALfloat Gain;
 		Vector3 Position;
 		Vector3 Velocity;
 		bool Loop = false;
 		AudioSource();
 		void Delete() override;
+		void Play();
 		void Play(AudioBuffer* buffer);
 		void Play(InputStream* stream, AudioHeaderData* header);
 		void Resume(); // if stopped, replays the source 
@@ -791,8 +796,8 @@ namespace Melon
 		void Add(InterpolationTrack<T> track);
 		void ComputeLength();
 		T operator[](int idx);
-		bool backward;
-		bool loop;
+		bool backward = false;
+		bool loop = false;
 		void Play();
 		void Stop();
 		bool IsPlaying();
@@ -804,10 +809,13 @@ namespace Melon
 	class CoordinateSystem2D : CoordinateSystem
 	{
 	public:
+		CoordinateSystem2D* Parent = nullptr;
 		Vector2 Position;
 		float Rotation;
 		Vector2 Scale;
 		CoordinateSystem2D() : Position(0.0f),Rotation(0.0f),Scale(1.0f) {}
+		Matrix4 LocalTransformationTo() const;
+		Matrix4 LocalTransformationFrom() const;
 		Matrix4 TransformationTo() const override;
 		Matrix4 TransformationFrom() const override;
 	};
@@ -819,12 +827,6 @@ namespace Melon
 	class DefaultTransform2D : ShaderTransform2D
 	{
 	public:
-		virtual void SetTransform(Shader*, const CoordinateSystem2D&);
-	};
-	class ChildTransform2D : ShaderTransform2D
-	{
-	public:
-		CoordinateSystem2D* Parent;
 		virtual void SetTransform(Shader*, const CoordinateSystem2D&);
 	};
 	class Camera2D : public Camera
@@ -907,10 +909,13 @@ namespace Melon
 	class CoordinateSystem3D : CoordinateSystem
 	{
 	public:
+		CoordinateSystem3D* Parent = nullptr;
 		Vector3 Position;
 		Rotator Rotation;
 		Vector3 Scale;
 		CoordinateSystem3D() : Position(0.0f), Rotation(), Scale(1.0f) {}
+		Matrix4 LocalTransformationTo() const;
+		Matrix4 LocalTransformationFrom() const;
 		Matrix4 TransformationTo() const override;
 		Matrix4 TransformationFrom() const override;
 	};
@@ -922,12 +927,6 @@ namespace Melon
 	class DefaultTransform3D : ShaderTransform3D
 	{
 	public:
-		virtual void SetTransform(Shader*, const CoordinateSystem3D&);
-	};
-	class ChildTransform3D : ShaderTransform3D
-	{
-	public:
-		CoordinateSystem3D* Parent;
 		virtual void SetTransform(Shader*, const CoordinateSystem3D&);
 	};
 	class Camera3D : public Camera
@@ -991,8 +990,9 @@ namespace Melon
 		class Objects3D
 		{
 		public:
-			static RenderedObject3D* Shape(Mesh m);
+			static RenderedObject3D* ColoredShape(Mesh m);
 			static RenderedObject3D* TexturedShape(Mesh m);
+			static RenderedObject3D* Shape(Mesh m);
 		};
 	}
 #endif // MELON_ENGINE_3D

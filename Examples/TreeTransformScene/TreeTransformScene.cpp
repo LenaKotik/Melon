@@ -1,4 +1,7 @@
 #include "Melon.hpp"
+using namespace Melon;
+#include "Examples/movement3d.h"
+
 
 int main()
 {
@@ -8,18 +11,15 @@ int main()
 
 	Mesh m = Helpers::Meshes::Cube();
 
-	RenderedObject3D* cube = Helpers::Objects3D::Shape(m);
+	RenderedObject3D* cube = Helpers::Objects3D::ColoredShape(m);
 	if (!cube) return -1;
 	cube->Graphics->SetColor(Color::FromBytes(200,60,60,255));
 
-	RenderedObject3D* bar = Helpers::Objects3D::Shape(m);
+	RenderedObject3D* bar = Helpers::Objects3D::ColoredShape(m);
 	if (!bar) return -1;
 	bar->Graphics->SetColor(Color::FromBytes(70, 200, 70, 255));
-	
-	ChildTransform3D bar_t;
-	bar_t.Parent = &cube->T;
-	bar->Transform = (ShaderTransform3D*)&bar_t;
 
+	bar->T.Parent = &cube->T;
 	bar->T.Position = Vector3(0, 2, 0);
 	bar->T.Scale = Vector3(0.5, 3, 0.5);
 
@@ -32,7 +32,8 @@ int main()
 		float delta = Time::GetDelta();
 		movement3D(win, delta);
 
-		cube->T.Rotation = Rotator(2*(Time::GetTime()),Vector3(1,0,0));
+		//cube->T.Rotation = Rotator(2*(Time::GetTime()),Vector3(1,0,0));
+		cube->T.Rotation.Angle = 2 * (Time::GetTime());
 		bar->T.Position = Vector3(0, sin(2 * Time::GetTime()), 0);
 
 		win->Clear(Color::FromBytes(20, 20, 50, 255), true);

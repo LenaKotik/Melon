@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 
 out vec4 outColor;
 
@@ -38,11 +38,11 @@ void main()
 	
 	float diffuseK = max(0.0, dot(normalize(Normal), dir2Light));
 	vec3 diffuseC = material.diffuseSolid.xyz;
-	vec3 diffuse = LightColor * diffuseC * diffuseK;
+	vec3 diffuse = LightColor.rgb * diffuseC * diffuseK;
 	
 	float specularK = pow(max(0.0, dot(reflectLight, dir2Cam)), material.shininess);
 	vec3 specularC = material.specularSolid.xyz;
-	vec3 specular = LightColor * specularC * specularK;
+	vec3 specular = LightColor.rgb * specularC * specularK;
 	
 	outColor = vec4((ambient + diffuse + specular).xyz, 1); 
 }
