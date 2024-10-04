@@ -14,6 +14,7 @@ bool Melon::RenderedObject3DBuilder::SetShader(Melon::Shader* s)
 	if (!s) return 0;
 	sh = s;
 	state |= 2;
+	std::cout << m->PrimitiveType;
 	return 1;
 }
 bool Melon::RenderedObject3DBuilder::SetGraphics(Melon::ShaderGraphics* g)
@@ -137,6 +138,19 @@ Melon::RenderedObject3D* Melon::Helpers::Objects3D::Shape(Melon::Mesh m)
 	b.SetGraphics((ShaderGraphics*)(new BrushGraphics()));
 	b.SetTransform3D((ShaderTransform3D*)(new DefaultTransform3D));
 	return b.Get();
+}
+Melon::RenderedObject3D* Melon::Helpers::Objects3D::MappedCube(Melon::Mesh m)
+{
+	Renderer::VertexAttributesConfig conf = Renderer::Position3D;
+	//Mesh m = Helpers::Meshes::Cube();
+	RenderedObject3DBuilder b;
+	b.SetRenderer(m, conf);
+	b.SetShader(Helpers::ShaderLib::LoadBasic("CubeMap"));
+	b.SetTransform3D((ShaderTransform3D*)(new DefaultTransform3D));
+	b.SetGraphics((ShaderGraphics*)(new CubeMapGraphics));
+	return b.Get();
+	// 0100
+	// 1111
 }
 Melon::RenderedText* Melon::Helpers::Text::Default(Font* f)
 {

@@ -39,15 +39,16 @@ add_library(Melon
 	)
 
 
-function (optional_def def desc)
+function (optional_def def desc state)
 	option(${def} ${desc} ON)
+	set(${def} ${state})
 	if(${def})
 		target_compile_definitions(Melon PUBLIC "${def}")
 	endif()
 endfunction()
 
-optional_def(SHADER_LIB_IN_SOURCE "The engine will look for shader files in the SOURCE_DIR(${CMAKE_SOURCE_DIR}/ShaderLib),\nif it's off it will look for shaders in the directory with the *.exe file")
-
+optional_def(SHADER_LIB_IN_SOURCE "The engine will look for shader files in the SOURCE_DIR(${CMAKE_SOURCE_DIR}/ShaderLib),\nif it's off it will look for shaders in the directory with the *.exe file" ON)
+optional_def(DEBUG_OUTPUT "The engine will output OpenGl errors into the console" ON)
 
 
 target_link_libraries(Melon PUBLIC glfw glad::glad OpenAL::OpenAL Freetype::Freetype)

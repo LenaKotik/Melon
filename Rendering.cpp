@@ -7,8 +7,8 @@ Melon::Texture::Texture(TextureData data)
 	GLenum color_space = color_spaces[data.channels];
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, data.wraping_mode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, data.wraping_mode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, data.filtering_mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, data.filtering_mode);
 
 	glGenTextures(1, &handle);
 
@@ -50,8 +50,8 @@ Melon::CubeMap::CubeMap(FixedArray<TextureData, 6> data)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, data[i].width, data[i].height,
 			0, format, GL_UNSIGNED_BYTE, data[i].data);
 	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, data[0].filtering_mode);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, data[0].filtering_mode);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -85,7 +85,7 @@ Byte Melon::TextureUnitManager::Add(Texture t)
 	units[cur] = t.handle;
 	return cur++;
 }
-
+/*
 Byte Melon::TextureUnitManager::Add(CubeMap t)
 {
 	for (int i = 0; i < MaxUnits; i++) // try finding existing
@@ -97,6 +97,7 @@ Byte Melon::TextureUnitManager::Add(CubeMap t)
 	units[cur] = t.handle;
 	return cur++;
 }
+*/
 
 void Melon::TextureUnitManager::Clear()
 {
@@ -156,8 +157,8 @@ void Melon::Shader::SetTexture(Texture t, const char* name)
 
 void Melon::Shader::SetCubeMap(CubeMap t, const char* name)
 {
-	Byte u = TextureUnitManager::Add(t);
-	return SetInt(u, name);
+	t.Bind();
+	return SetInt(0, name);
 }
 
 void Melon::Shader::SetBrush(Melon::Brush b, const char* c_name)
@@ -236,7 +237,6 @@ Melon::DynamicFloatArray Melon::Renderer::GenBuffer(DynamicVertexArray arr, Vert
 Melon::Renderer::Renderer(Mesh* mesh, VertexAttributesConfig a) : indexed(mesh->is_indexed), indC(mesh->indecies.Size()), vertC(mesh->verticies.Size()), PrimitiveType(mesh->PrimitiveType)
 {
 	GLuint VBO, EBO;
-
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
@@ -276,7 +276,10 @@ void Melon::Renderer::Draw()
 	if (indexed)
 		glDrawElements(PrimitiveType, indC, GL_UNSIGNED_INT, nullptr);
 	else
+	{
 		glDrawArrays(PrimitiveType, 0, vertC); 
+		//std::cout << __LINE__ << ": " << PrimitiveType << std::endl;
+	}
 }
 
 void Melon::Renderer::Delete()

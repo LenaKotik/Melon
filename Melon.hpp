@@ -18,7 +18,6 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#define DEBUG_OUTPUT
 
 #define MELON_ABSTRACTIONS
 #define MELON_SYSTEM_AND_MATH
@@ -354,6 +353,8 @@ namespace Melon
 		bool ShouldClose();
 		bool IsKeyPressed(int key);
 		void MakeActive();
+		void Maximize();
+		void Minimize();
 		void SetCursor(bool);
 		Vector2 GetMousePosition();
 		Vector2 GetSize();
@@ -456,6 +457,7 @@ namespace Melon
 		GLint width, height;
 		GLint channels;
 		GLenum wraping_mode;
+		GLenum filtering_mode;
 		TextureData() {}
 		TextureData(Byte* data_, GLint w, GLint h, GLint channels_,GLenum wm)
 			: data(data_), width(w), height(h), channels(channels_), wraping_mode(wm) {}
@@ -474,7 +476,7 @@ namespace Melon
 	};
 	class CubeMap : IDeleted
 	{
-		friend class TextureUnitManager;
+		//friend class TextureUnitManager;
 	private:
 		GLuint handle;
 	public:
@@ -494,7 +496,7 @@ namespace Melon
 		static GLint GetMaxTextureUnits();
 		static Byte GetCurrentUnit();
 		static Byte Add(Texture t);
-		static Byte Add(CubeMap t);
+		//static Byte Add(CubeMap t);
 		static void Clear();
 	};
 	struct Brush;
@@ -577,10 +579,10 @@ namespace Melon
 		enum VertexAttributesConfig;
 	private:
 		bool indexed;
-		GLenum PrimitiveType;
 		GLuint VAO, VBO, EBO;
 		int indC, vertC;
 	public:
+		GLenum PrimitiveType;
 		static DynamicFloatArray GenBuffer(DynamicVertexArray arr, VertexAttributesConfig bitmask, int* stride, DynamicUIntArray* offsets, DynamicUIntArray* sizes);
 		enum VertexAttributesConfig
 		{
@@ -767,6 +769,13 @@ namespace Melon
 		/// <param name="id">0 = Interior| 1 = Border</param>
 		virtual bool SetColor(Color, int id) override;
 		bool SetWidth(float);
+	};
+	class CubeMapGraphics : ShaderGraphics
+	{
+	public:
+		CubeMap CubeMap_;
+		virtual void SetGraphics(Shader*) override;
+		bool SetCubeMap(CubeMap, int id=0);
 	};
 	
 
@@ -993,6 +1002,7 @@ namespace Melon
 			static RenderedObject3D* ColoredShape(Mesh m);
 			static RenderedObject3D* TexturedShape(Mesh m);
 			static RenderedObject3D* Shape(Mesh m);
+			static RenderedObject3D* MappedCube(Mesh m);
 		};
 	}
 #endif // MELON_ENGINE_3D

@@ -19,8 +19,11 @@ int main()
 
 	float angle = deg2rad(float(rand() % 360));
 	Vector2 velocity(cosf(angle),sinf(angle));
+	//Vector2 velocity(2.1f-0.3f, 1.2f-0.3f);
+	//velocity = velocity.Normalize();
+	//Vector2 velocity(0.0f, -1.0f);
 	
-	glfwMaximizeWindow(win->handle);
+	win->Maximize();
 
 	win->Clear(Color::FromBytes(255, 255, 255), false);
 	win->Flip();

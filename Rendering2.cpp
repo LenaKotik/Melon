@@ -133,6 +133,15 @@ bool Melon::BorderGraphics::SetWidth(float w)
 	BorderWidth = w;
 	return true;
 }
+void Melon::CubeMapGraphics::SetGraphics(Shader* sh)
+{
+	sh->SetCubeMap(CubeMap_, "CubeMap");
+}
+bool Melon::CubeMapGraphics::SetCubeMap(CubeMap t, int id)
+{
+	CubeMap_ = t;
+	return true;
+}
 
 void Melon::RenderedObject2D::Delete()
 {
@@ -172,7 +181,7 @@ void Melon::RenderedObject3D::Draw(Window* win)
 	Matrix4 persp = Matrix4::Perspective(cam->FOV, win->GetAspect(), 0.1f, 100.0f);
 	Shader_.SetMatrix4(cam->GetView(), "view");
 	Shader_.SetMatrix4(persp, "projection");
-	Graphics->SetGraphics(&Shader_);
+	Graphics->SetGraphics(&Shader_); 
 	Renderer_.Draw();
 }
 
@@ -184,7 +193,7 @@ Melon::Skybox* Melon::SkyboxFactory::Create(CubeMap m)
 	Skybox* box = new Skybox(s, &mesh);
 	box->CubeMap_ = m;
 	box->Transform = (ShaderTransform3D*)(new DefaultTransform3D);
-	box->Graphics = (ShaderGraphics*)(new TextureGraphics);
+	box->Graphics = (ShaderGraphics*)(new CubeMapGraphics);
 	return box;
 }
 
@@ -209,6 +218,7 @@ void Melon::Skybox::Draw(Window* win)
 	Shader_.SetMatrix4(view, "view");
 	Shader_.SetMatrix4(persp, "projection");
 	
+	((CubeMapGraphics*)Graphics)->CubeMap_ = CubeMap_;
 	Graphics->SetGraphics(&Shader_);
 	
 	Renderer_.Draw();

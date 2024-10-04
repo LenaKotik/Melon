@@ -11,7 +11,7 @@ Melon::Shader* Melon::Helpers::ShaderLib::LoadBasic(ShaderLoadOptions options)
 
 Melon::Shader* Melon::Helpers::ShaderLib::LoadBasic(String shadername)
 {
-	printf(shadername.c_str());
+	//printf(shadername.c_str());
 	Shader* res = new Shader();
 	if (!ResourceLoader::LoadShader(res,
 #ifdef SHADER_LIB_IN_SOURCE

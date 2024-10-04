@@ -169,6 +169,15 @@ void Melon::Window::MakeActive()
 	glfwMakeContextCurrent(this->handle);
 }
 
+void Melon::Window::Maximize()
+{
+	glfwMaximizeWindow(this->handle);
+}
+void Melon::Window::Minimize()
+{
+	//glfwHideWindow(this->handle);
+}
+
 void Melon::Window::SetCursor(bool v)
 {
 	if (v)

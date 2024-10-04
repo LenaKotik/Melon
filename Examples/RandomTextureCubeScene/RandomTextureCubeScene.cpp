@@ -9,6 +9,8 @@ int main()
 	if (!win) return -1;
 	win->SetCursor(false);
 
+	const int N_box = 5223;
+
 	TextureData td;
 	if (!ResourceLoader::LoadTextureData(&td, (SourceDir + "/Examples/RandomTextureCubeScene/box.jpg").c_str())) return -1;
 	Texture texture(td);
@@ -21,7 +23,7 @@ int main()
 	DynamicVector3Array pos;
 	DynamicArray<Rotator> rot;
 
-	for (int i = 0; i < 500; i++)
+	for (int i = 0; i < N_box; i++)
 	{
 		pos.PushBack(-Vector3(rand() % 50 - 25, rand() % 50 - 25, rand() % 50 - 25));
 		rot.PushBack(Rotator(rand()%7-3, Vector3(rand() % 25-10,rand()%25-10,rand()%25-10)));
@@ -33,7 +35,7 @@ int main()
 		movement3D(win, delta);
 
 		win->Clear(Color::FromBytes(255, 69, 69, 255), true);
-		for (int i = 0; i < 500; i++)
+		for (int i = 0; i < N_box; i++)
 		{
 			tm.T.Position = pos[i];
 			tm.T.Rotation = rot[i];

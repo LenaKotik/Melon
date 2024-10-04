@@ -6,37 +6,34 @@ using namespace Melon;
 
 int main()
 {
-	FixedArray<String, 6> skybox_names = { "px", "nx", "py", "ny", "pz", "nz" };
+	FixedArray<String, 6> cubemap_names = { "px", "nx", "py", "ny", "pz", "nz" };
 
 	Window* win = Windowing::Init(800, 800, "Speeeeeeeeen", true);
 	if (!win) return - 1;
 
-	TextureData grassTex;
-	if (!ResourceLoader::LoadTextureData(&grassTex, (SourceDir + "/Examples/SkyboxScene/grass.jpeg").c_str())) return -1;
 	ResourceLoader::flipYTextures = false;
+	FixedArray<TextureData, 6> grass_data;
 	FixedArray<TextureData, 6> skybox_data;
 	for (int i = 0; i < 6; i++)
 	{
-		ResourceLoader::LoadTextureData(&skybox_data[i], (SourceDir + "/Examples/SkyboxScene/skybox/" + skybox_names[i] + ".jpg").c_str());
+		ResourceLoader::LoadTextureData(&grass_data[i], (SourceDir + "/Examples/SkyboxScene/grass/" + cubemap_names[i] + ".png").c_str());
+		grass_data[i].filtering_mode = GL_NEAREST;
+		ResourceLoader::LoadTextureData(&skybox_data[i], (SourceDir + "/Examples/SkyboxScene/skybox/" + cubemap_names[i] + ".jpg").c_str());
 	}
 	ResourceLoader::flipYTextures = true;
 
 	CubeMap skybox_tex(skybox_data);
-
-	Mesh cubeMesh = Helpers::Meshes::Cube();
+	CubeMap grass_tex(grass_data);
 
 	Skybox* skybox = SkyboxFactory::Create(skybox_tex);
-
-	RenderedObject3D* cube = Helpers::Objects3D::Shape(cubeMesh);
+	
+	Mesh cube_mesh = Helpers::Meshes::Cube();
+	RenderedObject3D* cube = Helpers::Objects3D::MappedCube(cube_mesh);
 	if (!cube) return -1;
-	Texture grass(grassTex);
-	//TextureGraphics* cube_g = (TextureGraphics*)cube->Graphics;
-	//cube_g->Texture_ = grass;
-	Brush cube_brush(grass, Color::FromBytes(22, 222, 55));
-	cube_brush.isSolid = true;
-	cube->Graphics->SetBrush(cube_brush);
+	
+	((CubeMapGraphics*)cube->Graphics)->SetCubeMap(grass_tex);
 	cube->T.Position.x = 2;
-	cube->T.Rotation.Axis = Vector3(0.2, 0.5, 0.5);
+	cube->T.Rotation.Axis = Vector3(0.2, 0.9, 0.2).Normalize();
 	Camera3D cam;
 
 	win->MainCamera = &cam;
@@ -45,6 +42,7 @@ int main()
 
 	const float rotSpeed = 2.0f;
 
+	//std::cout << __LINE__ << ": " << glGetError() << std::endl;
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
@@ -54,7 +52,7 @@ int main()
 
 		win->Clear(Color::FromBytes(0, 0, 0, 255), true);
 		skybox->Draw(win);
-		
+
 		cube->Draw(win);
 
 		win->Flip();
