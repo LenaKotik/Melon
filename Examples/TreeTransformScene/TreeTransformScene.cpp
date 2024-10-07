@@ -30,13 +30,13 @@ int main()
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
-		movement3D(win, delta);
+		movement3D(win, &cam, delta);
 
 		//cube->T.Rotation = Rotator(2*(Time::GetTime()),Vector3(1,0,0));
 		cube->T.Rotation.Angle = 2 * (Time::GetTime());
 		bar->T.Position = Vector3(0, sin(2 * Time::GetTime()), 0);
 
-		win->Clear(Color::FromBytes(20, 20, 50, 255), true);
+		win->Clear(Color::FromBytes(20, 20, 50, 255));
 		cube->Draw(win);
 		bar->Draw(win);
 		win->Flip();

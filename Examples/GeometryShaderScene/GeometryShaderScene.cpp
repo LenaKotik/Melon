@@ -29,10 +29,10 @@ int main()
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
-		printf("FPS:%d\n", (int)roundf(1 / delta));
-		movement3D(win, delta);
+		//printf("FPS:%d\n", (int)roundf(1 / delta));
+		movement3D(win, &cam, delta);
 
-		win->Clear(Color::FromBytes(29, 29, 29, 255), true);
+		win->Clear(Color::FromBytes(29, 29, 29, 255));
 
 		shape.Draw(win);
 		points.Shader_.Use();

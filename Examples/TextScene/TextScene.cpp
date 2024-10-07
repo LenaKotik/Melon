@@ -34,7 +34,7 @@ int main()
 
 	Camera2D cam;
 	win->MainCamera = &cam;
-	cam.Scale = 5.0f;
+	cam.T.Scale = 5.0f;
 
 	const float camSpeed = 2.0f;
 	KeyPressVector2Controller movement(win);
@@ -42,7 +42,7 @@ int main()
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
-		cam.Position +=  Vector2(movement.Value()) * delta * camSpeed;
+		cam.T.Position +=  Vector2(movement.Value()) * delta * camSpeed;
 
 		win->Clear(Color::FromBytes(255, 255, 255), false);
 		sprite->Draw(win);

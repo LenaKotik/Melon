@@ -71,18 +71,19 @@ void Melon::CubeMap::Delete()
 
 void Melon::TextureData::Delete()
 {
-	stbi_image_free(data);
+	if (data != NULL)
+		stbi_image_free(data);
 }
 
-Byte Melon::TextureUnitManager::Add(Texture t) 
+Byte Melon::TextureUnitManager::Add(Texture* t) 
 {
 	for (int i = 0; i < MaxUnits; i++) // try finding existing
-		if (units[i] == t.handle) return i;
+		if (units[i] == t->handle) return i;
 	// if texture overflow happens, we just wrap around, later should make this behavior configurable
 	if (cur >= MaxUnits) cur = 0; 
 	glActiveTexture(GL_TEXTURE0 + cur);
-	t.Bind();
-	units[cur] = t.handle;
+	t->Bind();
+	units[cur] = t->handle;
 	return cur++;
 }
 /*
@@ -139,6 +140,11 @@ void Melon::Shader::SetVector3(Vector3 v, const char* name)
 	GLint l = glGetUniformLocation(handle, name);
 	glUniform3f(l, v.x, v.y, v.z);
 }
+void Melon::Shader::SetFloatArray(const float* v, Size_t count, const char* name)
+{
+	GLint l = glGetUniformLocation(handle, name);
+	glUniform1fv(l, count, v);
+}
 void Melon::Shader::SetColor(Color v, const char* name)
 {
 	GLint l = glGetUniformLocation(handle, name);
@@ -149,15 +155,16 @@ void Melon::Shader::SetMatrix4(Matrix4 v, const char* name)
 	GLint l = glGetUniformLocation(handle, name);
 	glUniformMatrix4fv(l, 1, false, (const float*)v.Transpose().Value);
 }
-void Melon::Shader::SetTexture(Texture t, const char* name)
+void Melon::Shader::SetTexture(Texture* t, const char* name)
 {
-	Byte u = TextureUnitManager::Add(t);
-	return SetInt(u, name);
+	//Byte u = TextureUnitManager::Add(t);
+	t->Bind();
+	return SetInt(0, name);
 }
 
-void Melon::Shader::SetCubeMap(CubeMap t, const char* name)
+void Melon::Shader::SetCubeMap(CubeMap* t, const char* name)
 {
-	t.Bind();
+	t->Bind();
 	return SetInt(0, name);
 }
 
@@ -311,9 +318,9 @@ void Melon::Mesh::ComputeNormals(Vector3 center) // probably works only with sim
 
 void Melon::Material::Delete()
 {
-	if (!Albedo.isSolid) Albedo.Mapped.Delete();
-	if (!Diffuse.isSolid) Diffuse.Mapped.Delete();
-	if (!Specular.isSolid) Specular.Mapped.Delete();
+	if (!Albedo.isSolid) Albedo.Mapped->Delete();
+	if (!Diffuse.isSolid) Diffuse.Mapped->Delete();
+	if (!Specular.isSolid) Specular.Mapped->Delete();
 }
 
 const Melon::String Melon::Font::ASCII = " !\"#$ % &\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
@@ -335,7 +342,7 @@ bool Melon::Font::PreloadGlyph(char c)
 		return false;
 	}
 	FT_Bitmap* bitmap = &handle->glyph->bitmap; // convinience
-	TextureData glyph_td(bitmap->buffer, bitmap->width, bitmap->rows, 1, GL_CLAMP_TO_EDGE);
+	TextureData glyph_td(bitmap->buffer, bitmap->width, bitmap->rows, 1, GL_CLAMP_TO_EDGE, GL_LINEAR);
 	Glyph result = {
 		Texture(glyph_td),
 		Vector2(bitmap->width,bitmap->rows),
@@ -394,12 +401,15 @@ Melon::RenderedText::RenderedText(Shader* sh, Font* f) : Shader_(*sh), Font_(f) 
 	glBindVertexArray(0);
 }
 
-void Melon::RenderedText::Draw(Window* win)
+void Melon::RenderedText::Draw(RenderTarget* target)
 {
+	target->Bind();
+	Camera* cam = target->MainCamera;
 	Shader_.Use();
 	Shader_.SetColor(Color_,"TextColor");
 	Shader_.SetMatrix4(T.TransformationFrom(), "model");
-	Matrix4 ortho = Matrix4::Ortho(win->GetAspect(), 0, 100);
+	Shader_.SetMatrix4(cam->GetView(), "view"); // this 
+	Matrix4 ortho = Matrix4::Ortho(target->GetAspect(), 0, 100);
 	Shader_.SetMatrix4(ortho, "projection");
 	Byte cur_unit = TextureUnitManager::GetCurrentUnit();
 	glActiveTexture(GL_TEXTURE0 + cur_unit);

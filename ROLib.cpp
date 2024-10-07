@@ -1,12 +1,12 @@
 #include "Melon.hpp"
 
 
-bool Melon::RenderedObject3DBuilder::SetRenderer(Melon::Mesh mesh, Melon::Renderer::VertexAttributesConfig a)
+bool Melon::RenderedObject3DBuilder::SetRenderer(Melon::Mesh* mesh, Melon::Renderer::VertexAttributesConfig a)
 {
-	m = &mesh;
+	m = mesh;
 	vac = a;
 	state |= 1;
-	printf("If I remove this print the entire shit goes up in flames, I have no idea why\n");
+	//printf("If I remove this print the entire shit goes up in flames, I have no idea why");
 	return 1;
 }
 bool Melon::RenderedObject3DBuilder::SetShader(Melon::Shader* s)
@@ -14,7 +14,7 @@ bool Melon::RenderedObject3DBuilder::SetShader(Melon::Shader* s)
 	if (!s) return 0;
 	sh = s;
 	state |= 2;
-	std::cout << m->PrimitiveType;
+	//std::cout << m->PrimitiveType << std::endl;
 	return 1;
 }
 bool Melon::RenderedObject3DBuilder::SetGraphics(Melon::ShaderGraphics* g)
@@ -43,12 +43,12 @@ Melon::RenderedObject3D* Melon::RenderedObject3DBuilder::Get()
 	r->Transform = tr;
 	return r;
 }
-bool Melon::RenderedObject2DBuilder::SetRenderer(Melon::Mesh mesh, Melon::Renderer::VertexAttributesConfig a)
+bool Melon::RenderedObject2DBuilder::SetRenderer(Melon::Mesh* mesh, Melon::Renderer::VertexAttributesConfig a)
 {
-	m = &mesh;
+	m = mesh;
 	vac = a;
 	state |= 1;
-	printf("If I remove this print the entire shit goes up in flames, I have no idea why\n");
+	//printf("If I remove this print the entire shit goes up in flames, I have no idea why\n");
 	return 1;
 }
 bool Melon::RenderedObject2DBuilder::SetShader(Melon::Shader* s)
@@ -88,7 +88,7 @@ Melon::RenderedObject2D* Melon::RenderedObject2DBuilder::Get()
 Melon::RenderedObject2D* Melon::Helpers::Objects2D::Shape(Melon::Mesh m)
 {
 	RenderedObject2DBuilder b;
-	b.SetRenderer(m, Renderer::Position3D);
+	b.SetRenderer(&m, Renderer::Position3D);
 	b.SetShader(
 		Helpers::ShaderLib::LoadBasic(ShaderLoadOptions(Renderer::Position3D, false, false)));
 	b.SetGraphics((ShaderGraphics*)(new MaterialGraphics));
@@ -99,7 +99,8 @@ Melon::RenderedObject2D* Melon::Helpers::Objects2D::Sprite()
 {
 	Renderer::VertexAttributesConfig conf = (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::TextureCoords);
 	RenderedObject2DBuilder b;
-	b.SetRenderer(Melon::Helpers::Meshes::Quad(), conf);
+	Mesh m = Melon::Helpers::Meshes::Quad();
+	b.SetRenderer(&m, conf);
 	b.SetShader(
 		Helpers::ShaderLib::LoadBasic(ShaderLoadOptions(conf, false, false )));
 	b.SetGraphics((ShaderGraphics*)(new TextureGraphics));
@@ -109,7 +110,7 @@ Melon::RenderedObject2D* Melon::Helpers::Objects2D::Sprite()
 Melon::RenderedObject3D* Melon::Helpers::Objects3D::ColoredShape(Melon::Mesh m)
 {
 	RenderedObject3DBuilder b;
-	b.SetRenderer(m, Renderer::Position3D);
+	b.SetRenderer(&m, Renderer::Position3D);
 	b.SetShader(
 		Helpers::ShaderLib::LoadBasic(ShaderLoadOptions(Renderer::Position3D, false, false )));
 	b.SetGraphics((ShaderGraphics*)(new MaterialGraphics));
@@ -121,7 +122,7 @@ Melon::RenderedObject3D* Melon::Helpers::Objects3D::TexturedShape(Melon::Mesh m)
 {
 	Renderer::VertexAttributesConfig conf = (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::TextureCoords);
 	RenderedObject3DBuilder b;
-	b.SetRenderer(m, conf);
+	b.SetRenderer(&m, conf);
 	b.SetShader(
 		Helpers::ShaderLib::LoadBasic(ShaderLoadOptions(conf, false, false )));
 	b.SetGraphics((ShaderGraphics*)(new TextureGraphics));
@@ -132,7 +133,7 @@ Melon::RenderedObject3D* Melon::Helpers::Objects3D::Shape(Melon::Mesh m)
 {
 	Renderer::VertexAttributesConfig conf = (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::TextureCoords);
 	RenderedObject3DBuilder b;
-	b.SetRenderer(m, conf);
+	b.SetRenderer(&m, conf);
 	b.SetShader(
 		Helpers::ShaderLib::LoadBasic(ShaderLoadOptions(conf, false, false)));
 	b.SetGraphics((ShaderGraphics*)(new BrushGraphics()));
@@ -144,13 +145,11 @@ Melon::RenderedObject3D* Melon::Helpers::Objects3D::MappedCube(Melon::Mesh m)
 	Renderer::VertexAttributesConfig conf = Renderer::Position3D;
 	//Mesh m = Helpers::Meshes::Cube();
 	RenderedObject3DBuilder b;
-	b.SetRenderer(m, conf);
+	b.SetRenderer(&m, conf);
 	b.SetShader(Helpers::ShaderLib::LoadBasic("CubeMap"));
 	b.SetTransform3D((ShaderTransform3D*)(new DefaultTransform3D));
 	b.SetGraphics((ShaderGraphics*)(new CubeMapGraphics));
 	return b.Get();
-	// 0100
-	// 1111
 }
 Melon::RenderedText* Melon::Helpers::Text::Default(Font* f)
 {

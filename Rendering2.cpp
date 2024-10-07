@@ -21,7 +21,7 @@ void Melon::TextureGraphics::SetGraphics(Shader* sh)
 {
 	sh->SetTexture(Texture_, "Texture");
 }
-bool Melon::TextureGraphics::SetTexture(Texture t, int id)
+bool Melon::TextureGraphics::SetTexture(Texture* t, int id)
 {
 	Texture_ = t;
 	return 1;
@@ -35,7 +35,7 @@ bool Melon::BrushGraphics::SetColor(Color c, int id)
 	Brush_ = c;
 	return 1;
 }
-bool Melon::BrushGraphics::SetTexture(Texture t, int id)
+bool Melon::BrushGraphics::SetTexture(Texture* t, int id)
 {
 	Brush_ = t;
 	return 1;
@@ -67,7 +67,7 @@ bool Melon::MaterialGraphics::SetColor(Color c, int id)
 	}
 	return 1;
 }
-bool Melon::MaterialGraphics::SetTexture(Texture t, int id)
+bool Melon::MaterialGraphics::SetTexture(Texture* t, int id)
 {
 	switch (id)
 	{
@@ -137,7 +137,7 @@ void Melon::CubeMapGraphics::SetGraphics(Shader* sh)
 {
 	sh->SetCubeMap(CubeMap_, "CubeMap");
 }
-bool Melon::CubeMapGraphics::SetCubeMap(CubeMap t, int id)
+bool Melon::CubeMapGraphics::SetCubeMap(CubeMap* t, int id)
 {
 	CubeMap_ = t;
 	return true;
@@ -149,13 +149,14 @@ void Melon::RenderedObject2D::Delete()
 	Renderer_.Delete();
 }
 
-void Melon::RenderedObject2D::Draw(Window* win)
+void Melon::RenderedObject2D::Draw(RenderTarget* target)
 {
+	target->Bind();
 	Shader_.Use();
 
-	Camera2D* cam = (Camera2D*)win->MainCamera; // abstract it
+	Camera2D* cam = (Camera2D*)target->MainCamera; // abstract it
 
-	Matrix4 ortho = Matrix4::Ortho(win->GetAspect(), 0, 100);
+	Matrix4 ortho = Matrix4::Ortho(target->GetAspect(), 0, 100);
 
 	Transform->SetTransform(&Shader_, T);
 	Shader_.SetMatrix4(cam->GetView(), "view"); // this 
@@ -173,12 +174,13 @@ void Melon::RenderedObject3D::Delete()
 	Renderer_.Delete();
 }
 
-void Melon::RenderedObject3D::Draw(Window* win)
+void Melon::RenderedObject3D::Draw(RenderTarget* target)
 {
+	target->Bind();
 	Shader_.Use();
 	Transform->SetTransform(&Shader_, T);
-	Camera3D* cam = (Camera3D*)win->MainCamera; // this too
-	Matrix4 persp = Matrix4::Perspective(cam->FOV, win->GetAspect(), 0.1f, 100.0f);
+	Camera3D* cam = (Camera3D*)target->MainCamera; // this too
+	Matrix4 persp = Matrix4::Perspective(cam->FOV, target->GetAspect(), 0.1f, 100.0f);
 	Shader_.SetMatrix4(cam->GetView(), "view");
 	Shader_.SetMatrix4(persp, "projection");
 	Graphics->SetGraphics(&Shader_); 
@@ -197,14 +199,15 @@ Melon::Skybox* Melon::SkyboxFactory::Create(CubeMap m)
 	return box;
 }
 
-void Melon::Skybox::Draw(Window* win)
+void Melon::Skybox::Draw(RenderTarget* target)
 {
+	target->Bind();
 	glDepthMask(false);
 	Shader_.Use();
 	Transform->SetTransform(&Shader_, T);
 	
-	Camera3D* cam = (Camera3D*)win->MainCamera; // this too
-	Matrix4 persp = Matrix4::Perspective(cam->FOV, win->GetAspect(), 0.1f, 100.0f);
+	Camera3D* cam = (Camera3D*)target->MainCamera; // this too
+	Matrix4 persp = Matrix4::Perspective(cam->FOV, target->GetAspect(), 0.1f, 100.0f);
 	
 	Matrix4 view = cam->GetView();
 
@@ -218,9 +221,84 @@ void Melon::Skybox::Draw(Window* win)
 	Shader_.SetMatrix4(view, "view");
 	Shader_.SetMatrix4(persp, "projection");
 	
-	((CubeMapGraphics*)Graphics)->CubeMap_ = CubeMap_;
+	((CubeMapGraphics*)Graphics)->CubeMap_ = &CubeMap_;
 	Graphics->SetGraphics(&Shader_);
 	
 	Renderer_.Draw();
 	glDepthMask(true);
+}
+
+void Melon::DepthBuffer::Bind()
+{
+	glBindRenderbuffer(GL_RENDERBUFFER, handle);
+}
+
+Melon::DepthBuffer::DepthBuffer(Vector2 size) : size_(size)
+{
+	glGenRenderbuffers(1, &handle);
+	Bind();
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, (GLsizei)size.x, (GLsizei)size.y);
+}
+
+void Melon::DepthBuffer::Delete()
+{
+	glDeleteRenderbuffers(1, &handle);
+}
+
+Melon::FrameBuffer::FrameBuffer(Vector2 size) : size_(size), depthAttachment(0)
+{
+	glGenFramebuffers(1, &handle);
+}
+
+void Melon::FrameBuffer::ColorAttachment(Texture* tex)
+{
+	// TODO: add support for multiple color attachments
+	Bind();
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->handle, 0);
+	colorAttachments.PushBack(tex);
+}
+
+void Melon::FrameBuffer::DepthAttachment(DepthBuffer* buffer)
+{
+	Bind();
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, buffer->handle);
+	depthAttachment = buffer;
+}
+
+Melon::Texture* Melon::FrameBuffer::GetColorAttachment(int idx)
+{
+	return colorAttachments[idx];
+}
+
+void Melon::FrameBuffer::Bind()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, handle);
+}
+
+void Melon::FrameBuffer::Delete()
+{
+	glDeleteFramebuffers(1, &handle);
+	for (Texture* t : colorAttachments)
+		t->Delete();
+	depthAttachment->Delete();
+}
+
+Melon::FrameBuffer* Melon::FrameBufferFactory::GetBasic(Vector2 size)
+{
+	FrameBuffer* res = new FrameBuffer(size);
+	res->Bind();
+	TextureData td((Byte*)NULL, size.x, size.y, 4, GL_MIRRORED_REPEAT, GL_LINEAR);
+	Texture* t = new Texture(td);
+	res->ColorAttachment(t);
+	if (Windowing::depth_)
+	{
+		DepthBuffer* db = new DepthBuffer(size);
+		res->DepthAttachment(db);
+	}
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
+		return res;
+#ifdef DEBUG_OUTPUT
+	std::cout << "FRAMEBUFFER ERROR: Framebuffer is incomplete!\nFramebuffer status: " << (glCheckFramebufferStatus(GL_FRAMEBUFFER)) << std::endl;
+#endif // DEBUG_OUTPUT
+	return 0;
 }

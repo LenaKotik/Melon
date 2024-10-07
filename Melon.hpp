@@ -38,6 +38,7 @@ namespace Melon
 	class Camera;
 	class Renderer;
 	struct Window;
+	struct Vector2;
 
 #ifdef MELON_ABSTRACTIONS
 	// Abstractions & Templates
@@ -50,6 +51,16 @@ namespace Melon
 	{
 	protected:
 		GLuint handle;
+	};
+	struct Color;
+	class RenderTarget // An object you can render to
+	{
+	public:
+		Camera* MainCamera;
+		virtual void Bind() = 0;
+		virtual Vector2 GetSize()=0;
+		float GetAspect();
+		virtual void Clear(Color);
 	};
 	class Stream
 	{
@@ -187,6 +198,26 @@ namespace Melon
 		float Magnitude() const;
 		float MagnitudeSqr() const;
 		Vector2 Normalize() const;
+		static Vector2 ZERO()
+		{
+			return Vector2(0.0f, 0.0f);
+		}
+		static Vector2 UP()
+		{
+			return Vector2(0.0f, 1.0f);
+		}
+		static Vector2 DOWN()
+		{
+			return Vector2(0.0f, -1.0f);
+		}
+		static Vector2 LEFT()
+		{
+			return Vector2(-1.0f, 0.0f);
+		}
+		static Vector2 RIGHT()
+		{
+			return Vector2(1.0f, 0.0f);
+		}
 	};
 	using DynamicVector2Array = DynamicArray<Vector2>;
 
@@ -212,6 +243,34 @@ namespace Melon
 		float Magnitude() const;
 		float MagnitudeSqr() const;
 		Vector3 Normalize() const;
+		static Vector3 PX()
+		{
+			return Vector3(1.0f, 0.0f, 0.0f);
+		}
+		static Vector3 PY()
+		{
+			return Vector3(0.0f, 1.0f, 0.0f);
+		}
+		static Vector3 PZ()
+		{
+			return Vector3(0.0f, 0.0f, 1.0f);
+		}
+		static Vector3 NX()
+		{
+			return Vector3(-1.0f, 0.0f, 0.0f);
+		}
+		static Vector3 NY()
+		{
+			return Vector3(0.0f, -1.0f, 0.0f);
+		}
+		static Vector3 NZ()
+		{
+			return Vector3(0.0f, 0.0f, -1.0f);
+		}
+		static Vector3 ZERO()
+		{
+			return Vector3(0.0f, 0.0f, 0.0f);
+		}
 	};
 	using DynamicVector3Array = DynamicArray<Vector3>;
 
@@ -229,12 +288,26 @@ namespace Melon
 	public:
 		float Angle;
 		Vector3 Axis;
+		Rotator operator+=(const Rotator&);
+		Rotator operator+(const Rotator&) const;
 		Rotator() : Angle(0), Axis(0,0,1) {}
 		Rotator(float angle, Vector3 axis) : Angle(angle), Axis(axis.Normalize()) {}
-		Rotator(Vector3 euler_vector) 
+		static Rotator FromEulerVector(Vector3 euler_vector)
 		{
-			Angle = euler_vector.Magnitude();
-			Axis = euler_vector * (1.0f / Angle);
+			Rotator res;
+			res.Angle = (euler_vector.Magnitude());
+			if (res.Angle!=0)
+				res.Axis = euler_vector * (1.0f / res.Angle);
+			return res;
+		}
+		static Rotator FromDirection(Vector3 dir)
+		{
+			Rotator res;
+			res.Axis = dir.Normalize().Cross(Vector3(0.0f, 0.0f, -1.0f));
+			res.Angle = res.Axis.Magnitude(); // sin(a)
+			res.Axis *= (1.0f / res.Angle);
+			res.Angle = asin(res.Angle);
+			return res;
 		}
 		Vector3 AsEulerVector() const { return Axis * Angle; }
 	};
@@ -345,21 +418,21 @@ namespace Melon
 
 #ifdef MELON_WINDOWING
 	// Windowing
-	struct Window : IDeleted
+	struct Window : IDeleted, RenderTarget
 	{
 	public:
 		GLFWwindow* handle;
-		Camera* MainCamera;
+		//Camera* MainCamera;
 		bool ShouldClose();
 		bool IsKeyPressed(int key);
 		void MakeActive();
+		virtual void Bind() override;
 		void Maximize();
 		void Minimize();
 		void SetCursor(bool);
 		Vector2 GetMousePosition();
-		Vector2 GetSize();
-		float GetAspect();
-		void Clear(Color, bool depth);
+		virtual Vector2 GetSize() override;
+		//virtual void Clear(Color, bool depth) override;
 		void Flip();
 		void Close();
 		void Delete() override;
@@ -381,14 +454,18 @@ namespace Melon
 
 	class Windowing
 	{
+		friend class RenderTarget;
+		friend class FrameBufferFactory;
 	private:
 		static bool initialized;
+		static bool depth_;
 	public:
 		static Window* Init(unsigned int Width, unsigned int Height, const char* Title, bool depth); // initialize the current windowng system, that includes initializing glad
 		static Window* CreateWindow(unsigned int Width, unsigned int Height, const char* Title);
 		static AudioDevice* OpenAudioDevice();
 		static AudioDevice* OpenAudioDevice(const char* Device_name);
 		static FT_Library freetype_handle;
+		static void SetDepth(bool value);
 		static bool InitFreetype();
 		static void DestroyWindow(Window* win);
 		static void CloseAudioDevice(AudioDevice* device);
@@ -459,12 +536,13 @@ namespace Melon
 		GLenum wraping_mode;
 		GLenum filtering_mode;
 		TextureData() {}
-		TextureData(Byte* data_, GLint w, GLint h, GLint channels_,GLenum wm)
-			: data(data_), width(w), height(h), channels(channels_), wraping_mode(wm) {}
+		TextureData(Byte* data_, GLint w, GLint h, GLint channels_,GLenum wm, GLenum fm)
+			: data(data_), width(w), height(h), channels(channels_), wraping_mode(wm), filtering_mode(fm) {}
 		void Delete() override;
 	};
 	class Texture : IDeleted
 	{
+		friend class FrameBuffer;
 		friend class TextureUnitManager;
 	private:
 		GLuint handle;
@@ -495,7 +573,7 @@ namespace Melon
 	public:
 		static GLint GetMaxTextureUnits();
 		static Byte GetCurrentUnit();
-		static Byte Add(Texture t);
+		static Byte Add(Texture*);
 		//static Byte Add(CubeMap t);
 		static void Clear();
 	};
@@ -513,9 +591,10 @@ namespace Melon
 		void SetVector2(Vector2 v, const char* name);
 		void SetVector3(Vector3 v, const char* name);
 		void SetMatrix4(Matrix4 v, const char* name);
+		void SetFloatArray(const float* v, Size_t count, const char* name);
 		void SetColor(Color v, const char* name);
-		void SetTexture(Texture t, const char* name);
-		void SetCubeMap(CubeMap t, const char* name);
+		void SetTexture(Texture* t, const char* name);
+		void SetCubeMap(CubeMap* t, const char* name);
 		void SetBrush(Melon::Brush b, const char* name);
 		void SetMaterial(Melon::Material m, const char* name);
 	};
@@ -551,11 +630,11 @@ namespace Melon
 	public:
 		bool isSolid;
 		Color Solid;
-		Texture Mapped;
+		Texture* Mapped;
 		Brush() : Brush(Color()) {} // as white solid
 		Brush(Color c) : Solid(c), isSolid(true){}
-		Brush(Texture t) : Mapped(t), isSolid(false){}
-		Brush(Texture t, Color c) : Mapped(t), Solid(c), isSolid(false) {}
+		Brush(Texture* t) : Mapped(t), isSolid(false){}
+		Brush(Texture* t, Color c) : Mapped(t), Solid(c), isSolid(false) {}
 	};
 	class Material : IDeleted
 	{
@@ -573,6 +652,42 @@ namespace Melon
 			static Material Gold();
 		};
 	}
+	class DepthBuffer : IDeleted
+	{
+		friend class FrameBuffer;
+	private:
+		GLuint handle;
+		Vector2 size_;
+	public:
+		DepthBuffer(Vector2 size);
+		void Bind();
+		virtual void Delete() override;
+	};
+	class FrameBuffer : IDeleted, public RenderTarget
+	{
+		friend class FrameBufferFactory;
+	private:
+		Vector2 size_;
+		GLuint handle;
+		DepthBuffer* depthAttachment;
+		DynamicArray<Texture*> colorAttachments;
+	public:
+		FrameBuffer(Vector2 size);
+		virtual Vector2 GetSize() override
+		{
+			return size_;
+		}
+		void DepthAttachment(DepthBuffer*);
+		void ColorAttachment(Texture*);
+		Texture* GetColorAttachment(int idx);
+		virtual void Bind() override;
+		virtual void Delete() override;
+	};
+	class FrameBufferFactory
+	{
+	public:
+		static FrameBuffer* GetBasic(Vector2 size);
+	};
 	class Renderer : IDeleted
 	{
 	public:
@@ -721,7 +836,7 @@ namespace Melon
 	{
 	public:
 		virtual void SetGraphics(Shader*)=0;
-		virtual bool SetTexture(Texture, int id=0) { return 0; }
+		virtual bool SetTexture(Texture*, int id=0) { return 0; }
 		virtual bool SetColor(Color, int id=0) { return 0; }
 		virtual bool SetBrush(Brush, int id=0) { return 0; }
 		virtual bool SetMaterial(Material, int id=0) { return 0; }
@@ -736,9 +851,9 @@ namespace Melon
 	class TextureGraphics : ShaderGraphics
 	{
 	public:
-		Texture Texture_;
+		Texture* Texture_;
 		virtual void SetGraphics(Shader*) override;
-		virtual bool SetTexture(Texture, int id=0) override;
+		virtual bool SetTexture(Texture*, int id=0) override;
 	};
 	class BrushGraphics : ShaderGraphics
 	{
@@ -746,7 +861,7 @@ namespace Melon
 		Brush Brush_;
 		virtual void SetGraphics(Shader*) override;
 		virtual bool SetColor(Color, int id = 0) override;
-		virtual bool SetTexture(Texture, int id = 0) override;
+		virtual bool SetTexture(Texture*, int id = 0) override;
 		virtual bool SetBrush(Brush, int id = 0) override;
 	};
 	class MaterialGraphics : ShaderGraphics
@@ -755,7 +870,7 @@ namespace Melon
 		Material Material_;
 		virtual void SetGraphics(Shader*) override;
 		virtual bool SetColor(Color, int id = 0) override;
-		virtual bool SetTexture(Texture, int id = 0) override;
+		virtual bool SetTexture(Texture*, int id = 0) override;
 		virtual bool SetBrush(Brush, int id = 0) override;
 		virtual bool SetMaterial(Material, int id = 0) override;
 	};
@@ -773,9 +888,9 @@ namespace Melon
 	class CubeMapGraphics : ShaderGraphics
 	{
 	public:
-		CubeMap CubeMap_;
+		CubeMap* CubeMap_;
 		virtual void SetGraphics(Shader*) override;
-		bool SetCubeMap(CubeMap, int id=0);
+		bool SetCubeMap(CubeMap*, int id=0);
 	};
 	
 
@@ -841,11 +956,8 @@ namespace Melon
 	class Camera2D : public Camera
 	{
 	public:
-		Vector2 Position;
-		float Rotation;
-		float Scale;
-		Camera2D() : Position(0.0f), Rotation(0.0f),Scale(1.0f){};
-		CoordinateSystem2D GetCoordinateSystem();
+		CoordinateSystem2D T;
+		Camera2D() : T(){};
 		Matrix4 GetView();
 	};
 	class RenderedObject2D : IDeleted
@@ -858,7 +970,7 @@ namespace Melon
 		CoordinateSystem2D T;
 		RenderedObject2D(Shader* sh, Mesh *m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(m, a) {};
 		virtual void Delete();
-		virtual void Draw(Window* win);
+		virtual void Draw(RenderTarget* target);
 	};
 	class RenderedObject2DBuilder
 	{
@@ -872,7 +984,7 @@ namespace Melon
 		bool SetShader(Shader*);
 		bool SetGraphics(ShaderGraphics*);
 		bool SetTransform2D(ShaderTransform2D*);
-		bool SetRenderer(Mesh, Renderer::VertexAttributesConfig);
+		bool SetRenderer(Mesh*, Renderer::VertexAttributesConfig);
 		bool Done();
 		RenderedObject2D* Get();
 	};
@@ -897,7 +1009,7 @@ namespace Melon
 		Color Color_;
 		Font* Font_;
 		String Text;
-		void Draw(Window*);
+		void Draw(RenderTarget*);
 		virtual void Delete() override;
 	};
 	namespace Helpers
@@ -918,6 +1030,7 @@ namespace Melon
 	class CoordinateSystem3D : CoordinateSystem
 	{
 	public:
+
 		CoordinateSystem3D* Parent = nullptr;
 		Vector3 Position;
 		Rotator Rotation;
@@ -941,15 +1054,18 @@ namespace Melon
 	class Camera3D : public Camera
 	{
 	public:
-		float FOV;
-		Vector3 Position;
+		float FOV; // DEGREES
+		//Vector3 Position;
 		Vector3 Direction;
 		Vector3 Up;
-		Vector3 Right;
-		void SetDirection(Vector3);
-		Camera3D() : Position(0.0f), Direction(0.0f, 0.0f, -1.0f),
-			Up(0.0f, 1.0f, 0.0f), FOV(45.0f) {};
-		CoordinateSystem3D GetCoordinateSystem();
+		//Vector3 Right;
+		CoordinateSystem3D T;
+		//void SetDirection(Vector3);
+		Camera3D() : T(), Direction(0.0f,0.0f,-1.0f), Up(0.0f,1.0f,0.0f), FOV(90.0f) {};
+		//CoordinateSystem3D GetCoordinateSystem();
+		Vector3 GetDirection();
+		Vector3 GetRightDirection();
+		Vector3 GetUpDirection();
 		Matrix4 GetView();
 	};
 	class RenderedObject3D : IDeleted
@@ -962,7 +1078,7 @@ namespace Melon
 		CoordinateSystem3D T;
 		RenderedObject3D(Shader* sh, Mesh* m, Renderer::VertexAttributesConfig a) : Shader_(*sh), Renderer_(m, a) {};
 		void Delete() override;
-		virtual void Draw(Window* win);
+		virtual void Draw(RenderTarget* target);
 	};
 	class RenderedObject3DBuilder
 	{
@@ -974,7 +1090,7 @@ namespace Melon
 		ShaderTransform3D* tr;
 	public:
 		RenderedObject3DBuilder() : state(0) {}
-		bool SetRenderer(Mesh, Renderer::VertexAttributesConfig);
+		bool SetRenderer(Mesh*, Renderer::VertexAttributesConfig);
 		bool SetShader(Shader*);
 		bool SetGraphics(ShaderGraphics*);
 		bool SetTransform3D(ShaderTransform3D*);
@@ -987,7 +1103,7 @@ namespace Melon
 	Skybox(Shader*s,Mesh*m) : RenderedObject3D(s,m,Renderer::Position3D) {}
 	public:
 		CubeMap CubeMap_;
-		virtual void Draw(Window* win);
+		virtual void Draw(RenderTarget* target);
 	};
 	class SkyboxFactory
 	{

@@ -36,7 +36,7 @@ add_library(Melon
 			stb_image.cpp 
 			System.cpp
 			Windowing.cpp
-	)
+	 "Examples/PostProcessingScene/PostProcessingScene.cpp")
 
 
 function (optional_def def desc state)

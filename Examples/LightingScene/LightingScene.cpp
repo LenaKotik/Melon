@@ -14,7 +14,7 @@ int main()
 	Shader* s = Helpers::ShaderLib::LoadBasic(Helpers::ShaderLoadOptions((Renderer::VertexAttributesConfig)(Renderer::Position3D|Renderer::Normal), false, true));
 	RenderedObject3DBuilder builder;
 
-	builder.SetRenderer(m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal));
+	builder.SetRenderer(&m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal));
 	builder.SetShader(s);
 	builder.SetGraphics((ShaderGraphics*)new MaterialGraphics);
 	builder.SetTransform3D((ShaderTransform3D*)new DefaultTransform3D);
@@ -25,7 +25,7 @@ int main()
 	Shader* normalGeom = Helpers::ShaderLib::LoadGeom("NormalDisplay");
 	if (!normalGeom) return -1;
 
-	builder.SetRenderer(m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal));
+	builder.SetRenderer(&m, (Renderer::VertexAttributesConfig)(Renderer::Position3D | Renderer::Normal));
 	builder.SetShader(normalGeom);
 	builder.SetGraphics((ShaderGraphics*)new ColorGraphics);
 	RenderedObject3D normals = *builder.Get();
@@ -39,7 +39,7 @@ int main()
 	light.T.Position = Vector3(0, 1, -2);
 
 	Camera3D cam;
-	cam.Position = Vector3(0, 0.5, 1);
+	cam.T.Position = Vector3(0, 0.5, 1);
 
 	win->MainCamera = &cam;
 
@@ -51,14 +51,14 @@ int main()
 	{
 		float delta = Time::GetDelta();
 		//printf("FPS:%d\n", (int)roundf(1 / delta));
-		movement3D(win, delta);
+		movement3D(win, &cam, delta);
 
-		win->Clear(Color::FromBytes(29, 29, 29, 255), true);
+		win->Clear(Color::FromBytes(29, 29, 29, 255));
 
 		shape.Shader_.Use();
 		shape.Shader_.SetColor(lightColor, "LightColor");
 		shape.Shader_.SetVector3(light.T.Position, "LightPosition");
-		shape.Shader_.SetVector3(cam.Position, "CameraPosition");
+		shape.Shader_.SetVector3(cam.T.Position, "CameraPosition");
 		shape.Draw(win);
 		normals.Draw(win);
 		light.Draw(win);

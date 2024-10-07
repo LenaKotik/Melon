@@ -30,7 +30,7 @@ int main()
 
 		object1->Graphics->SetColor(Color::FromBytes(0,0,255, 100*(sinf(Time::GetTime())+1)));
 
-		win->Clear(Color::FromBytes(255,0,0),false);
+		win->Clear(Color::FromBytes(255,0,0));
 		object1->Draw(win);
 		object2->Draw(win);
 		win->Flip();

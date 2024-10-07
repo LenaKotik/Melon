@@ -13,7 +13,7 @@ float Melon::rad2deg(float rad)
 template <>
 Melon::Rotator Melon::lerp(Melon::Rotator a, Melon::Rotator b, float t)
 {
-	return Melon::Rotator(Melon::lerp(a.AsEulerVector(), b.AsEulerVector(), t));
+	return Melon::Rotator::FromEulerVector(Melon::lerp(a.AsEulerVector(), b.AsEulerVector(), t));
 }
 
 Melon::Vector2 Melon::Vector2::operator=(const Vector2& oth)
@@ -158,6 +158,8 @@ float Melon::Vector3::MagnitudeSqr() const
 Melon::Vector3 Melon::Vector3::Normalize() const
 {
 	float m = this->Magnitude();
+	if (m == 0)
+		return Vector3(0.0f, 0.0f, 0.0f);
 	return Vector3(x/m, y/m, z/m);
 }
 
@@ -274,7 +276,7 @@ Melon::Vector3 Melon::Matrix4::Transform(const Vector3 vec) const
 	res.y = vec.x * Value[1][0] + vec.y * Value[1][1] + vec.z * Value[1][2] + Value[1][3];
 	res.z = vec.x * Value[2][0] + vec.y * Value[2][1] + vec.z * Value[2][2] + Value[2][3];
 	w     = vec.x * Value[3][0] + vec.y * Value[3][1] + vec.z * Value[3][2] + Value[3][3];
-	res = res * (1.0f / w);
+	res = res * (1.0f / (w+0.00001f));
 
 	return res;
 }
@@ -346,10 +348,10 @@ Melon::Matrix4 Melon::Matrix4::Transpose() const
 	return res;
 }
 
-Melon::Matrix4 Melon::Matrix4::Perspective(float FOV, float aspect, float near, float far)
+Melon::Matrix4 Melon::Matrix4::Perspective(float FOV_deg, float aspect, float near, float far)
 {
 	Matrix4 res;
-	float oa = tanf(FOV / 2);
+	float oa = tanf(deg2rad(FOV_deg) / 2);
 
 	res.Value[0][0] = 1 / (aspect * oa);
 	res.Value[1][1] = 1 / oa;
@@ -376,26 +378,38 @@ Melon::Matrix4 Melon::Matrix4::Ortho(float aspect, float near, float far)
 
 Melon::Matrix4 Melon::Camera3D::GetView()
 {
-	Vector3 right = Vector3(0.0f, 1.0f, 0.0f).Cross(Direction).Normalize();
-	Up = Direction.Cross(right);
+	
+	Vector3 right = GetRightDirection();
+	Up = right.Cross(Direction);
+	
 
-	Matrix4 translation(1.0f);
-	translation.Value[0][3] = -Position.x;
-	translation.Value[1][3] = -Position.y;
-	translation.Value[2][3] = -Position.z;
+	Matrix4 model(1.0f);
+	model = model.Translate(-T.Position);
+
 	Matrix4 rotation(1.0f);
-	rotation.Value[0][0] = -right.x;
-	rotation.Value[0][1] = -right.y;
-	rotation.Value[0][2] = -right.z;
+	rotation.Value[0][0] = right.x;
+	rotation.Value[0][1] = right.y;
+	rotation.Value[0][2] = right.z;
 	rotation.Value[1][0] = Up.x;
 	rotation.Value[1][1] = Up.y;
 	rotation.Value[1][2] = Up.z;
 	rotation.Value[2][0] = -Direction.x;
 	rotation.Value[2][1] = -Direction.y;
 	rotation.Value[2][2] = -Direction.z;
+	rotation.Value[3][3] = 1.0f;
+	model = rotation * model;
 
-	return rotation * translation;
+	model = model.Scale((1.0f/T.Scale.x, 1.0f / T.Scale.y, 1.0f / T.Scale.z));
+	
+	
+	//T.Rotation = Rotator::FromDirection(Direction);
+	//return T.TransformationTo();
+	if (T.Parent != nullptr)
+		return model * T.Parent->TransformationTo();
+	return model;
+	
 }
+/*
 Melon::CoordinateSystem3D Melon::Camera3D::GetCoordinateSystem()
 {
 	CoordinateSystem3D res;
@@ -411,18 +425,39 @@ void Melon::Camera3D::SetDirection(Vector3 dir)
 	Right = Direction.Cross(Up).Normalize();
 	Up = Right.Cross(Direction).Normalize();
 }
+*/
+Melon::Vector3 Melon::Camera3D::GetDirection()
+{
+	/*
+	Matrix4 rot(1.0f);
+	rot = rot.Rotate(T.Rotation);
+	return rot.Transform(Vector3(0.0f, 0.0f, -1.0f)).Normalize();
+	*/
+	return Direction;
+}
+Melon::Vector3 Melon::Camera3D::GetRightDirection()
+{
+	/*
+	Matrix4 rot(1.0f);
+	rot = rot.Rotate(T.Rotation);
+	return rot.Transform(Vector3(1.0f, 0.0f, 0.0f)).Normalize();
+	*/
+	return Direction.Cross(Vector3(0.0f, 1.0f, 0.0f)).Normalize();
+}
+Melon::Vector3 Melon::Camera3D::GetUpDirection()
+{
+	/*
+	Matrix4 rot(1.0f);
+	rot = rot.Rotate(T.Rotation);
+	return rot.Transform(Vector3(0.0f, 1.0f, 0.0f)).Normalize();
+	*/
+	return Up;
+}
 Melon::Matrix4 Melon::Camera2D::GetView()
 {
-	return GetCoordinateSystem().TransformationTo();
+	return T.TransformationTo();
 }
-Melon::CoordinateSystem2D Melon::Camera2D::GetCoordinateSystem()
-{
-	CoordinateSystem2D res;
-	res.Position = Position;
-	res.Rotation = Rotation;
-	res.Scale = Vector2(Scale);
-	return res;
-}
+
 Melon::Matrix4 Melon::CoordinateSystem2D::LocalTransformationTo() const
 {
 	Matrix4 model(1.0f);
@@ -455,7 +490,7 @@ Melon::Matrix4 Melon::CoordinateSystem3D::LocalTransformationTo() const
 {
 	Matrix4 model(1.0f);
 	model = model.Translate(-Position);
-	model = model.Rotate(Rotation);
+	model = model.Rotate(Rotator(-Rotation.Angle, Rotation.Axis));
 	model = model.Scale(Vector3(1.0f / Scale.x, 1.0f / Scale.y, 1.0f/Scale.z));
 	return model;
 }
@@ -478,4 +513,13 @@ Melon::Matrix4 Melon::CoordinateSystem3D::TransformationFrom() const
 	if (Parent != nullptr)
 		return Parent->TransformationFrom() * LocalTransformationFrom();
 	return LocalTransformationFrom();
+}
+Melon::Rotator Melon::Rotator::operator+(const Rotator& oth) const
+{
+	return Rotator::FromEulerVector(this->AsEulerVector() + oth.AsEulerVector());
+}
+
+Melon::Rotator Melon::Rotator::operator+=(const Rotator& oth)
+{
+	return (*this = (*this + oth));
 }

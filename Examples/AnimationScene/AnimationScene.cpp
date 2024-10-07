@@ -39,7 +39,7 @@ int main()
 	while (!win->ShouldClose())
 	{
 		//std::cout << shape->T.Position.x << " " << shape->T.Position.y << "\n";
-		win->Clear(Color::FromBytes(83, 197, 60, 255),false);
+		win->Clear(Color::FromBytes(83, 197, 60, 255));
 		shape->T.Position = anim[0];
 		shape->T.Scale = anim[1];
 		shape->Draw(win);

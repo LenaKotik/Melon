@@ -31,26 +31,31 @@ int main()
 	RenderedObject3D* cube = Helpers::Objects3D::MappedCube(cube_mesh);
 	if (!cube) return -1;
 	
-	((CubeMapGraphics*)cube->Graphics)->SetCubeMap(grass_tex);
-	cube->T.Position.x = 2;
+	((CubeMapGraphics*)cube->Graphics)->SetCubeMap(&grass_tex);
+	cube->T.Position.z = -2;
 	cube->T.Rotation.Axis = Vector3(0.2, 0.9, 0.2).Normalize();
-	Camera3D cam;
-
-	win->MainCamera = &cam;
 	
+	Camera3D cam;
+	cam.T.Position = Vector3(0.0f, 0.0f, 2.0f);
+	win->MainCamera = &cam;
+	cam.T.Parent = &cube->T;
 	win->SetCursor(false);
+	win->Maximize();
 
 	const float rotSpeed = 2.0f;
 
 	//std::cout << __LINE__ << ": " << glGetError() << std::endl;
 	while (!win->ShouldClose())
 	{
+		std::cout << "dir: "		<< cam.GetDirection().x << " " << cam.GetDirection().y << " " << cam.GetDirection().z << std::endl;
+		std::cout << "right: "	<< cam.GetRightDirection().x << " " << cam.GetRightDirection().y << " " << cam.GetRightDirection().z << std::endl;
+		std::cout << "up: "		<<cam.GetUpDirection().x << " " << cam.GetUpDirection().y << " " << cam.GetUpDirection().z << std::endl << std::endl << std::endl;
 		float delta = Time::GetDelta();
-		movement3D(win, delta);
+		movement3D(win, &cam, delta);
 		
 		cube->T.Rotation.Angle += delta * rotSpeed;
 
-		win->Clear(Color::FromBytes(0, 0, 0, 255), true);
+		win->Clear(Color::FromBytes(0, 0, 0, 255));
 		skybox->Draw(win);
 
 		cube->Draw(win);

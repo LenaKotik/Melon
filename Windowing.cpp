@@ -1,6 +1,7 @@
 #include "Melon.hpp"
 
 bool Melon::Windowing::initialized = false;
+bool Melon::Windowing::depth_ = false;
 FT_Library Melon::Windowing::freetype_handle = NULL;
 
 static void on_windowResized(GLFWwindow* win, int width, int height)
@@ -103,6 +104,15 @@ Melon::AudioDevice* Melon::Windowing::OpenAudioDevice(const char* Device_name)
 	return device;
 }
 
+void Melon::Windowing::SetDepth(bool value)
+{
+	depth_ = value;
+	if (depth_)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+}
+
 bool Melon::Windowing::InitFreetype()
 {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // no
@@ -145,8 +155,8 @@ Melon::Window* Melon::Windowing::Init(unsigned int Width, unsigned int Height, c
 #endif // DEBUG_OUTPUT
 
 	glViewport(0, 0, Width, Height);
-	if (depth)
-		glEnable(GL_DEPTH_TEST);
+	
+	SetDepth(depth);
 
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &TextureUnitManager::MaxUnits); // get this devices max texture units
 	TextureUnitManager::units = new GLuint[TextureUnitManager::MaxUnits]; // set the texture unit array
@@ -169,6 +179,12 @@ void Melon::Window::MakeActive()
 	glfwMakeContextCurrent(this->handle);
 }
 
+void Melon::Window::Bind()
+{
+	MakeActive();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Melon::Window::Maximize()
 {
 	glfwMaximizeWindow(this->handle);
@@ -186,11 +202,10 @@ void Melon::Window::SetCursor(bool v)
 		glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-float Melon::Window::GetAspect()
+float Melon::RenderTarget::GetAspect()
 {
-	int w, h;
-	glfwGetWindowSize(handle, &w, &h);
-	return (float)(w) / (float)(h);
+	Vector2 size = GetSize();
+	return size.x / size.y;
 }
 
 Melon::Vector2 Melon::Window::GetMousePosition()
@@ -234,10 +249,11 @@ void Melon::Window::Flip()
 	glfwSwapBuffers(this->handle);
 }
 
-void Melon::Window::Clear(Color c, bool depth)
+void Melon::RenderTarget::Clear(Color c)
 {
+	this->Bind();
 	glClearColor(c.R, c.G, c.B, c.A);
-	if (depth)
+	if (Windowing::depth_)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	else;
 		glClear(GL_COLOR_BUFFER_BIT);

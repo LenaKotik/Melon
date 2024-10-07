@@ -26,7 +26,7 @@ int main()
 
 	Camera3D cam;
 	win->MainCamera = (Camera*)&cam;
-	cam.Position = Vector3(-3, 0, 0);
+	cam.T.Position = Vector3(-3, 0, 0);
 
 	Animation<Rotator> anim_rot;
 	InterpolationTrack<Rotator> track_rot;
@@ -56,12 +56,12 @@ int main()
 	{
 		float delta = Time::GetDelta();
 		printf("FPS: %d\n", (int)roundf(1.0f / delta));
-		movement3D(win, delta);
+		movement3D(win, &cam, delta);
 
 		box->T.Rotation = anim_rot[0];
 		box->Graphics->SetColor(anim_col[0]);
 
-		win->Clear(Color::FromBytes(255,255,255),true);
+		win->Clear(Color::FromBytes(255,255,255));
 		box->Draw(win);
 		win->Flip();
 		Windowing::PollEvents();

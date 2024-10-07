@@ -9,7 +9,7 @@ int main()
 	if (!win) return -1;
 	win->SetCursor(false);
 
-	const int N_box = 5223;
+	const int N_box = 1000;
 
 	TextureData td;
 	if (!ResourceLoader::LoadTextureData(&td, (SourceDir + "/Examples/RandomTextureCubeScene/box.jpg").c_str())) return -1;
@@ -19,7 +19,7 @@ int main()
 	win->MainCamera = &cam;
 
 	RenderedObject3D tm = *Helpers::Objects3D::Shape(Helpers::Meshes::Cube());
-	tm.Graphics->SetTexture(texture);
+	tm.Graphics->SetTexture(&texture);
 	DynamicVector3Array pos;
 	DynamicArray<Rotator> rot;
 
@@ -31,10 +31,10 @@ int main()
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
-		//printf("FPS:%d\n", (int)roundf(1 / delta));
-		movement3D(win, delta);
+		printf("FPS:%d\n", (int)roundf(1 / delta));
+		movement3D(win, &cam, delta);
 
-		win->Clear(Color::FromBytes(255, 69, 69, 255), true);
+		win->Clear(Color::FromBytes(255, 69, 69, 255));
 		for (int i = 0; i < N_box; i++)
 		{
 			tm.T.Position = pos[i];

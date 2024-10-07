@@ -25,9 +25,9 @@ int main()
 	
 	win->Maximize();
 
-	win->Clear(Color::FromBytes(255, 255, 255), false);
+	win->Clear(Color::FromBytes(255, 255, 255));
 	win->Flip();
-	win->Clear(Color::FromBytes(255, 255, 255), false);
+	win->Clear(Color::FromBytes(255, 255, 255));
 	
 	while (!win->ShouldClose())
 	{
