@@ -5,16 +5,19 @@ Melon::Texture::Texture(TextureData data)
 {
 	const GLenum color_spaces[] = { NULL, GL_RED, GL_RG, GL_RGB, GL_RGBA };
 	GLenum color_space = color_spaces[data.channels];
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, data.wraping_mode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, data.wraping_mode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, data.filtering_mode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, data.filtering_mode);
 
 	glGenTextures(1, &handle);
-
 	glBindTexture(GL_TEXTURE_2D, handle);
+	
 	glTexImage2D(GL_TEXTURE_2D, 0, color_space, data.width, data.height, 0, color_space, GL_UNSIGNED_BYTE, data.data);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, data.wraping_mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, data.wraping_mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, data.min_filtering_mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, data.mag_filtering_mode);
+
+	if (data.enable_mipmap)
+		glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void Melon::Texture::Bind()
@@ -50,13 +53,14 @@ Melon::CubeMap::CubeMap(FixedArray<TextureData, 6> data)
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, data[i].width, data[i].height,
 			0, format, GL_UNSIGNED_BYTE, data[i].data);
 	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, data[0].filtering_mode);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, data[0].filtering_mode);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, data[0].min_filtering_mode);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, data[0].mag_filtering_mode);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	
+	if (data[0].enable_mipmap)
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }
 
 void Melon::CubeMap::Bind()

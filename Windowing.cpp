@@ -7,7 +7,7 @@ FT_Library Melon::Windowing::freetype_handle = NULL;
 static void on_windowResized(GLFWwindow* win, int width, int height)
 {
 	glfwMakeContextCurrent(win);
-	glViewport(0, 0, width, height);
+	//glViewport(0, 0, width, height);
 }
 
 #ifdef DEBUG_OUTPUT

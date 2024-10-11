@@ -27,6 +27,7 @@ add_library(Melon
 			Math.cpp 
 			MeshLib.cpp 
 			Misc.cpp 
+			Physics.cpp
 			Rendering.cpp 
 			Rendering2.cpp 
 			ResourceLoader.cpp 
@@ -36,7 +37,7 @@ add_library(Melon
 			stb_image.cpp 
 			System.cpp
 			Windowing.cpp
-	 "Examples/PostProcessingScene/PostProcessingScene.cpp")
+	 "Examples/PostProcessingScene/PostProcessingScene.cpp" "Examples/MirrorScene/MirrorScene.cpp" "Examples/CollisionScene/CollisionScene.cpp")
 
 
 function (optional_def def desc state)

@@ -26,6 +26,10 @@ uniform Material material;
 
 void main()
 {
-	if (material.albedoIsSolid) outColor = material.albedoSolid;
-	else outColor = texture(material.albedoMap, TexCoords);
+    vec4 Color = vec4(0.0);
+	if (material.albedoIsSolid) 
+        Color = material.albedoSolid;
+	else 
+        Color = texture(material.albedoMap, TexCoords);
+    outColor = Color;
 }

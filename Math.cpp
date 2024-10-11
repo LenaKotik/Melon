@@ -2,7 +2,7 @@
 
 float Melon::deg2rad(float deg)
 {
-	return deg / (180.0 / Pi);
+	return (deg / 180.0)*Pi;
 }
 
 float Melon::rad2deg(float rad)
@@ -130,7 +130,7 @@ Melon::Vector3 Melon::Vector3::operator-() const
 	return Vector3(-this->x, -this->y, -this->z);
 }
 
-Melon::Vector3 Melon::Vector3::Cross(const Vector3& oth)
+Melon::Vector3 Melon::Vector3::Cross(const Vector3& oth) const
 {
 	return Vector3(y*oth.z - z*oth.y, -(x*oth.z - z*oth.x), x*oth.y - y*oth.x);
 }
@@ -142,7 +142,9 @@ float Melon::Vector3::Dot(const Vector3& oth) const
 
 float Melon::Vector3::Angle(const Vector3& oth) const
 {
-	return acosf(Dot(oth) / Magnitude() * oth.Magnitude());
+	Vector3 a = *this;
+	Vector3 b = oth;
+	return copysignf(acosf(a.Dot(b)), a.Cross(b).Magnitude());
 }
 
 float Melon::Vector3::Magnitude() const
@@ -281,6 +283,13 @@ Melon::Vector3 Melon::Matrix4::Transform(const Vector3 vec) const
 	return res;
 }
 
+Melon::Vector2 Melon::Matrix4::Transform(const Vector2 vec) const // TODO: test this, i am not sure this is right
+{
+	Vector3 res = this->Transform(Vector3(vec.x, vec.y, 0.0f));
+
+	return Vector2(res.x, res.y);
+}
+
 Melon::Matrix4 Melon::Matrix4::Translate(const Vector3 pos) const
 {
 	Matrix4 res(1.0f);
@@ -348,10 +357,26 @@ Melon::Matrix4 Melon::Matrix4::Transpose() const
 	return res;
 }
 
+Melon::Matrix4 Melon::Matrix4::FromBasis(Vector3 i, Vector3 j, Vector3 k)
+{
+	Matrix4 res(1.0f);
+	res.Value[0][0] = i.x;
+	res.Value[0][1] = i.y;
+	res.Value[0][2] = i.z;
+	res.Value[1][0] = j.x;
+	res.Value[1][1] = j.y;
+	res.Value[1][2] = j.z;
+	res.Value[2][0] = k.x;
+	res.Value[2][1] = k.y;
+	res.Value[2][2] = k.z;
+	res.Value[3][3] = 1.0f;
+	return res;
+}
+
 Melon::Matrix4 Melon::Matrix4::Perspective(float FOV_deg, float aspect, float near, float far)
 {
 	Matrix4 res;
-	float oa = tanf(deg2rad(FOV_deg) / 2);
+	float oa = tanf(deg2rad(FOV_deg) / 2.0f);
 
 	res.Value[0][0] = 1 / (aspect * oa);
 	res.Value[1][1] = 1 / oa;
@@ -378,64 +403,14 @@ Melon::Matrix4 Melon::Matrix4::Ortho(float aspect, float near, float far)
 
 Melon::Matrix4 Melon::Camera3D::GetView()
 {
-	
-	Vector3 right = GetRightDirection();
-	Up = right.Cross(Direction);
-	
-
-	Matrix4 model(1.0f);
-	model = model.Translate(-T.Position);
-
-	Matrix4 rotation(1.0f);
-	rotation.Value[0][0] = right.x;
-	rotation.Value[0][1] = right.y;
-	rotation.Value[0][2] = right.z;
-	rotation.Value[1][0] = Up.x;
-	rotation.Value[1][1] = Up.y;
-	rotation.Value[1][2] = Up.z;
-	rotation.Value[2][0] = -Direction.x;
-	rotation.Value[2][1] = -Direction.y;
-	rotation.Value[2][2] = -Direction.z;
-	rotation.Value[3][3] = 1.0f;
-	model = rotation * model;
-
-	model = model.Scale((1.0f/T.Scale.x, 1.0f / T.Scale.y, 1.0f / T.Scale.z));
-	
-	
-	//T.Rotation = Rotator::FromDirection(Direction);
-	//return T.TransformationTo();
-	if (T.Parent != nullptr)
-		return model * T.Parent->TransformationTo();
-	return model;
-	
-}
-/*
-Melon::CoordinateSystem3D Melon::Camera3D::GetCoordinateSystem()
-{
-	CoordinateSystem3D res;
-	res.Position = Position;
-	Vector3 axis = Vector3(0.0f, 0.0f, -1.0f).Cross(Direction);
-	float angle =  Direction.Angle(Vector3(0.0f, 0.0f, -1.0f)); //asinf(axis.Magnitude());
-	res.Rotation = Rotator(angle, axis.Normalize());
-	return res;
-}
-void Melon::Camera3D::SetDirection(Vector3 dir)
-{
-	Direction = dir.Normalize();
-	Right = Direction.Cross(Up).Normalize();
-	Up = Right.Cross(Direction).Normalize();
-}
-*/
-Melon::Vector3 Melon::Camera3D::GetDirection()
-{
 	/*
-	Matrix4 rot(1.0f);
-	rot = rot.Rotate(T.Rotation);
-	return rot.Transform(Vector3(0.0f, 0.0f, -1.0f)).Normalize();
+	T.Rotation = Rotator::FromDirection(Direction);
 	*/
-	return Direction;
+	return T.TransformationTo();
 }
-Melon::Vector3 Melon::Camera3D::GetRightDirection()
+
+
+Melon::Vector3 Melon::Camera3DCoordinateSystem::GetRightDirection()
 {
 	/*
 	Matrix4 rot(1.0f);
@@ -444,20 +419,38 @@ Melon::Vector3 Melon::Camera3D::GetRightDirection()
 	*/
 	return Direction.Cross(Vector3(0.0f, 1.0f, 0.0f)).Normalize();
 }
-Melon::Vector3 Melon::Camera3D::GetUpDirection()
+Melon::Vector3 Melon::Camera3DCoordinateSystem::GetUpDirection()
 {
 	/*
 	Matrix4 rot(1.0f);
 	rot = rot.Rotate(T.Rotation);
 	return rot.Transform(Vector3(0.0f, 1.0f, 0.0f)).Normalize();
 	*/
-	return Up;
+	return GetRightDirection().Cross(Direction);
 }
 Melon::Matrix4 Melon::Camera2D::GetView()
 {
 	return T.TransformationTo();
 }
-
+Melon::Vector2 Melon::CoordinateSystem2D::GetGlobalPosition()
+{
+	if (!Parent)
+		return Position;
+	return Parent->TransformationFrom().Transform(Position);
+}
+Melon::Vector2 Melon::CoordinateSystem2D::GetGlobalScale()
+{
+	if (!Parent)
+		return Scale;
+	Vector2 p_scale = ((CoordinateSystem2D*)Parent)->GetGlobalScale();
+	return Vector2(Scale.x * p_scale.x, Scale.y * p_scale.y); 
+}
+Melon::Vector3 Melon::CoordinateSystem3D::GetGlobalPosition()
+{
+	if (!Parent)
+		return Position;
+	return Parent->TransformationFrom().Transform(Position);
+}
 Melon::Matrix4 Melon::CoordinateSystem2D::LocalTransformationTo() const
 {
 	Matrix4 model(1.0f);
@@ -500,6 +493,32 @@ Melon::Matrix4 Melon::CoordinateSystem3D::LocalTransformationFrom() const
 	model = model.Scale(Scale);
 	model = model.Rotate(Rotation);
 	model = model.Translate(Position);
+	return model;
+}
+Melon::Matrix4 Melon::Camera3DCoordinateSystem::LocalTransformationTo() const
+{
+	Vector3 Right = Direction.Cross(Vector3::PY()).Normalize();
+	Vector3 Up = Right.Cross(Direction);
+
+	Matrix4 model(1.0f);
+	model = model.Translate(-Position);
+	Matrix4 rotation = Matrix4::FromBasis(Right, Up, -Direction);
+	model = rotation * model;
+	model = model.Scale((1.0f / Scale.x, 1.0f / Scale.y, 1.0f / Scale.z));
+
+	return model;
+}
+Melon::Matrix4 Melon::Camera3DCoordinateSystem::LocalTransformationFrom() const
+{
+	Vector3 Right = Direction.Cross(Vector3::PY()).Normalize();
+	Vector3 Up = Right.Cross(Direction);
+
+	Matrix4 model(1.0f);
+	model = model.Scale(Scale);
+	Matrix4 rotation = Matrix4::FromBasis(Right, Up, -Direction).Transpose();
+	model = rotation * model;
+	model = model.Translate(Position);
+
 	return model;
 }
 Melon::Matrix4 Melon::CoordinateSystem3D::TransformationTo() const

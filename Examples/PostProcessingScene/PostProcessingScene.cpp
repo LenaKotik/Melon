@@ -32,8 +32,8 @@ int main()
 	//Shader* postProcEffect = Helpers::ShaderLib::LoadBasic("PostProcessing/Empty");
 	//Shader* postProcEffect = Helpers::ShaderLib::LoadBasic("PostProcessing/Negative");
 	//Shader* postProcEffect = Helpers::ShaderLib::LoadBasic("PostProcessing/Grayscale");
-	//Shader* postProcEffect = Helpers::ShaderLib::LoadBasic("PostProcessing/FlyVision");
-	Shader* postProcEffect = Helpers::ShaderLib::LoadBasic("PostProcessing/Kernel");
+	Shader* postProcEffect = Helpers::ShaderLib::LoadBasic("PostProcessing/FlyVision");
+	//Shader* postProcEffect = Helpers::ShaderLib::LoadBasic("PostProcessing/Kernel");
 	if (!postProcEffect) return -1;
 	screen_quad->Shader_ = *postProcEffect;
 
@@ -64,24 +64,24 @@ int main()
 	while (!win->ShouldClose())
 	{
 		float delta = Time::GetDelta();
-		movement3D(win, &fb_cam, delta);
+		//movement3D(win, &fb_cam, delta);
 
 		fb->Bind(); // first pass
 		Windowing::SetDepth(true);
 		fb->Clear(Color::FromBytes(7, 68, 94));
 
-		plane->T.Position = Vector3(0.0f, -1.5f -0.001f, -3.0f); // -0.001f To prevent Z-fighting
+		plane->T.Position = Vector3(0.0f, -1.5f -0.001f, 3.0f); // -0.001f To prevent Z-fighting
 		plane->T.Rotation = Rotator(Pi / 2.0f, Vector3::PX());
 		plane->T.Scale = 10.0f;
 		plane->Draw(fb);
 	
-		box->T.Position = Vector3(0.5f, -1.0f, -2.0f);
+		box->T.Position = Vector3(0.5f, -1.0f, 2.0f);
 		box->Draw(fb);
 		
-		box->T.Position = Vector3(-1.0f, -1.0f, -3.0f);
+		box->T.Position = Vector3(-1.0f, -1.0f, 3.0f);
 		box->Draw(fb);
 
-		box->T.Position = Vector3(0.0f, -1.0f, -4.5f);
+		box->T.Position = Vector3(0.0f, -1.0f, 4.5f);
 		box->Draw(fb);
 
 		Texture* first_pass = fb->GetColorAttachment(0);
@@ -92,9 +92,9 @@ int main()
 		Windowing::SetDepth(false);
 		win->Clear(Color::FromBytes(66, 31, 31));
 
-		screen_quad->Shader_.Use();
-		screen_quad->Shader_.SetFloat(1.0f / 400.0f, "offset");
-		screen_quad->Shader_.SetFloatArray(kernel1, 9, "kernel");
+		//screen_quad->Shader_.Use();
+		//screen_quad->Shader_.SetFloat(1.0f / 400.0f, "offset");
+		//screen_quad->Shader_.SetFloatArray(kernel1, 9, "kernel");
 		screen_quad->Draw(win);
 
 		win->Flip();

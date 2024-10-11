@@ -152,6 +152,9 @@ void Melon::RenderedObject2D::Delete()
 void Melon::RenderedObject2D::Draw(RenderTarget* target)
 {
 	target->Bind();
+	Vector2 size = target->GetSize();
+	glViewport(0, 0, size.x, size.y);
+
 	Shader_.Use();
 
 	Camera2D* cam = (Camera2D*)target->MainCamera; // abstract it
@@ -177,6 +180,8 @@ void Melon::RenderedObject3D::Delete()
 void Melon::RenderedObject3D::Draw(RenderTarget* target)
 {
 	target->Bind();
+	Vector2 size = target->GetSize();
+	glViewport(0, 0, size.x, size.y);
 	Shader_.Use();
 	Transform->SetTransform(&Shader_, T);
 	Camera3D* cam = (Camera3D*)target->MainCamera; // this too
@@ -202,6 +207,8 @@ Melon::Skybox* Melon::SkyboxFactory::Create(CubeMap m)
 void Melon::Skybox::Draw(RenderTarget* target)
 {
 	target->Bind();
+	Vector2 size = target->GetSize();
+	glViewport(0, 0, size.x, size.y);
 	glDepthMask(false);
 	Shader_.Use();
 	Transform->SetTransform(&Shader_, T);
@@ -210,13 +217,15 @@ void Melon::Skybox::Draw(RenderTarget* target)
 	Matrix4 persp = Matrix4::Perspective(cam->FOV, target->GetAspect(), 0.1f, 100.0f);
 	
 	Matrix4 view = cam->GetView();
-
+	
 	for (int i = 0; i < 3; i++)
 	{
 		view.Value[3][i] = 0;
 		view.Value[i][3] = 0;
 	}
 	view.Value[3][3] = 1;
+	
+	
 
 	Shader_.SetMatrix4(view, "view");
 	Shader_.SetMatrix4(persp, "projection");
@@ -287,7 +296,7 @@ Melon::FrameBuffer* Melon::FrameBufferFactory::GetBasic(Vector2 size)
 {
 	FrameBuffer* res = new FrameBuffer(size);
 	res->Bind();
-	TextureData td((Byte*)NULL, size.x, size.y, 4, GL_MIRRORED_REPEAT, GL_LINEAR);
+	TextureData td((Byte*)NULL, size.x, size.y, 3, GL_MIRRORED_REPEAT, GL_NEAREST, GL_NEAREST, false);
 	Texture* t = new Texture(td);
 	res->ColorAttachment(t);
 	if (Windowing::depth_)

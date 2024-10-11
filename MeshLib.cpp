@@ -48,6 +48,7 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
         Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)), 
         Vertex(Vector3( 0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3( 0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
+
         Vertex(Vector3( 0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
         Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
@@ -56,6 +57,7 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
         Vertex(Vector3(-0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
         Vertex(Vector3( 0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
+
         Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
         Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3(-0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
@@ -64,6 +66,7 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
         Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
         Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
+
         Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3(-0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
         Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
@@ -72,6 +75,7 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
         Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3( 0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
         Vertex(Vector3( 0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
+
         Vertex(Vector3( 0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3( 0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
         Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
@@ -80,17 +84,19 @@ Melon::Mesh Melon::Helpers::Meshes::Cube()
         Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3( 0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
         Vertex(Vector3( 0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
+
         Vertex(Vector3( 0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3(-0.5f,-0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
         Vertex(Vector3(-0.5f,-0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
 
         // top face
-        Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
+        Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
         Vertex(Vector3( 0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
-        Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
-        Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
+        Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
+
+        Vertex(Vector3( 0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
         Vertex(Vector3(-0.5f, 0.5f, 0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 0.0f)),
-        Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
+        Vertex(Vector3(-0.5f, 0.5f,-0.5f), Color(1.0f, 1.0, 1.0f, 1.0f), Vector2(1.0f, 0.0f)),
     };
     Mesh res = { verticies, GL_TRIANGLES };
     res.ComputeNormals(0);

@@ -136,7 +136,7 @@ Melon::RenderedObject3D* Melon::Helpers::Objects3D::Shape(Melon::Mesh m)
 	b.SetRenderer(&m, conf);
 	b.SetShader(
 		Helpers::ShaderLib::LoadBasic(ShaderLoadOptions(conf, false, false)));
-	b.SetGraphics((ShaderGraphics*)(new BrushGraphics()));
+	b.SetGraphics((ShaderGraphics*)(new MaterialGraphics()));
 	b.SetTransform3D((ShaderTransform3D*)(new DefaultTransform3D));
 	return b.Get();
 }

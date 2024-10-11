@@ -26,7 +26,7 @@ int main()
 
 	Camera3D cam;
 	win->MainCamera = (Camera*)&cam;
-	cam.T.Position = Vector3(-3, 0, 0);
+	cam.T.Position = Vector3(0.0f, 0.0f, -3.0f);
 
 	Animation<Rotator> anim_rot;
 	InterpolationTrack<Rotator> track_rot;

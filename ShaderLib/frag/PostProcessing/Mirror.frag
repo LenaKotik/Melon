@@ -26,8 +26,7 @@ uniform Material material;
 
 void main()
 {
-    float N = 4.0f;
-    vec2 TC = vec2(TexCoords.x*N-int(TexCoords.x*N), TexCoords.y*N-int(TexCoords.y*N));
+    vec2 TC = vec2(1.0f-TexCoords.x, TexCoords.y);
     vec4 Color = texture(material.albedoMap, TC);
     outColor = Color; // do stuff here
 }

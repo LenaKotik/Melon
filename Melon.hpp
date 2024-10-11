@@ -237,7 +237,7 @@ namespace Melon
 		Vector3 operator-(const Vector3& oth) const;
 		Vector3 operator*(const float& scalar) const;
 		Vector3 operator-() const;
-		Vector3 Cross(const Vector3& oth);
+		Vector3 Cross(const Vector3& oth) const;
 		float Dot(const Vector3& oth) const;
 		float Angle(const Vector3& oth) const;
 		float Magnitude() const;
@@ -303,10 +303,8 @@ namespace Melon
 		static Rotator FromDirection(Vector3 dir)
 		{
 			Rotator res;
-			res.Axis = dir.Normalize().Cross(Vector3(0.0f, 0.0f, -1.0f));
-			res.Angle = res.Axis.Magnitude(); // sin(a)
-			res.Axis *= (1.0f / res.Angle);
-			res.Angle = asin(res.Angle);
+			res.Axis = dir.Normalize().Cross(Vector3::PZ());
+			res.Angle = dir.Angle(Vector3::PZ());
 			return res;
 		}
 		Vector3 AsEulerVector() const { return Axis * Angle; }
@@ -331,13 +329,15 @@ namespace Melon
 		Matrix4 operator*(const Matrix4& oth) const;
 		Matrix4 operator*(const float& scalar) const;
 		Vector3 Transform(const Vector3 vec) const;
+		Vector2 Transform(const Vector2 vec) const;
 		Matrix4 Translate(const Vector3 pos) const;
 		Matrix4 Rotate(const Rotator rot) const;
 		Matrix4 Scale(const float scalar) const;
 		Matrix4 Scale(const Vector3 scalar) const;
 		Matrix4 Transpose() const;
 		Matrix4 Inverse() const; // DO NOT USE, NOT IMPLEMENTED
-		static Matrix4 Perspective(float FOV, float aspect, float near, float far);
+		static Matrix4 FromBasis(Vector3 i, Vector3 j, Vector3 k);
+		static Matrix4 Perspective(float FOV_deg, float aspect, float near, float far);
 		static Matrix4 Ortho(float aspect, float near, float far);
 	};
 
@@ -534,10 +534,13 @@ namespace Melon
 		GLint width, height;
 		GLint channels;
 		GLenum wraping_mode;
-		GLenum filtering_mode;
+		GLenum min_filtering_mode;
+		GLenum mag_filtering_mode;
+		bool enable_mipmap;
 		TextureData() {}
-		TextureData(Byte* data_, GLint w, GLint h, GLint channels_,GLenum wm, GLenum fm)
-			: data(data_), width(w), height(h), channels(channels_), wraping_mode(wm), filtering_mode(fm) {}
+		TextureData(Byte* data_, GLint w, GLint h, GLint channels_=4,GLenum wraping_mode_= GL_MIRRORED_REPEAT, GLenum min_filtering_mode_= GL_LINEAR_MIPMAP_LINEAR, GLenum mag_filtering_mode_ = GL_LINEAR, bool enable_mipmap_=true)
+			: data(data_), width(w), height(h), channels(channels_), 
+				wraping_mode(wraping_mode_), min_filtering_mode(min_filtering_mode_), mag_filtering_mode(mag_filtering_mode_), enable_mipmap(enable_mipmap_) {}
 		void Delete() override;
 	};
 	class Texture : IDeleted
@@ -823,8 +826,10 @@ namespace Melon
 	class CoordinateSystem
 	{
 	public:
-		virtual Matrix4 TransformationTo() const = 0;
-		virtual Matrix4 TransformationFrom() const= 0;
+		virtual Matrix4 TransformationTo() const=0;
+		virtual Matrix4 TransformationFrom() const=0;
+		virtual Matrix4 LocalTransformationTo() const=0;
+		virtual Matrix4 LocalTransformationFrom() const=0;
 	};
 	class Camera
 	{
@@ -933,10 +938,13 @@ namespace Melon
 	class CoordinateSystem2D : CoordinateSystem
 	{
 	public:
-		CoordinateSystem2D* Parent = nullptr;
+		CoordinateSystem* Parent = nullptr;
 		Vector2 Position;
 		float Rotation;
 		Vector2 Scale;
+		Vector2 GetGlobalPosition();
+		//float GetGlobalRotation();
+		Vector2 GetGlobalScale();
 		CoordinateSystem2D() : Position(0.0f),Rotation(0.0f),Scale(1.0f) {}
 		Matrix4 LocalTransformationTo() const;
 		Matrix4 LocalTransformationFrom() const;
@@ -1021,6 +1029,44 @@ namespace Melon
 		};
 	}
 	// Physics
+	class PhysicsObject2D;
+	class CollisionShape2D
+	{
+	public:
+		PhysicsObject2D* Owner;
+		CoordinateSystem2D T;
+		virtual float DistanceToPoint(Vector2 point) const=0;
+	};
+	class AABBCollisionShape2D : public CollisionShape2D
+	{
+	public:
+		float Width, Height;
+		Rect GetGlobalRect();
+		AABBCollisionShape2D() : Width(0.0f), Height(0.0f) {};
+		virtual float DistanceToPoint(Vector2 point) const;
+	};
+	struct Collision2D
+	{
+	public:
+		PhysicsObject2D* ObjectA;
+		CollisionShape2D* ShapeA;
+		PhysicsObject2D* ObjectB;
+		CollisionShape2D* ShapeB;
+		Vector2 Normal;
+		Vector2 Point;
+	};
+	class CollisionManager2D
+	{
+		static bool GetCollision(Collision2D* res, AABBCollisionShape2D* A, AABBCollisionShape2D* B);
+	};
+	class PhysicsObject2D
+	{
+		CollisionShape2D* collider;
+	public:
+		CoordinateSystem2D T;
+		CollisionShape2D* GetCollisionShape();
+		CollisionShape2D* SetCollisionShape();
+	};
 	
 #endif // MELON_ENGINE_2D
 
@@ -1035,11 +1081,25 @@ namespace Melon
 		Vector3 Position;
 		Rotator Rotation;
 		Vector3 Scale;
+		Vector3 GetGlobalPosition();
 		CoordinateSystem3D() : Position(0.0f), Rotation(), Scale(1.0f) {}
-		Matrix4 LocalTransformationTo() const;
-		Matrix4 LocalTransformationFrom() const;
+		virtual Matrix4 LocalTransformationTo() const;
+		virtual Matrix4 LocalTransformationFrom() const;
 		Matrix4 TransformationTo() const override;
 		Matrix4 TransformationFrom() const override;
+	};
+	class Camera3DCoordinateSystem : public CoordinateSystem3D
+	{
+	public:
+		Vector3 Direction;
+		Camera3DCoordinateSystem() : Direction(0.0f, 0.0f, 1.0f) {};
+		//Vector3 Right;
+		//Vector3 Up;
+		Vector3 GetRightDirection();
+		Vector3 GetUpDirection();
+
+		virtual Matrix4 LocalTransformationTo() const override;
+		virtual Matrix4 LocalTransformationFrom() const override;
 	};
 	class ShaderTransform3D
 	{
@@ -1055,17 +1115,8 @@ namespace Melon
 	{
 	public:
 		float FOV; // DEGREES
-		//Vector3 Position;
-		Vector3 Direction;
-		Vector3 Up;
-		//Vector3 Right;
-		CoordinateSystem3D T;
-		//void SetDirection(Vector3);
-		Camera3D() : T(), Direction(0.0f,0.0f,-1.0f), Up(0.0f,1.0f,0.0f), FOV(90.0f) {};
-		//CoordinateSystem3D GetCoordinateSystem();
-		Vector3 GetDirection();
-		Vector3 GetRightDirection();
-		Vector3 GetUpDirection();
+		Camera3DCoordinateSystem T;
+		Camera3D() : T(), FOV(90.0f) {};
 		Matrix4 GetView();
 	};
 	class RenderedObject3D : IDeleted
@@ -1097,7 +1148,7 @@ namespace Melon
 		bool Done();
 		RenderedObject3D* Get();
 	};
-	class Skybox : RenderedObject3D
+	class Skybox : RenderedObject3D // TODO: add deletion
 	{
 	friend class SkyboxFactory;
 	Skybox(Shader*s,Mesh*m) : RenderedObject3D(s,m,Renderer::Position3D) {}
@@ -1121,6 +1172,46 @@ namespace Melon
 			static RenderedObject3D* MappedCube(Mesh m);
 		};
 	}
+	// Physics
+	class PhysicsObject3D;
+	class CollisionShape3D
+	{
+	public:
+		PhysicsObject3D* Owner;
+		CoordinateSystem3D T;
+		virtual Vector3 ClosestToPoint(Vector3 point) const = 0;
+	};
+	class AABBCollisionShape3D : public CollisionShape3D
+	{
+	public:
+		Vector3 Size;
+		AABBCollisionShape3D() :Size(0.0f) {};
+		virtual Vector3 ClosestToPoint(Vector3 point) const;
+	};
+	struct Collision3D
+	{
+	public:
+		PhysicsObject3D* ObjectA;
+		CollisionShape3D* ShapeA;
+		PhysicsObject3D* ObjectB;
+		CollisionShape3D* ShapeB;
+		float Depth;
+		Vector3 Normal;
+		Vector3 Point;
+	};
+	class CollisionManager3D
+	{
+	public:
+		static bool GetCollision(Collision3D* res, AABBCollisionShape3D* A, AABBCollisionShape3D* B);
+	};
+	class PhysicsObject3D
+	{
+		CollisionShape3D* collider;
+	public:
+		CoordinateSystem3D T;
+		CollisionShape3D* GetCollisionShape();
+		void SetCollisionShape(CollisionShape3D*);
+	};
 #endif // MELON_ENGINE_3D
 
 #endif // MELON_ENGINE

@@ -6,7 +6,7 @@ using namespace Melon;
 
 int main()
 {
-	FixedArray<String, 6> cubemap_names = { "px", "nx", "py", "ny", "pz", "nz" };
+	const FixedArray<String, 6> cubemap_names = { "px", "nx", "py", "ny", "pz", "nz" };
 
 	Window* win = Windowing::Init(800, 800, "Speeeeeeeeen", true);
 	if (!win) return - 1;
@@ -47,9 +47,9 @@ int main()
 	//std::cout << __LINE__ << ": " << glGetError() << std::endl;
 	while (!win->ShouldClose())
 	{
-		std::cout << "dir: "		<< cam.GetDirection().x << " " << cam.GetDirection().y << " " << cam.GetDirection().z << std::endl;
-		std::cout << "right: "	<< cam.GetRightDirection().x << " " << cam.GetRightDirection().y << " " << cam.GetRightDirection().z << std::endl;
-		std::cout << "up: "		<<cam.GetUpDirection().x << " " << cam.GetUpDirection().y << " " << cam.GetUpDirection().z << std::endl << std::endl << std::endl;
+		std::cout << "dir: "		<< cam.T.Direction.x << " " << cam.T.Direction.y << " " << cam.T.Direction.z << std::endl;
+		std::cout << "right: "	<< cam.T.GetRightDirection().x << " " << cam.T.GetRightDirection().y << " " << cam.T.GetRightDirection().z << std::endl;
+		std::cout << "up: "		<<cam.T.GetUpDirection().x << " " << cam.T.GetUpDirection().y << " " << cam.T.GetUpDirection().z << std::endl << std::endl << std::endl;
 		float delta = Time::GetDelta();
 		movement3D(win, &cam, delta);
 		

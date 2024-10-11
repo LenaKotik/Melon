@@ -26,7 +26,9 @@ bool Melon::ResourceLoader::LoadTextureData(TextureData* result, const char* fil
 		return false;
 	}
 	result->wraping_mode = GL_MIRRORED_REPEAT;
-	result->filtering_mode = GL_LINEAR;
+	result->mag_filtering_mode = GL_LINEAR;
+	result->min_filtering_mode = GL_LINEAR_MIPMAP_LINEAR;
+	result->enable_mipmap = true;
 
 	return true;
 }
